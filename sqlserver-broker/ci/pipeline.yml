@@ -1,0 +1,169 @@
+groups:
+- name: all
+  jobs:
+  - build-broker
+  - build-tile
+  - claim-pcf
+  - deploy-tile
+  - remove-tile
+  - release-pcf
+
+- name: manual
+  jobs:
+  - manual-release-pcf
+
+resources:
+
+- name: version
+  type: semver
+  source:
+    bucket: {{bucket-name}}
+    key: current-version
+    access_key_id: {{aws-key-id}}
+    secret_access_key: {{aws-key}}
+    initial_version: 1.0.0
+
+- name: pcf-environment
+  type: pool
+  source:
+    branch: master
+    pool: pcf
+    private_key: {{github-pool-private-key}}
+    uri: git@github.com:cf-platform-eng/pipeline-resource-pool-v2
+
+- name: tile-repo
+  type: git
+  source:
+    branch: master
+    uri: https://github.com/cf-platform-eng/kafka-service-broker
+
+- name: broker-tile
+  type: s3
+  source:
+    access_key_id: {{aws-key-id}}
+    bucket: {{bucket-name}}
+    regexp: .*-(?P<version>.*)\.pivotal
+    secret_access_key: {{aws-key}}
+
+- name: broker-jar
+  type: s3
+  source:
+    access_key_id: {{aws-key-id}}
+    bucket: {{bucket-name}}
+    regexp: .*-(?P<version>.*)\.jar
+    secret_access_key: {{aws-key}}
+
+- name: tile-history
+  type: s3
+  source:
+    access_key_id: {{aws-key-id}}
+    bucket: {{bucket-name}}
+    regexp: tile-history-(?P<version>.*)\.yml
+    secret_access_key: {{aws-key}}
+
+jobs:
+- name: build-broker
+  serial_groups: [version]
+  plan:
+  - get: tile-repo
+    trigger: true
+  - get: version
+    params: {bump: patch}
+  - task: build-broker
+    file: tile-repo/kafka-broker/ci/build-broker/task.yml
+  - put: broker-jar
+    params: {file: broker-jar/*.jar}
+  - put: version
+    params: {file: version/number}
+
+- name: build-tile
+  serial_groups: [version]
+  plan:
+  - aggregate:
+    - get: tile-repo
+    - get: broker-jar
+      trigger: true
+      passed:
+        - build-broker
+    - get: version
+    - get: tile-history
+  - task: build-tile
+    file: tile-repo/kafka-broker/ci/build-tile/task.yml
+  - put: tile-history
+    params: {file: tile-history-new/*.yml}
+  - put: broker-tile
+    params:
+      file: broker-tile/*.pivotal
+
+- name: claim-pcf
+  serial_groups: [version]
+  plan:
+  - aggregate:
+    - get: broker-tile
+      trigger: true
+      passed:
+      - build-tile
+  - put: pcf-environment
+    params:
+      acquire: true
+
+- name: deploy-tile
+  plan:
+  - aggregate:
+    - get: broker-tile
+      passed:
+      - claim-pcf
+      trigger: true
+    - get: pcf-environment
+      passed:
+      - claim-pcf
+    - get: tile-repo
+    - get: version
+  - task: deploy-tile
+    file: tile-repo/kafka-broker/ci/deploy-tile/task.yml
+    on_failure:
+      aggregate:
+      - put: pcf-environment
+        params:
+          release: pcf-environment
+
+- name: remove-tile
+  plan:
+  - aggregate:
+    - get: tile-repo
+    - get: broker-tile
+    - get: pcf-environment
+      passed:
+        - deploy-tile
+      trigger: true
+  - task: remove-tile
+    file: tile-repo/kafka-broker/ci/remove-tile/task.yml
+    on_failure:
+      aggregate:
+      - put: pcf-environment
+        params:
+          release: pcf-environment
+
+- name: release-pcf
+  serial_groups: [version]
+  plan:
+  - get: pcf-environment
+    passed:
+    - remove-tile
+    trigger: true
+  - get: version
+    params: {bump: final}
+  - put: pcf-environment
+    params:
+      release: pcf-environment
+  - put: version
+    params: {file: version/number}
+
+- name: manual-release-pcf
+  plan:
+  - get: pcf-environment
+    passed:
+    - claim-pcf
+  - put: pcf-environment
+    params:
+      release: pcf-environment

@@ -1,0 +1,10 @@
+---
+applications:
+- name: sqlserver-client
+  memory: 256M
+  instances: 1
+  buildpack: java_buildpack_offline
+  path: target/sqlserver-client-1.0.0.jar
+  services: [ sqlserver-service ]
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
