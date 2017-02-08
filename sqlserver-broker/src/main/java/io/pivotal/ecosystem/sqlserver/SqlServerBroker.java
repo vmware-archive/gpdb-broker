@@ -21,6 +21,7 @@ import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -44,9 +45,9 @@ import java.util.Map;
 @Slf4j
 class SqlServerBroker extends DefaultServiceImpl {
 
-    private static final String USERNAME = "sa";
-    private static final String PASSWORD = "passw0rd!";
-    private static final String DB_URL = "jdbc:mysql://104.196.152.52:1433/";
+    private Environment env;
+    private SqlServerClient client;
+
 
     public SqlServerBroker(Environment env, SqlServerClient client) {
         super();
@@ -54,9 +55,6 @@ class SqlServerBroker extends DefaultServiceImpl {
         this.client = client;
     }
 
-    private Environment env;
-
-    private SqlServerClient client;
 
     /**
      * Add code here and it will be run during the create-service process. This might include
@@ -66,32 +64,10 @@ class SqlServerBroker extends DefaultServiceImpl {
      *                 as part of the create-service request, which will show up as key value pairs in instance.parameters.
      */
     @Override
-    public void createInstance(ServiceInstance instance) {
+    public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("ideal behavior is creating the MS-SQL cluster "+ instance.getId());
-        Connection conn = null;
-        Statement stmt = null;
-        try{
-            Class.forName("com.mysql.jdbc.Driver");
-            conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            stmt = conn.createStatement();
-            String sql = "CREATE DATABASE "+instance.getId();
-            stmt.executeUpdate(sql);
-            log.info("Database created successfully...");
-        }catch(Exception e){
-            log.error(e.getMessage());
-        }finally{
-            try{
-                if(stmt!=null)
-                    stmt.close();
-            }catch(SQLException se2){
-            try{
-                if(conn!=null)
-                    conn.close();
-            }catch(SQLException se){
-                log.error(se.getMessage());
-            }
-        }
-    }
+        client.createDatabase(instance.getId());
+
     }
 
     /**
@@ -103,6 +79,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void deleteInstance(ServiceInstance instance) {
         log.info("ideal behavior is deleting the MS-SQL cluster "+ instance.getId());
+        client.deleteDatabase(instance.getId());
 
     }
 
@@ -134,10 +111,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
         // use app guid to send bind request
-        log.info("binding app: " + binding.getAppGuid() + " to topic: " + instance.getParameters());
-
-
-
+        log.info("binding app: " + binding.getAppGuid() + " to database: " + instance.getId());
 
     }
 
@@ -149,7 +123,7 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from topic: " + instance.getParameters().get(TOPIC_NAME_KEY));
+        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getId());
     }
 
     /**
@@ -181,4 +155,5 @@ class SqlServerBroker extends DefaultServiceImpl {
     public boolean isAsync() {
         return false;
     }
+
 }

@@ -21,6 +21,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.SystemProfileValueSource;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -32,60 +33,25 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-@Ignore
+
 public class SqlServerClientTest {
 
     @Autowired
     private SqlServerClient client;
 
-    @Autowired
-    private Util util;
-
 
     @Test
-    public void testListTopics() throws Exception {
+    public void testCreateAndDeleteDatabase() throws Exception {
 
-        List<String> listOfTopics = new ArrayList<>();
-        listOfTopics.add("foo");
-
-//        given(this.client.listTopics())
-//                .willReturn(listOfTopics);
-
-        List<String> s = client.listTopics();
-        assertNotNull(s);
-        assertTrue(s.size() > 0);
+        String dbName = "foodb" + System.currentTimeMillis();
+        assertFalse(client.checkDatabaseExists(dbName));
+        client.createDatabase(dbName);
+        assertTrue(client.checkDatabaseExists(dbName));
+        client.deleteDatabase(dbName);
+        assertFalse(client.checkDatabaseExists(dbName));
     }
 
-    @Test
-    public void testCreateAndDeleteTopic() throws Exception {
 
-
-        String topicName = "topic" + System.currentTimeMillis();
-        assertFalse(client.listTopics().contains(topicName));
-
-        client.createTopic(topicName);
-        TimeUnit.SECONDS.sleep(3);
-
-//        List<String> listOfTopics = new ArrayList<>();
-//        listOfTopics.add(topicName);
-
-//        given(this.client.listTopics()).willReturn(listOfTopics);
-
-        assertTrue(client.listTopics().contains(topicName));
-
-        client.deleteTopic(topicName);
-        TimeUnit.SECONDS.sleep(3);
-//        listOfTopics.remove(topicName);
-
-        //assertFalse(client.listTopics().contains(topicName));
-    }
-
-    @Test
-    public void testGetBootstraps() throws Exception {
-        String s = client.getBootstrapServers();
-        assertNotNull(s);
-        assertEquals("54.86.225.103:9092,54.87.26.5:9092",s);
-    }
 
 
 }

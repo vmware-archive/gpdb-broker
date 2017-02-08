@@ -38,13 +38,9 @@ class TestConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-    @Bean
-    public Util util(Environment env) {
-        return new Util(env);
-    }
 
     @Bean
-    public SqlServerClient client(Util util, Environment env) {
-        return new SqlServerClient(util, env);
+    public SqlServerClient client(Environment env) {
+        return new SqlServerClient(env);
     }
 }
