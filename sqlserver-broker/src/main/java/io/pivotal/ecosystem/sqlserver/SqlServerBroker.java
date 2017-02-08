@@ -24,6 +24,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +44,9 @@ import java.util.Map;
 @Slf4j
 class SqlServerBroker extends DefaultServiceImpl {
 
-    public static final String TOPIC_NAME_KEY = "topicName";
+    private static final String USERNAME = "sa";
+    private static final String PASSWORD = "passw0rd!";
+    private static final String DB_URL = "jdbc:mysql://104.196.152.52:1433/";
 
     public SqlServerBroker(Environment env, SqlServerClient client) {
         super();
@@ -61,15 +67,31 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createInstance(ServiceInstance instance) {
-
-        Object name = instance.getParameters().get(TOPIC_NAME_KEY);
-        if (name == null) {
-            name = instance.getId();
-            instance.getParameters().put(TOPIC_NAME_KEY, name);
+        log.info("ideal behavior is creating the MS-SQL cluster "+ instance.getId());
+        Connection conn = null;
+        Statement stmt = null;
+        try{
+            Class.forName("com.mysql.jdbc.Driver");
+            conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            stmt = conn.createStatement();
+            String sql = "CREATE DATABASE "+instance.getId();
+            stmt.executeUpdate(sql);
+            log.info("Database created successfully...");
+        }catch(Exception e){
+            log.error(e.getMessage());
+        }finally{
+            try{
+                if(stmt!=null)
+                    stmt.close();
+            }catch(SQLException se2){
+            try{
+                if(conn!=null)
+                    conn.close();
+            }catch(SQLException se){
+                log.error(se.getMessage());
+            }
         }
-
-        log.info("creating topic: " + name.toString());
-        client.createTopic(name.toString());
+    }
     }
 
     /**
@@ -80,10 +102,8 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteInstance(ServiceInstance instance) {
-        log.info("de-provisioning service instance which is a kafka topic: " + instance.getId());
+        log.info("ideal behavior is deleting the MS-SQL cluster "+ instance.getId());
 
-        //call out to kafka to delete the topic
-        client.deleteTopic(instance.getParameters().get(TOPIC_NAME_KEY).toString());
     }
 
     /**
@@ -94,7 +114,8 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void updateInstance(ServiceInstance instance) {
-        log.info("updating broker user: " + instance.getId());
+
+        log.info("what should i do....ooooo what should i do....." + instance.getId());
     }
 
     /**
@@ -113,8 +134,11 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
         // use app guid to send bind request
-        //don't need to talk to kafka, just return credentials.
-        log.info("binding app: " + binding.getAppGuid() + " to topic: " + instance.getParameters().get(TOPIC_NAME_KEY));
+        log.info("binding app: " + binding.getAppGuid() + " to topic: " + instance.getParameters());
+
+
+
+
     }
 
     /**
@@ -147,8 +171,7 @@ class SqlServerBroker extends DefaultServiceImpl {
         Map<String, Object> m = new HashMap<>();
         m.put("hostname", env.getProperty("HOST"));
         m.put("port", env.getProperty("PORT"));
-
-        String uri = "jdbc://" + m.get("hostname") + ":" + m.get("port") + "/" + "sys";
+        String uri = "jdbc://" + m.get("hostname") + ":" + m.get("port");
         m.put("uri", uri);
         return m;
 
