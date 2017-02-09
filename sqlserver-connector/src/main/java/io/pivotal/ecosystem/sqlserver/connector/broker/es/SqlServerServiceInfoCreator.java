@@ -38,9 +38,9 @@ public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<
         String id = getId(serviceData);
         String hosts = credentials.get("hostname").toString();
         String uri = credentials.get("uri").toString();
-        String topicName = credentials.get("topicName").toString();
+        String dbname = credentials.get("dbname").toString();
 
         return new SqlServerServiceInfo(id, hosts, uri, "0", "org.apache.kafka.common.serialization.IntegerSerializer",
-                "org.apache.kafka.common.serialization.StringSerializer", topicName);
+                "org.apache.kafka.common.serialization.StringSerializer", dbname);
     }
 }

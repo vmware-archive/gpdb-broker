@@ -64,6 +64,10 @@ public class SqlServerClientTest {
 
         client.deleteDatabase(dbName);
         assertFalse(client.checkDatabaseExists(dbName));
+
+
+
+
     }
 
 }

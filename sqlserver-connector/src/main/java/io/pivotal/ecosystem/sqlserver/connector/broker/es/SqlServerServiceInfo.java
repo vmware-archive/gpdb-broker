@@ -25,7 +25,7 @@ import org.springframework.cloud.service.ServiceInfo;
 @AllArgsConstructor
 public class SqlServerServiceInfo implements ServiceInfo {
 
-    static final String URI_SCHEME = "kafka";
+    static final String URI_SCHEME = "sqlserver";
 
     private String id;
     private String hosts;
@@ -33,7 +33,7 @@ public class SqlServerServiceInfo implements ServiceInfo {
     private String retriesConfig;
     private String keySerializerClassConfig;
     private String valueSerializerClassConfig;
-    private String topicName;
+    private String dbname;
 
 }
 

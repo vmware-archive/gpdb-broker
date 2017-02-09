@@ -35,6 +35,7 @@ public class SqlServerClient {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     public static final String DB_PREFIX = "sqldb";
+    public static final String DBNAME = "dbname";
 
     public SqlServerClient(Environment env) {
         this.env = env;
@@ -83,7 +84,8 @@ public class SqlServerClient {
 
     public void createDatabase(String dbName) {
 
-        execStatement("CREATE DATABASE " +  createdbName(dbName));
+        String db = createdbName(dbName);
+        execStatement("CREATE DATABASE " +  db);
         log.info("Database created successfully...");
     }
 
