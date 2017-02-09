@@ -25,10 +25,6 @@ import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -65,11 +61,10 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
-        log.info("ideal behavior is creating the MS-SQL cluster "+ instance.getId());
         String db = client.createdbName(instance.getId());
-        instance.getParameters().put(SqlServerClient.DBNAME,db);
+        log.info("creating database: " + db);
+        instance.getParameters().put(SqlServerClient.DBNAME, db);
         client.createDatabase(instance.getId());
-
     }
 
     /**
@@ -80,9 +75,8 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteInstance(ServiceInstance instance) {
-        log.info("ideal behavior is deleting the MS-SQL cluster "+ instance.getId());
+        log.info("deleting database: " + instance.getParameters().get(SqlServerClient.DBNAME));
         client.deleteDatabase(instance.getId());
-
     }
 
     /**
@@ -93,7 +87,6 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void updateInstance(ServiceInstance instance) {
-
         log.info("what should i do....ooooo what should i do....." + instance.getId());
     }
 
@@ -112,15 +105,11 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
-        // use app guid to send bind request
-        log.info("binding app: " + binding.getAppGuid() + " to database: " + instance.getId());
+        log.info("binding app: " + binding.getAppGuid() + " to database: " + instance.getParameters().get(SqlServerClient.DBNAME));
 
-        Map<String,String> userCredentials = client.createUserCreds(instance.getId());
-
-        binding.getParameters().put(SqlServerClient.USERNAME,userCredentials.get(SqlServerClient.USERNAME));
-        binding.getParameters().put(SqlServerClient.PASSWORD,userCredentials.get(SqlServerClient.PASSWORD));
-
-
+        Map<String, String> userCredentials = client.createUserCreds(instance.getId());
+        binding.getParameters().put(SqlServerClient.USERNAME, userCredentials.get(SqlServerClient.USERNAME));
+        binding.getParameters().put(SqlServerClient.PASSWORD, userCredentials.get(SqlServerClient.PASSWORD));
     }
 
     /**
@@ -131,10 +120,8 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getId());
-
+        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerClient.DBNAME));
         client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString());
-
     }
 
     /**
@@ -159,13 +146,12 @@ class SqlServerBroker extends DefaultServiceImpl {
         String uri = "jdbc:sqlserver://" + m.get("hostname") + ":" + m.get("port");
         m.put("uri", uri);
 
-        m.put(SqlServerClient.USERNAME,binding.getParameters().get(SqlServerClient.USERNAME));
-        m.put(SqlServerClient.PASSWORD,binding.getParameters().get(SqlServerClient.PASSWORD));
+        m.put(SqlServerClient.USERNAME, binding.getParameters().get(SqlServerClient.USERNAME));
+        m.put(SqlServerClient.PASSWORD, binding.getParameters().get(SqlServerClient.PASSWORD));
+        m.put(SqlServerClient.DBNAME, instance.getParameters().get(SqlServerClient.DBNAME));
 
-        m.put(SqlServerClient.DBNAME,instance.getParameters().get(SqlServerClient.DBNAME));
-
+        //TODO add uid and pw into connection string?
         return m;
-
     }
 
     @Override

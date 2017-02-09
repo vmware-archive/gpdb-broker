@@ -47,8 +47,8 @@ public class SqlServerClient {
         try {
             conn = getConnection();
             stmt = conn.createStatement();
-            stmt.executeUpdate(statement);
-            log.info( statement + " statement executed successfully...");
+            stmt.execute(statement);
+            log.info(statement + " statement executed successfully...");
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new ServiceBrokerException(e);
@@ -58,137 +58,95 @@ public class SqlServerClient {
                     stmt.close();
             } catch (SQLException se2) {
                 try {
-                    if (conn != null)
-                        conn.close();
+                    conn.close();
                 } catch (SQLException se) {
-                    log.error(se.getMessage());
-                    throw new ServiceBrokerException(se);
+                    log.warn(se.getMessage());
                 }
             }
         }
     }
 
 
-
-
-    public String cleanInstanceId(String instanceId){
-
+    public String cleanInstanceId(String instanceId) {
         return instanceId.replaceAll("[-]", "");
-
     }
 
-    public String createdbName(String dbName){
-
+    public String createdbName(String dbName) {
         return DB_PREFIX + cleanInstanceId(dbName);
     }
 
     public void createDatabase(String dbName) {
-
         String db = createdbName(dbName);
-        execStatement("CREATE DATABASE " +  db);
-        log.info("Database created successfully...");
+        execStatement("CREATE DATABASE " + db);
+        log.info("Database: " + db + " created successfully...");
     }
 
     public void deleteDatabase(String dbName) {
-
         String db = createdbName(dbName);
-
         String deleteStmt = "ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db;
-        log.info(deleteStmt);
+        log.debug(deleteStmt);
         execStatement(deleteStmt);
-        log.info("Database deleted successfully...");
+        log.info("Database: " + db + " deleted successfully...");
     }
 
     public boolean checkDatabaseExists(String dbName) {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = getConnection();
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT count(*) FROM sys.databases WHERE name = '" + createdbName(dbName) + "'");
-            rs.next();
-            if (rs.getInt(1) > 0) {
-                return true;
-            }
-        } catch (Exception e) {
-            log.error(e.getClass().getName() +" : " + e.getMessage());
-            throw new ServiceBrokerException(e);
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-            } catch (SQLException se2) {
-                try {
-                    if (conn != null)
-                        conn.close();
-                } catch (SQLException se) {
-                    log.error(se.getMessage());
-                    throw new ServiceBrokerException(se);
-                }
-            }
-        }
-        return false;
+        return checkIfExists("SELECT count(*) FROM sys.databases WHERE name = '" + createdbName(dbName) + "'");
     }
 
     public String getDbUrl() {
-
-        String dbUrl = "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
-        return dbUrl;
+        return "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
     }
 
     public Connection getConnection() {
-
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(getDbUrl(), env.getProperty("USERNAME"), env.getProperty("PASSWORD"));
         } catch (Throwable throwable) {
             throw new ServiceBrokerException(throwable.getMessage());
         }
-
-
     }
 
-    public Map<String,String> createUserCreds(String dbName){
+    public Map<String, String> createUserCreds(String dbName) {
 
-        Map<String,String> userCredentials = new HashMap<>();
+        Map<String, String> userCredentials = new HashMap<>();
 
         String uid = "user" + UUID.randomUUID().toString().replaceAll("[-]", "");
         String pwd = UUID.randomUUID().toString();
 
-        userCredentials.put(USERNAME,uid);
-        userCredentials.put(PASSWORD,pwd);
+        userCredentials.put(USERNAME, uid);
+        userCredentials.put(PASSWORD, pwd);
 
         String db = createdbName(dbName);
 
-        String stmt = "CREATE LOGIN "+ uid + " WITH PASSWORD = '"+ pwd +"', DEFAULT_DATABASE = " + db + "; USE "+ db +"; CREATE USER " + uid + " FOR LOGIN " + uid;
-        log.info("Executing this statement: " + stmt);
+        String stmt = "CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db + "; USE " + db + "; CREATE USER " + uid + " FOR LOGIN " + uid;
         execStatement(stmt);
 
-        log.info(" Printing User Name ..." + userCredentials.get(USERNAME));
+        log.info("Created user: " + userCredentials.get(USERNAME));
 
         return userCredentials;
-
     }
 
-    public void deleteUserCreds(String userName){
-
+    public void deleteUserCreds(String userName) {
         execStatement("DROP USER IF EXISTS " + userName + " ; DROP LOGIN " + userName);
-
     }
 
-    public boolean checkUserExists(String username){
+    public boolean checkUserExists(String username) {
+        return checkIfExists("SELECT count(name) FROM sys.server_principals WHERE name = '" + username + "'");
+    }
+
+    private boolean checkIfExists(String countQuery) {
         Connection conn = null;
         Statement stmt = null;
         try {
             conn = getConnection();
             stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT count(name) FROM sys.server_principals WHERE name = '"+ username + "'");
+            ResultSet rs = stmt.executeQuery(countQuery);
             rs.next();
             if (rs.getInt(1) > 0) {
                 return true;
             }
         } catch (Exception e) {
-            log.error(e.getClass().getName() +" : " + e.getMessage());
+            log.error(e.getMessage());
             throw new ServiceBrokerException(e);
         } finally {
             try {
@@ -196,20 +154,12 @@ public class SqlServerClient {
                     stmt.close();
             } catch (SQLException se2) {
                 try {
-                    if (conn != null)
-                        conn.close();
+                    conn.close();
                 } catch (SQLException se) {
-                    log.error(se.getMessage());
-                    throw new ServiceBrokerException(se);
+                    log.warn(se.getMessage());
                 }
             }
         }
         return false;
-
     }
-
-
-
-
-
 }
