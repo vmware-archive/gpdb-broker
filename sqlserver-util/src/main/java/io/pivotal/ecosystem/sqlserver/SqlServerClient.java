@@ -23,12 +23,18 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j
 public class SqlServerClient {
 
     private Environment env;
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String DB_PREFIX = "sqldb";
 
     public SqlServerClient(Environment env) {
         this.env = env;
@@ -41,10 +47,10 @@ public class SqlServerClient {
             conn = getConnection();
             stmt = conn.createStatement();
             stmt.executeUpdate(statement);
-            log.info("Database created successfully...");
-
+            log.info( statement + " statement executed successfully...");
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new ServiceBrokerException(e);
         } finally {
             try {
                 if (stmt != null)
@@ -55,20 +61,40 @@ public class SqlServerClient {
                         conn.close();
                 } catch (SQLException se) {
                     log.error(se.getMessage());
+                    throw new ServiceBrokerException(se);
                 }
             }
         }
-
-
     }
 
 
+
+
+    public String cleanInstanceId(String instanceId){
+
+        return instanceId.replaceAll("[-]", "");
+
+    }
+
+    public String createdbName(String dbName){
+
+        return DB_PREFIX + cleanInstanceId(dbName);
+    }
+
     public void createDatabase(String dbName) {
-        execStatement("CREATE DATABASE " + dbName);
+
+        execStatement("CREATE DATABASE " +  createdbName(dbName));
+        log.info("Database created successfully...");
     }
 
     public void deleteDatabase(String dbName) {
-        execStatement("DROP DATABASE " + dbName);
+
+        String db = createdbName(dbName);
+
+        String deleteStmt = "ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db;
+        log.info(deleteStmt);
+        execStatement(deleteStmt);
+        log.info("Database deleted successfully...");
     }
 
     public boolean checkDatabaseExists(String dbName) {
@@ -77,13 +103,14 @@ public class SqlServerClient {
         try {
             conn = getConnection();
             stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery("SELECT count(*) FROM sys.databases WHERE name = '" + dbName + "'");
+            ResultSet rs = stmt.executeQuery("SELECT count(*) FROM sys.databases WHERE name = '" + createdbName(dbName) + "'");
             rs.next();
             if (rs.getInt(1) > 0) {
                 return true;
             }
         } catch (Exception e) {
             log.error(e.getClass().getName() +" : " + e.getMessage());
+            throw new ServiceBrokerException(e);
         } finally {
             try {
                 if (stmt != null)
@@ -94,6 +121,7 @@ public class SqlServerClient {
                         conn.close();
                 } catch (SQLException se) {
                     log.error(se.getMessage());
+                    throw new ServiceBrokerException(se);
                 }
             }
         }
@@ -102,7 +130,7 @@ public class SqlServerClient {
 
     public String getDbUrl() {
 
-        String dbUrl = "jdbc:sqlserver://" + env.getProperty("HOST") + ":" + env.getProperty("PORT");
+        String dbUrl = "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
         return dbUrl;
     }
 
@@ -117,5 +145,69 @@ public class SqlServerClient {
 
 
     }
+
+    public Map<String,String> createUserCreds(String dbName){
+
+        Map<String,String> userCredentials = new HashMap<>();
+
+        String uid = "user" + UUID.randomUUID().toString().replaceAll("[-]", "");
+        String pwd = UUID.randomUUID().toString();
+
+        userCredentials.put(USERNAME,uid);
+        userCredentials.put(PASSWORD,pwd);
+
+        String db = createdbName(dbName);
+
+        String stmt = "CREATE LOGIN "+ uid + " WITH PASSWORD = '"+ pwd +"', DEFAULT_DATABASE = " + db + "; USE "+ db +"; CREATE USER " + uid + " FOR LOGIN " + uid;
+        log.info("Executing this statement: " + stmt);
+        execStatement(stmt);
+
+        log.info(" Printing User Name ..." + userCredentials.get(USERNAME));
+
+        return userCredentials;
+
+    }
+
+    public void deleteUserCreds(String userName){
+
+        execStatement("DROP USER IF EXISTS " + userName + " ; DROP LOGIN " + userName);
+
+    }
+
+    public boolean checkUserExists(String username){
+        Connection conn = null;
+        Statement stmt = null;
+        try {
+            conn = getConnection();
+            stmt = conn.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT count(name) FROM sys.server_principals WHERE name = '"+ username + "'");
+            rs.next();
+            if (rs.getInt(1) > 0) {
+                return true;
+            }
+        } catch (Exception e) {
+            log.error(e.getClass().getName() +" : " + e.getMessage());
+            throw new ServiceBrokerException(e);
+        } finally {
+            try {
+                if (stmt != null)
+                    stmt.close();
+            } catch (SQLException se2) {
+                try {
+                    if (conn != null)
+                        conn.close();
+                } catch (SQLException se) {
+                    log.error(se.getMessage());
+                    throw new ServiceBrokerException(se);
+                }
+            }
+        }
+        return false;
+
+    }
+
+
+
+
 
 }

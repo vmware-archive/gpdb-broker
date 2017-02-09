@@ -113,6 +113,12 @@ class SqlServerBroker extends DefaultServiceImpl {
         // use app guid to send bind request
         log.info("binding app: " + binding.getAppGuid() + " to database: " + instance.getId());
 
+        Map<String,String> userCredentials = client.createUserCreds(instance.getId());
+
+        binding.getParameters().put(SqlServerClient.USERNAME,userCredentials.get(SqlServerClient.USERNAME));
+        binding.getParameters().put(SqlServerClient.PASSWORD,userCredentials.get(SqlServerClient.PASSWORD));
+
+
     }
 
     /**
@@ -124,6 +130,9 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getId());
+
+        client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString());
+
     }
 
     /**
@@ -143,10 +152,14 @@ class SqlServerBroker extends DefaultServiceImpl {
         log.info("returning credentials.");
 
         Map<String, Object> m = new HashMap<>();
-        m.put("hostname", env.getProperty("HOST"));
-        m.put("port", env.getProperty("PORT"));
+        m.put("hostname", env.getProperty("SQL_HOST"));
+        m.put("port", env.getProperty("SQL_PORT"));
         String uri = "jdbc://" + m.get("hostname") + ":" + m.get("port");
         m.put("uri", uri);
+
+        m.put(SqlServerClient.USERNAME,binding.getParameters().get(SqlServerClient.USERNAME));
+        m.put(SqlServerClient.PASSWORD,binding.getParameters().get(SqlServerClient.PASSWORD));
+
         return m;
 
     }

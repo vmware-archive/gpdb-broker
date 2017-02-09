@@ -27,13 +27,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+import lombok.extern.slf4j.Slf4j;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
-
+@Slf4j
 public class SqlServerClientTest {
 
     @Autowired
@@ -43,15 +46,24 @@ public class SqlServerClientTest {
     @Test
     public void testCreateAndDeleteDatabase() throws Exception {
 
-        String dbName = "foodb" + System.currentTimeMillis();
+        String dbName = String.valueOf(System.currentTimeMillis());
         assertFalse(client.checkDatabaseExists(dbName));
         client.createDatabase(dbName);
+
+        log.info(" Printing DB Name ..." + dbName);
+
+        Map<String,String> userCredentials = client.createUserCreds(dbName);
         assertTrue(client.checkDatabaseExists(dbName));
+
+        assertNotNull(userCredentials.get(SqlServerClient.USERNAME));
+        assertNotNull(userCredentials.get(SqlServerClient.PASSWORD));
+
+        assertTrue(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
+        client.deleteUserCreds(userCredentials.get(SqlServerClient.USERNAME));
+        assertFalse(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
+
         client.deleteDatabase(dbName);
         assertFalse(client.checkDatabaseExists(dbName));
     }
-
-
-
 
 }

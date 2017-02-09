@@ -1,3 +1,5 @@
 .idea
 /*.iml
 target
+sqlserver-broker/sqlserver-broker.iml
+sqlserver-util/sqlserver-util.iml

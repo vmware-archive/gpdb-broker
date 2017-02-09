@@ -39,7 +39,7 @@
     </dependencies>
 
     <build>
-        <finalName>kafka-broker</finalName>
+        <finalName>sqlserver-broker</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
