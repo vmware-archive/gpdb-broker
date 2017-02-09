@@ -67,7 +67,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("ideal behavior is creating the MS-SQL cluster "+ instance.getId());
         String db = client.createdbName(instance.getId());
-        instance.getParameters().put("DBNAME",db);
+        instance.getParameters().put(SqlServerClient.DBNAME,db);
         client.createDatabase(instance.getId());
 
     }
@@ -161,7 +161,8 @@ class SqlServerBroker extends DefaultServiceImpl {
 
         m.put(SqlServerClient.USERNAME,binding.getParameters().get(SqlServerClient.USERNAME));
         m.put(SqlServerClient.PASSWORD,binding.getParameters().get(SqlServerClient.PASSWORD));
-        m.put("dbname",binding.getParameters().get("DBNAME"));
+
+        m.put(SqlServerClient.DBNAME,instance.getParameters().get(SqlServerClient.DBNAME));
 
         return m;
 
