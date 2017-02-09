@@ -66,6 +66,8 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("ideal behavior is creating the MS-SQL cluster "+ instance.getId());
+        String db = client.createdbName(instance.getId());
+        instance.getParameters().put("DBNAME",db);
         client.createDatabase(instance.getId());
 
     }
@@ -154,11 +156,12 @@ class SqlServerBroker extends DefaultServiceImpl {
         Map<String, Object> m = new HashMap<>();
         m.put("hostname", env.getProperty("SQL_HOST"));
         m.put("port", env.getProperty("SQL_PORT"));
-        String uri = "jdbc://" + m.get("hostname") + ":" + m.get("port");
+        String uri = "jdbc:sqlserver://" + m.get("hostname") + ":" + m.get("port");
         m.put("uri", uri);
 
         m.put(SqlServerClient.USERNAME,binding.getParameters().get(SqlServerClient.USERNAME));
         m.put(SqlServerClient.PASSWORD,binding.getParameters().get(SqlServerClient.PASSWORD));
+        m.put("dbname",binding.getParameters().get("DBNAME"));
 
         return m;
 
