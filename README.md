@@ -1,46 +1,41 @@
-#kafka-service-broker
-This is a Cloud Foundry service broker for [apache kafka](https://kafka.apache.org/documentation). It supports the dynamic creation and deletion of topics, tied to the creation and deletion of Cloud Foundry service instances. Applications can then bind to these service instances to take part in Pub/Sub message exchanges.
+#ms-sql-server-broker
+This is a Cloud Foundry service broker for [Microsoft SqlServer](https://www.microsoft.com/en-us/sql-server/sql-server-2016). It currently supports multiple database instances hosted on a single, external-to-cloudfoundry installation of SqlServer
 
-This version should be considered a beta product, has been tested against a single zookeeper and a single kafka node. Further testing is currently a work-in-progress.
+This version should be considered a beta product, and has been tested against PCF Enterprise Runtime v1.9
 
 ##Where to get the tile
-The tile will be available on [pivnet](https://network.pivotal.io/) in the near future (Fall, 2016). In the meanwhile, if you are interested in using the broker you can build and deploy it manually following the directions below.
+The tile will be available on [pivnet](https://network.pivotal.io/) in the near future. In the meanwhile, if you are interested in using the broker you can build and deploy it manually following the directions below.
 
 ##Prerequisites
-
-This is a service broker implementation and requires a zookeeper and a kafka instance. This is a pre-cursor to a bosh-release and currently has been tested with a single kafka node and a single zookeeper node.
-The broker is based on the [simple-service-broker](https://github.com/cf-platform-eng/simple-service-broker). Follow the instruction in the [README](https://github.com/cf-platform-eng/simple-service-broker/blob/master/simple-broker/README.md) of that project to check-out, mvn build and install the library.
+This is a service broker implementation and requires an existing SqlServer install.
 
 ##The Modules
-The kafka broker project includes the folowing modules. See their respective READMEs for more information.
+This project includes the following modules. See their respective READMEs for more information.
 
-###[kafka-broker](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-broker)
+###[sqlserver-broker](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-broker)
 * This module contains the broker code.
 
-###[kafka-connector](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-connector)
-* This module contains spring-cloud-connector code that can optionally be used by consumers of the brokered service, to make it easier to connect to the kafka back-end services.
+###[sqlserver-connector](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-connector)
+* This module contains spring-cloud-connector code that can optionally be used by consumers of the brokered service.
 
-###[kafka-sample-consumer](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-sample-consumer)
-* A sample project that can be used to demo message consumption, and illustrates the use of the broker-connector.
+###[sqlserver-client](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-client)
+* A sample project that can be used to demo usage of the broker and the connector.
  
-###[kafka-sample-producer](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-sample-producer)
-* A sample project that can be used to demo message production, and illustrates the use of the broker-connector.
+###[sqlserver-util](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-util)
+* Shared utilities for interacting with the SqlServer backend.
 
 ##Instructions to run the demo
 1. check out and build the project
 
   ```bash
-  git clone git@github.com:cf-platform-eng/kafka-service-broker.git
-  cd kafka-service-broker
+  git clone git@github.com:cf-platform-eng/ms-sql-server-broker.git
+  cd ms-sql-server-broker
   mvn clean install  
   ```
-2. Follow the instructions in the [kafka-broker](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-broker) to push and register the broker.
-3. Create the kafka service and make sure the _name of the service_ matches the names in the manifest.yml files _exactly_ in the producer and consumer apps. If it does not, make sure to change the name in the manifest.yml. 
+2. Follow the instructions in the [sqlserver-broker](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-broker) to push and register the broker.
+3. Create the cf service instance, making sure the name of the service matches the names in your broker's manifest.yml file. 
 
   ```bash  
-  cf create-service KafkaService PubSub kafka-service   
+  cf create-service SqlServer sharedVM sqlserver-service  
   ```  
-4. Follow the instructions in the [kafka-sample-producer](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-sample-producer) to push the sample producer app.
-5. Follow the instructions in the [kafka-sample-consumer](https://github.com/cf-platform-eng/kafka-service-broker/tree/master/kafka-sample-consumer) to push the sample consumer app.
-
-
+4. Follow the instructions in the [sqlserver-client](https://github.com/cf-platform-eng/ms-sql-server-broker/tree/master/sqlserver-client) to push the sample app.
