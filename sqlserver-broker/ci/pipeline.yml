@@ -17,11 +17,11 @@ resources:
 - name: version
   type: semver
   source:
-    bucket: {{bucket-name}}
+    bucket: {{gcp-bucket-name}}
     key: current-version
-    access_key_id: {{aws-key-id}}
-    secret_access_key: {{aws-key}}
-    initial_version: 1.0.0
+    access_key_id: {{gcp-access-key}}
+    secret_access_key: {{gcp-secret}}
+    initial_version: 0.1.0
 
 - name: pcf-environment
   type: pool
@@ -35,31 +35,31 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/cf-platform-eng/kafka-service-broker
+    uri: https://github.com/cf-platform-eng/ms-sql-server-broker
 
 - name: broker-tile
-  type: s3
+  type: gcs-resource
   source:
-    access_key_id: {{aws-key-id}}
-    bucket: {{bucket-name}}
+    access_key_id: {{gcp-access-key}}
+    bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.pivotal
-    secret_access_key: {{aws-key}}
+    secret_access_key: {{gcp-secret}}
 
 - name: broker-jar
-  type: s3
+  type: gcs-resource
   source:
-    access_key_id: {{aws-key-id}}
-    bucket: {{bucket-name}}
+    access_key_id: {{gcp-access-key}}
+    bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.jar
-    secret_access_key: {{aws-key}}
+    secret_access_key: {{gcp-secret}}
 
 - name: tile-history
-  type: s3
+  type: gcs-resource
   source:
-    access_key_id: {{aws-key-id}}
-    bucket: {{bucket-name}}
+    access_key_id: {{gcp-access-key}}
+    bucket: {{gcp-bucket-name}}
     regexp: tile-history-(?P<version>.*)\.yml
-    secret_access_key: {{aws-key}}
+    secret_access_key: {{gcp-secret}}
 
 jobs:
 - name: build-broker

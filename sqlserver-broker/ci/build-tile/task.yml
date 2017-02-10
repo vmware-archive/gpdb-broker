@@ -16,4 +16,4 @@ outputs:
 - name: tile-history-new
 
 run:
-  path: tile-repo/kafka-broker/ci/build-tile/task.sh
+  path: tile-repo/sqlserver-broker/ci/build-tile/task.sh

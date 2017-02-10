@@ -1,7 +1,12 @@
 #!/bin/sh -ex
 
+cd tile-repo/sqlserver-broker
+
+mkdir target
+cp ../../broker-jar/*.jar target/sqlserver-broker.jar
+
 ver=`more ../../version/number`
-(cd apigee-tile-repo/apigee-cf-service-broker; npm install; zip -r resources/apigee.zip EULA.txt LICENSE README.md manifest.yml api helpers policy_templates proxy-resources schemas util node_modules package.json server.js; tile build ${ver})
+tile build ${ver}
 
 file=`ls product/*.pivotal`
 filename=$(basename "${file}")

@@ -36,7 +36,7 @@ pcf is-installed "${PRODUCT}" "${VERSION}"
 echo
 
 echo "Configuring product ${PRODUCT}"
-pcf configure "${PRODUCT}" "../tile-repo/kafka-broker/ci/missing-properties.yml"
+pcf configure "${PRODUCT}" "../tile-repo/sqlserver-broker/ci/missing-properties.yml"
 echo
 
 echo "Applying Changes"

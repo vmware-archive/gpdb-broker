@@ -3,7 +3,7 @@
 cd tile-repo
 mvn -e install
 
-cd kafka-broker
+cd sqlserver-broker
 
 file=`ls target/*.jar`
 filename=$(basename "${file}")

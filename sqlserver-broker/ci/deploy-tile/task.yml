@@ -12,4 +12,4 @@ inputs:
 - name: tile-repo
 
 run:
-  path: tile-repo/kafka-broker/ci/deploy-tile/task.sh
+  path: tile-repo/sqlserver-broker/ci/deploy-tile/task.sh

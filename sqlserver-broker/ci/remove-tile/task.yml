@@ -11,4 +11,4 @@ inputs:
 - name: pcf-environment
 
 run:
-  path: tile-repo/kafka-broker/ci/remove-tile/task.sh
+  path: tile-repo/sqlserver-broker/ci/remove-tile/task.sh

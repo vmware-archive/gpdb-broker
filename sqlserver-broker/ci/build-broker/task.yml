@@ -13,4 +13,4 @@ outputs:
 - name: broker-jar
 
 run:
-  path: tile-repo/kafka-broker/ci/build-broker/task.sh
+  path: tile-repo/sqlserver-broker/ci/build-broker/task.sh
