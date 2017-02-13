@@ -32,7 +32,7 @@ public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<
 
     @Override
     public SqlServerServiceInfo createServiceInfo(Map<String, Object> serviceData) {
-        log.info("Returning kafka service info: " + serviceData.toString());
+        log.info("Returning sqlserver service info: " + serviceData.toString());
 
         Map<String, Object> credentials = getCredentials(serviceData);
         String id = getId(serviceData);
@@ -40,7 +40,7 @@ public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<
         String uri = credentials.get("uri").toString();
         String dbname = credentials.get("dbname").toString();
 
-        return new SqlServerServiceInfo(id, hosts, uri, "0", "org.apache.kafka.common.serialization.IntegerSerializer",
-                "org.apache.kafka.common.serialization.StringSerializer", dbname);
+        return new SqlServerServiceInfo(id, hosts, uri, "0", "",
+                "", dbname);
     }
 }

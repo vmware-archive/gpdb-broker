@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SqlServerRepositoryFactory {
 
     public SqlServerRepository create(SqlServerServiceInfo info) throws InterruptedException {
-        log.info("creating kafkaRepository with info: " + info);
+        log.info("creating sqlServerRepository with info: " + info);
             return new SqlServerRepository(info);
     }
 }

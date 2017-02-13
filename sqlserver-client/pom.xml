@@ -13,14 +13,10 @@
 
     <dependencies>
 
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>io.pivotal.cf.broker</groupId>
-            <artifactId>kafka-connector</artifactId>
+            <artifactId>sqlserver-connector</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 

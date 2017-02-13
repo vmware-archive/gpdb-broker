@@ -17,11 +17,12 @@ resources:
 - name: version
   type: semver
   source:
-    bucket: {{gcp-bucket-name}}
-    key: current-version
-    access_key_id: {{gcp-access-key}}
-    secret_access_key: {{gcp-secret}}
+    uri: https://github.com/cf-platform-eng/ms-sql-server-broker
+    branch: master
+    private_key: {{cf-platform-eng-github-private-key}}
+    file: version
     initial_version: 0.1.0
+    driver: git
 
 - name: pcf-environment
   type: pool
@@ -70,7 +71,7 @@ jobs:
   - get: version
     params: {bump: patch}
   - task: build-broker
-    file: tile-repo/kafka-broker/ci/build-broker/task.yml
+    file: tile-repo/sqlserver-broker/ci/build-broker/task.yml
   - put: broker-jar
     params: {file: broker-jar/*.jar}
   - put: version
@@ -88,7 +89,7 @@ jobs:
     - get: version
     - get: tile-history
   - task: build-tile
-    file: tile-repo/kafka-broker/ci/build-tile/task.yml
+    file: tile-repo/sqlserver-broker/ci/build-tile/task.yml
   - put: tile-history
     params: {file: tile-history-new/*.yml}
   - put: broker-tile
@@ -120,7 +121,7 @@ jobs:
     - get: tile-repo
     - get: version
   - task: deploy-tile
-    file: tile-repo/kafka-broker/ci/deploy-tile/task.yml
+    file: tile-repo/sqlserver-broker/ci/deploy-tile/task.yml
     on_failure:
       aggregate:
       - put: pcf-environment
@@ -137,7 +138,7 @@ jobs:
         - deploy-tile
       trigger: true
   - task: remove-tile
-    file: tile-repo/kafka-broker/ci/remove-tile/task.yml
+    file: tile-repo/sqlserver-broker/ci/remove-tile/task.yml
     on_failure:
       aggregate:
       - put: pcf-environment

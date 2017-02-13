@@ -2,7 +2,7 @@
 # The high-level description of your tile.
 # Replace these properties with real values.
 #
-name: confluent-kafka-broker # By convention lowercase with dashes
+name: ms-sqlserver-broker # By convention lowercase with dashes
 icon_file: resources/icon.png
 label: Brief Text for the Tile Icon
 description: Longer description of the tile's purpose

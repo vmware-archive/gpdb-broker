@@ -26,7 +26,7 @@ public class SqlServerConnectionCreator extends AbstractServiceConnectorCreator<
 
     @Override
     public SqlServerRepository create(SqlServerServiceInfo serviceInfo, ServiceConnectorConfig serviceConnectorConfig) {
-        log.info("creating kafka repo wth service info: " + serviceInfo);
+        log.info("creating sqlservice repo wth service info: " + serviceInfo);
         try {
             return new SqlServerRepositoryFactory().create(serviceInfo);
         } catch (InterruptedException e) {
