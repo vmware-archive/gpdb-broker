@@ -12,12 +12,17 @@ groups:
   jobs:
   - manual-release-pcf
 
-resources:
+resource_types:
+  - name: gcs-resource
+    type: docker-image
+    source:
+      repository: frodenas/gcs-resource
 
+resources:
 - name: version
   type: semver
   source:
-    uri: https://github.com/cf-platform-eng/ms-sql-server-broker
+    uri: git@github.com:cf-platform-eng/ms-sql-server-broker.git
     branch: master
     private_key: {{cf-platform-eng-github-private-key}}
     file: version
@@ -41,26 +46,23 @@ resources:
 - name: broker-tile
   type: gcs-resource
   source:
-    access_key_id: {{gcp-access-key}}
+    json_key: {{gcp-storage-json-key}}
     bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.pivotal
-    secret_access_key: {{gcp-secret}}
 
 - name: broker-jar
   type: gcs-resource
   source:
-    access_key_id: {{gcp-access-key}}
+    json_key: {{gcp-storage-json-key}}
     bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.jar
-    secret_access_key: {{gcp-secret}}
 
 - name: tile-history
   type: gcs-resource
   source:
-    access_key_id: {{gcp-access-key}}
+    json_key: {{gcp-storage-json-key}}
     bucket: {{gcp-bucket-name}}
     regexp: tile-history-(?P<version>.*)\.yml
-    secret_access_key: {{gcp-secret}}
 
 jobs:
 - name: build-broker
@@ -83,9 +85,9 @@ jobs:
   - aggregate:
     - get: tile-repo
     - get: broker-jar
-      trigger: true
       passed:
         - build-broker
+      trigger: true
     - get: version
     - get: tile-history
   - task: build-tile

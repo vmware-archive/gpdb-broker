@@ -1,0 +1,8 @@
+---
+name: sqlserver_broker
+
+dependencies: []
+
+files:
+- sqlserver_broker/sqlserver-broker.jar
+- sqlserver_broker/manifest.yml

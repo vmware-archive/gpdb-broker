@@ -1,0 +1,25 @@
+---
+packages:
+- name: cf_cli
+  version: f9f3f2b4fd2c5e167372cd3cebbd527eb16133b8
+  fingerprint: f9f3f2b4fd2c5e167372cd3cebbd527eb16133b8
+  sha1: 47474dec7b98d15cbbc986cae7330288693f65ff
+  dependencies: []
+- name: sqlserver_broker
+  version: 729d40ab0e9f2fec7c9a0253b34e0ab6b632c80b
+  fingerprint: 729d40ab0e9f2fec7c9a0253b34e0ab6b632c80b
+  sha1: 5d4365e29883228752b12a1526125bf93f42c9c1
+  dependencies: []
+jobs:
+- name: delete-all
+  version: de730ea7fc5373faf33a65ab4717010ca5821d91
+  fingerprint: de730ea7fc5373faf33a65ab4717010ca5821d91
+  sha1: cb4627fe022c62152a2482d555ad3fa961f3a3c1
+- name: deploy-all
+  version: 26c8043501416096641528f44583bd235ecc840c
+  fingerprint: 26c8043501416096641528f44583bd235ecc840c
+  sha1: 37d781a1aacb9f315e6aeef737070a58184349a4
+commit_hash: b9651c23
+uncommitted_changes: true
+name: sqlserver-broker
+version: 0.0.1

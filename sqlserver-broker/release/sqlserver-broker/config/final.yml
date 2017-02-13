@@ -1,0 +1,6 @@
+---
+blobstore:
+  provider: local
+  options:
+    blobstore_path: /tmp/sqlserver-broker-blobs
+final_name: sqlserver-broker
