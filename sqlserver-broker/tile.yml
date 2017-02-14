@@ -77,6 +77,16 @@ forms:
     default: '1433'
     label: sqlserver-port
     description: SqlServer port
+  - name: username
+    type: string
+    default: 'sa'
+    label: sqlserver-username
+    description: SqlServer admin user name
+  - name: password
+    type: string
+    default: 'secret'
+    label: sqlserver-password
+    description: SqlServer admin password
 
 # Add any dependencies your tile has on other installed products.
 # This is often appropriate when using automatic service provisioning
