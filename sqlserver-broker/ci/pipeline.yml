@@ -23,7 +23,7 @@ resources:
   type: semver
   source:
     uri: git@github.com:cf-platform-eng/ms-sql-server-broker.git
-    branch: master
+    branch: version
     private_key: {{cf-platform-eng-github-private-key}}
     file: version
     initial_version: 0.1.0
