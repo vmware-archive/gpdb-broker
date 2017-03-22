@@ -77,12 +77,12 @@ forms:
     default: '1433'
     label: sqlserver-port
     description: SqlServer port
-  - name: username
+  - name: sqlserver-username
     type: string
     default: 'sa'
     label: sqlserver-username
     description: SqlServer admin user name
-  - name: password
+  - name: sqlserver-password
     type: string
     default: 'secret'
     label: sqlserver-password

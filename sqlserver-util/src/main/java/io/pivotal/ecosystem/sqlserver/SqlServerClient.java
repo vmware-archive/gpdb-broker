@@ -32,8 +32,8 @@ import java.util.UUID;
 public class SqlServerClient {
 
     private Environment env;
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
+    public static final String USERNAME = "sqlserver_username";
+    public static final String PASSWORD = "sqlserver_password";
     public static final String DB_PREFIX = "sqldb";
     public static final String DBNAME = "dbname";
 
@@ -100,7 +100,7 @@ public class SqlServerClient {
     public Connection getConnection() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(getDbUrl(), env.getProperty("USERNAME"), env.getProperty("PASSWORD"));
+            return DriverManager.getConnection(getDbUrl(), env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"));
         } catch (Throwable throwable) {
             throw new ServiceBrokerException(throwable.getMessage());
         }
