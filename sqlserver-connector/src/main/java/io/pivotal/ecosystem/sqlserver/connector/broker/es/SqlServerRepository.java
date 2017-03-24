@@ -19,6 +19,7 @@ package io.pivotal.ecosystem.sqlserver.connector.broker.es;
 
 import lombok.extern.slf4j.Slf4j;
 
+
 @Slf4j
 public class SqlServerRepository {
 
@@ -29,5 +30,7 @@ public class SqlServerRepository {
         this.info = info;
     }
 
-
+    public SqlServerServiceInfo getInfo() {
+        return this.info;
+    }
 }

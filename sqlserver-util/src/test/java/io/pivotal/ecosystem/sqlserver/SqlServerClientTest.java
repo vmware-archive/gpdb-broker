@@ -54,7 +54,7 @@ public class SqlServerClientTest {
         client.deleteUserCreds(userCredentials.get(SqlServerClient.USERNAME));
         assertFalse(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
 
-        client.deleteDatabase(dbName);
-        assertFalse(client.checkDatabaseExists(dbName));
+//        client.delete.Database(dbName);
+//        assertFalse(client.checkDatabaseExists(dbName));
     }
 }

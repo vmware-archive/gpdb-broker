@@ -28,11 +28,11 @@ public class SqlServerServiceInfo implements ServiceInfo {
     static final String URI_SCHEME = "jdbc:sqlserver";
 
     private String id;
-    private String hosts;
+    private String host;
+    private String port;
+    private String user;
+    private String password;
     private String uri;
-    private String retriesConfig;
-    private String keySerializerClassConfig;
-    private String valueSerializerClassConfig;
     private String dbname;
 
 }

@@ -26,6 +26,10 @@ import java.util.Map;
 @Slf4j
 public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<SqlServerServiceInfo> {
 
+    public static final String USERNAME = "sqlserver_username";
+    public static final String PASSWORD = "sqlserver_password";
+    public static final String DBNAME = "dbname";
+
     public SqlServerServiceInfoCreator() {
         super(new Tags(SqlServerServiceInfo.URI_SCHEME), SqlServerServiceInfo.URI_SCHEME);
     }
@@ -37,10 +41,13 @@ public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<
         Map<String, Object> credentials = getCredentials(serviceData);
         String id = getId(serviceData);
         String hosts = credentials.get("hostname").toString();
+        String port = credentials.get("port").toString();
         String uri = credentials.get("uri").toString();
-        String dbname = credentials.get("dbname").toString();
+        String dbname = credentials.get(DBNAME).toString();
+        String user = credentials.get(USERNAME).toString();
+        String password = credentials.get(PASSWORD).toString();
 
-        return new SqlServerServiceInfo(id, hosts, uri, "0", "",
-                "", dbname);
+        return new SqlServerServiceInfo(id, hosts, port, user, password, uri, dbname);
+
     }
 }

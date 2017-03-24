@@ -94,7 +94,9 @@ public class SqlServerClient {
     }
 
     public String getDbUrl() {
-        return "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
+        String dbUrl = "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
+        log.info("**************************** " + dbUrl + " +++++++++++++++++++++++++++++++++++");
+        return dbUrl;
     }
 
     public Connection getConnection() {
@@ -111,15 +113,18 @@ public class SqlServerClient {
         Map<String, String> userCredentials = new HashMap<>();
 
         String uid = "user" + UUID.randomUUID().toString().replaceAll("[-]", "");
-        String pwd = UUID.randomUUID().toString();
+        String pwd = "P"+ UUID.randomUUID().toString().replaceAll("[-]", "P");
 
         userCredentials.put(USERNAME, uid);
         userCredentials.put(PASSWORD, pwd);
 
         String db = createdbName(dbName);
 
-        String stmt = "CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db + "; USE " + db + "; CREATE USER " + uid + " FOR LOGIN " + uid;
-        execStatement(stmt);
+        execStatement("CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db +";" );
+        execStatement("USE "+db+";");
+        execStatement("CREATE USER " + uid + " FOR LOGIN " + uid +";");
+        String stmt2 = "EXEC sp_addrolemember 'db_owner', '"+uid+"';";
+        execStatement(stmt2);
 
         log.info("Created user: " + userCredentials.get(USERNAME));
 
