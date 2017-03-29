@@ -61,10 +61,10 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
-        String db = client.createdbName(instance.getId());
-        log.info("creating database: " + db);
-        instance.getParameters().put(SqlServerClient.DBNAME, db);
-        client.createDatabase(instance.getId());
+        log.info("creating database...");
+        String db = client.createDatabase();
+        instance.getParameters().put(SqlServerClient.DATABASE, db);
+        log.info("database: " + db + " created.");
     }
 
     /**
@@ -75,8 +75,9 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteInstance(ServiceInstance instance) {
-        log.info("deleting database: " + instance.getParameters().get(SqlServerClient.DBNAME));
-        client.deleteDatabase(instance.getId());
+        String db = instance.getParameters().get(SqlServerClient.DATABASE).toString();
+        log.info("deleting database: " + db);
+        client.deleteDatabase(db);
     }
 
     /**
@@ -87,7 +88,7 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void updateInstance(ServiceInstance instance) {
-        log.info("what should i do....ooooo what should i do....." + instance.getId());
+        log.info("update not yet implemented");
     }
 
     /**
@@ -105,9 +106,10 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("binding app: " + binding.getAppGuid() + " to database: " + instance.getParameters().get(SqlServerClient.DBNAME));
+        String db = instance.getParameters().get(SqlServerClient.DATABASE).toString();
+        log.info("binding app: " + binding.getAppGuid() + " to database: " + db);
 
-        Map<String, String> userCredentials = client.createUserCreds(instance.getId());
+        Map<String, String> userCredentials = client.createUserCreds(db);
         binding.getParameters().put(SqlServerClient.USERNAME, userCredentials.get(SqlServerClient.USERNAME));
         binding.getParameters().put(SqlServerClient.PASSWORD, userCredentials.get(SqlServerClient.PASSWORD));
     }
@@ -120,7 +122,7 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerClient.DBNAME));
+        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerClient.DATABASE));
         client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString());
     }
 
@@ -148,7 +150,7 @@ class SqlServerBroker extends DefaultServiceImpl {
 
         m.put(SqlServerClient.USERNAME, binding.getParameters().get(SqlServerClient.USERNAME));
         m.put(SqlServerClient.PASSWORD, binding.getParameters().get(SqlServerClient.PASSWORD));
-        m.put(SqlServerClient.DBNAME, instance.getParameters().get(SqlServerClient.DBNAME));
+        m.put(SqlServerClient.DATABASE, instance.getParameters().get(SqlServerClient.DATABASE));
 
         //TODO add uid and pw into connection string?
         return m;

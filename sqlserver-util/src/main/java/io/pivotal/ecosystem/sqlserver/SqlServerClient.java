@@ -32,25 +32,26 @@ import java.util.UUID;
 public class SqlServerClient {
 
     private Environment env;
-    public static final String USERNAME = "sqlserver_username";
-    public static final String PASSWORD = "sqlserver_password";
-    public static final String DB_PREFIX = "sqldb";
-    public static final String DBNAME = "dbname";
+
+    public static final String USERNAME = "uid";
+    public static final String PASSWORD = "pw";
+    public static final String DATABASE = "db";
+    public static final int DEFAULT_PORT = 1433;
 
     public SqlServerClient(Environment env) {
         this.env = env;
     }
 
-    public void execStatement(String statement) {
+    private void execStatement(String statement) {
         Statement stmt = null;
         Connection conn = null;
         try {
-            conn = getConnection();
+            conn = getSAConnection();
             stmt = conn.createStatement();
             stmt.execute(statement);
             log.info(statement + " statement executed successfully...");
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             throw new ServiceBrokerException(e);
         } finally {
             try {
@@ -66,40 +67,52 @@ public class SqlServerClient {
         }
     }
 
+    String createDatabase() {
+        String db = createDbName();
 
-    public String cleanInstanceId(String instanceId) {
-        return instanceId.replaceAll("[-]", "");
-    }
+        execStatement("use [master]");
+        execStatement("exec sp_configure 'contained database authentication', 1");
+        execStatement("reconfigure");
+        execStatement("CREATE DATABASE [" + db + "]");
+        execStatement("ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
 
-    public String createdbName(String dbName) {
-        return DB_PREFIX + cleanInstanceId(dbName);
-    }
+//        execStatement("use " + db);
+//        execStatement("exec sp_configure 'contained database authentication', 1");
 
-    public void createDatabase(String dbName) {
-        String db = createdbName(dbName);
-        execStatement("CREATE DATABASE " + db);
+
         log.info("Database: " + db + " created successfully...");
+        return db;
     }
 
-    public void deleteDatabase(String dbName) {
-        String db = createdbName(dbName);
+    void deleteDatabase(String db) {
         String deleteStmt = "ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db;
         log.debug(deleteStmt);
         execStatement(deleteStmt);
         log.info("Database: " + db + " deleted successfully...");
     }
 
-    public boolean checkDatabaseExists(String dbName) {
-        return checkIfExists("SELECT count(*) FROM sys.databases WHERE name = '" + createdbName(dbName) + "'");
+    boolean checkDatabaseExists(String db) {
+        return checkIfExists("SELECT count(*) FROM sys.databases WHERE name = '" + db + "'");
     }
 
-    public String getDbUrl() {
-        String dbUrl = "jdbc:sqlserver://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT");
+    String getDbUrl() {
+        String dbUrl = "jdbc:sqlserver://" + getHost() + ":" + getPort();
         log.info("**************************** " + dbUrl + " +++++++++++++++++++++++++++++++++++");
         return dbUrl;
     }
 
-    public Connection getConnection() {
+    String getHost() {
+        return env.getProperty("SQL_HOST");
+    }
+
+    int getPort() {
+        if (env.getProperty("SQL_PORT") != null) {
+            return Integer.parseInt(env.getProperty("SQL_PORT"));
+        }
+        return DEFAULT_PORT;
+    }
+
+    Connection getSAConnection() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             return DriverManager.getConnection(getDbUrl(), env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"));
@@ -108,42 +121,73 @@ public class SqlServerClient {
         }
     }
 
-    public Map<String, String> createUserCreds(String dbName) {
+    Connection getUserConnection(String uid, String pw, String db) {
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            return DriverManager.getConnection(getDbUrl() + ";databaseName=" + db, uid, pw);
+        } catch (Throwable throwable) {
+            throw new ServiceBrokerException(throwable.getMessage());
+        }
+    }
+
+    private String getRandomishId() {
+        return UUID.randomUUID().toString().replaceAll("[-]", "");
+    }
+
+    private String createUserId() {
+        return "u" + getRandomishId();
+    }
+
+    private String createPassword() {
+        return "P" + getRandomishId();
+    }
+
+    String createDbName() {
+        return "d" + getRandomishId();
+    }
+
+    Map<String, String> createUserCreds(String db) {
 
         Map<String, String> userCredentials = new HashMap<>();
 
-        String uid = "user" + UUID.randomUUID().toString().replaceAll("[-]", "");
-        String pwd = "P"+ UUID.randomUUID().toString().replaceAll("[-]", "P");
+        String uid = createUserId();
+        String pwd = createPassword();
 
         userCredentials.put(USERNAME, uid);
         userCredentials.put(PASSWORD, pwd);
+        userCredentials.put(DATABASE, db);
 
-        String db = createdbName(dbName);
+        log.info("creds: " + userCredentials.toString());
 
-        execStatement("CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db +";" );
-        execStatement("USE "+db+";");
-        execStatement("CREATE USER " + uid + " FOR LOGIN " + uid +";");
-        String stmt2 = "EXEC sp_addrolemember 'db_owner', '"+uid+"';";
-        execStatement(stmt2);
+        String s = " USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo];";
+        execStatement(s);
+
+////        execStatement("CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db);
+//        execStatement("USE " + db);
+////        execStatement("CREATE USER " + uid + " FOR LOGIN " + uid);
+////        execStatement("CREATE USER " + uid);
+//
+//        execStatement("CREATE USER " + uid + " with password = '" + pwd + "';");
+////        execStatement("EXEC sp_addrolemember 'db_owner', '" + uid + "';");
 
         log.info("Created user: " + userCredentials.get(USERNAME));
 
         return userCredentials;
     }
 
-    public void deleteUserCreds(String userName) {
-        execStatement("DROP USER IF EXISTS " + userName + " ; DROP LOGIN " + userName);
+    void deleteUserCreds(String uid) {
+        execStatement("DROP USER IF EXISTS " + uid + " ; DROP LOGIN " + uid);
     }
 
-    public boolean checkUserExists(String username) {
-        return checkIfExists("SELECT count(name) FROM sys.server_principals WHERE name = '" + username + "'");
+    boolean checkUserExists(String uid) {
+        return checkIfExists("SELECT count(name) FROM sys.server_principals WHERE name = '" + uid + "'");
     }
 
     private boolean checkIfExists(String countQuery) {
         Connection conn = null;
         Statement stmt = null;
         try {
-            conn = getConnection();
+            conn = getSAConnection();
             stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery(countQuery);
             rs.next();
@@ -151,7 +195,7 @@ public class SqlServerClient {
                 return true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage());
+            log.error(e.getMessage(), e);
             throw new ServiceBrokerException(e);
         } finally {
             try {

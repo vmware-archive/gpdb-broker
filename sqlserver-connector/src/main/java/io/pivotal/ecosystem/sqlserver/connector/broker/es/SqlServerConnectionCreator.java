@@ -21,11 +21,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.service.AbstractServiceConnectorCreator;
 import org.springframework.cloud.service.ServiceConnectorConfig;
 
+import javax.sql.DataSource;
+
 @Slf4j
-public class SqlServerConnectionCreator extends AbstractServiceConnectorCreator<SqlServerRepository, SqlServerServiceInfo> {
+public class SqlServerConnectionCreator extends AbstractServiceConnectorCreator<DataSource, SqlServerServiceInfo> {
 
     @Override
-    public SqlServerRepository create(SqlServerServiceInfo serviceInfo, ServiceConnectorConfig serviceConnectorConfig) {
+    public DataSource create(SqlServerServiceInfo serviceInfo, ServiceConnectorConfig serviceConnectorConfig) {
         log.info("creating sqlservice repo wth service info: " + serviceInfo);
         try {
             return new SqlServerRepositoryFactory().create(serviceInfo);

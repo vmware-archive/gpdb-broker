@@ -17,13 +17,18 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
+import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -37,24 +42,67 @@ public class SqlServerClientTest {
     private SqlServerClient client;
 
     @Test
+    public void testSAConnection() throws SQLException {
+        Connection c = client.getSAConnection();
+        assertNotNull(c);
+        c.close();
+    }
+
+    @Test
+    @Ignore
     public void testCreateAndDeleteDatabase() throws Exception {
-        String dbName = String.valueOf(System.currentTimeMillis());
-        assertFalse(client.checkDatabaseExists(dbName));
-        client.createDatabase(dbName);
+//        String dbName = String.valueOf(System.currentTimeMillis());
+//        assertFalse(client.checkDatabaseExists(dbName));
+        String db = client.createDatabase();
 
-        log.debug(" Printing DB Name ..." + dbName);
+        Map<String, String> userCredentials = client.createUserCreds(db);
+        assertTrue(client.checkDatabaseExists(db));
 
-        Map<String, String> userCredentials = client.createUserCreds(dbName);
-        assertTrue(client.checkDatabaseExists(dbName));
+        String uid = userCredentials.get(SqlServerClient.USERNAME);
+        assertNotNull(uid);
 
-        assertNotNull(userCredentials.get(SqlServerClient.USERNAME));
-        assertNotNull(userCredentials.get(SqlServerClient.PASSWORD));
+        String pw = userCredentials.get(SqlServerClient.PASSWORD);
+        assertNotNull(pw);
+
+        assertEquals(db, userCredentials.get(SqlServerClient.DATABASE));
+
+        Connection c = client.getUserConnection(uid, pw, db);
+        assertNotNull(c);
+
+        c.close();
+
+        //how about a data source?
+//        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
+
+        BasicDataSource dataSource = new BasicDataSource();
+        String s = SQLServerDriver.class.getName();
+//        datasource.
+
+        dataSource.setDriverClassName(s);
+
+//        dataSource.setServerName(client.getHost());
+//        dataSource.setPortNumber(client.getPort());
+//        dataSource.setDatabaseName(db);
+
+//        String url = client.getDbUrl() + ";databaseName=" + db + ", " +  userCredentials.get(SqlServerClient.USERNAME) + ", " + userCredentials.get(SqlServerClient.PASSWORD);
+//        String url = client.getDbUrl() + "/"+ db ;
+
+//        String url = client.getDbUrl() + ";databaseName=" + db;
+
+        String url = client.getDbUrl();
+        dataSource.setUrl(url);
+
+        dataSource.setUsername(userCredentials.get(SqlServerClient.USERNAME));
+        dataSource.setPassword(userCredentials.get(SqlServerClient.PASSWORD));
+        c = dataSource.getConnection();
+        assertNotNull(c);
+        c.close();
 
         assertTrue(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
         client.deleteUserCreds(userCredentials.get(SqlServerClient.USERNAME));
         assertFalse(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
 
-//        client.delete.Database(dbName);
-//        assertFalse(client.checkDatabaseExists(dbName));
+        client.deleteDatabase(db);
+        assertFalse(client.checkDatabaseExists(db));
     }
 }
