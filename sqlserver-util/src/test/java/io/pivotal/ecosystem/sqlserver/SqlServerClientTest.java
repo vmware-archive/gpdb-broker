@@ -102,9 +102,9 @@ public class SqlServerClientTest {
         assertNotNull(c);
         c.close();
 
-//        assertTrue(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
-//        client.deleteUserCreds(userCredentials.get(SqlServerClient.USERNAME));
-//        assertFalse(client.checkUserExists(userCredentials.get(SqlServerClient.USERNAME)));
+        assertTrue(client.checkUserExists(uid, db));
+        client.deleteUserCreds(uid, db);
+        assertFalse(client.checkUserExists(uid, db));
 
         client.deleteDatabase(db);
         assertFalse(client.checkDatabaseExists(db));

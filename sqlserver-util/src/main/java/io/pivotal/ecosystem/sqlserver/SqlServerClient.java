@@ -180,12 +180,12 @@ public class SqlServerClient {
         return userCredentials;
     }
 
-    void deleteUserCreds(String uid) {
-        execStatement("DROP USER IF EXISTS " + uid + " ; DROP LOGIN " + uid);
+    void deleteUserCreds(String uid, String db) {
+        execStatement("use " + db + "; DROP USER IF EXISTS " + uid);
     }
 
-    boolean checkUserExists(String uid) {
-        return checkIfExists("SELECT count(name) FROM sys.server_principals WHERE name = '" + uid + "'");
+    boolean checkUserExists(String uid, String db) {
+        return checkIfExists("use " + db + "; SELECT count(name) FROM sys.database_principals WHERE name = '" + uid + "'");
     }
 
     private boolean checkIfExists(String countQuery) {

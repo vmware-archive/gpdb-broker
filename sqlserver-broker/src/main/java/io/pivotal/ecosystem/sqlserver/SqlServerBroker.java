@@ -124,7 +124,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerClient.DATABASE));
-        client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString());
+        client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString(), binding.getParameters().get(SqlServerClient.DATABASE).toString());
     }
 
     /**
