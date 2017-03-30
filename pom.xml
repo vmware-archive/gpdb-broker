@@ -14,7 +14,7 @@
         <module>sqlserver-broker</module>
         <module>sqlserver-util</module>
         <module>sqlserver-connector</module>
-        <module>sqlserver-client</module>
+        <module>sqlserver-client-example</module>
     </modules>
 
     <parent>

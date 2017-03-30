@@ -1,1 +1,1 @@
-io.pivotal.ecosystem.sqlserver.connector.broker.es.SqlServerConnectionCreator
+io.pivotal.ecosystem.sqlserver.connector.SqlServerConnectionCreator

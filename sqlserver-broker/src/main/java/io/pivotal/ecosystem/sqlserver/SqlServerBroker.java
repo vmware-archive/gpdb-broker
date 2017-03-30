@@ -146,8 +146,6 @@ class SqlServerBroker extends DefaultServiceImpl {
         Map<String, Object> m = new HashMap<>();
         m.put("hostname", env.getProperty("SQL_HOST"));
         m.put("port", env.getProperty("SQL_PORT"));
-//        String uri = client.getDbUrl(binding.getParameters().get(SqlServerClient.DATABASE).toString());
-//        String uri = "jdbc:sqlserver://" + m.get("hostname") + ":" + m.get("port") + ";databaseName=" + binding.getParameters().get(SqlServerClient.DATABASE);
         m.put("uri", client.getDbUrl(binding.getParameters().get(SqlServerClient.DATABASE).toString()));
 
         m.put(SqlServerClient.USERNAME, binding.getParameters().get(SqlServerClient.USERNAME));

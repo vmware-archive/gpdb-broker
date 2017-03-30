@@ -1,1 +1,1 @@
-io.pivotal.ecosystem.sqlserver.connector.broker.es.SqlServerServiceInfoCreator
+io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfoCreator

@@ -76,10 +76,6 @@ public class SqlServerClient {
         execStatement("CREATE DATABASE [" + db + "]");
         execStatement("ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
 
-//        execStatement("use " + db);
-//        execStatement("exec sp_configure 'contained database authentication', 1");
-
-
         log.info("Database: " + db + " created successfully...");
         return db;
     }
@@ -96,13 +92,12 @@ public class SqlServerClient {
     }
 
     String getDbUrl(String db) {
-        String uri = null;
+        String uri;
         if (db == null) {
             uri = "jdbc:sqlserver://" + getHost() + ":" + getPort();
         } else {
             uri = "jdbc:sqlserver://" + getHost() + ":" + getPort() + ";databaseName=" + db;
         }
-        log.info("**************************** " + uri + " +++++++++++++++++++++++++++++++++++");
         return uri;
     }
 
@@ -164,16 +159,8 @@ public class SqlServerClient {
 
         log.info("creds: " + userCredentials.toString());
 
-        String s = " USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo];";
+        String s = " USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '" + uid + "'";
         execStatement(s);
-
-////        execStatement("CREATE LOGIN " + uid + " WITH PASSWORD = '" + pwd + "', DEFAULT_DATABASE = " + db);
-//        execStatement("USE " + db);
-////        execStatement("CREATE USER " + uid + " FOR LOGIN " + uid);
-////        execStatement("CREATE USER " + uid);
-//
-//        execStatement("CREATE USER " + uid + " with password = '" + pwd + "';");
-////        execStatement("EXEC sp_addrolemember 'db_owner', '" + uid + "';");
 
         log.info("Created user: " + userCredentials.get(USERNAME));
 
