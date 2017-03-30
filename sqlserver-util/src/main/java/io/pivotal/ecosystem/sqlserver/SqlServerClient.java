@@ -95,10 +95,15 @@ public class SqlServerClient {
         return checkIfExists("SELECT count(*) FROM sys.databases WHERE name = '" + db + "'");
     }
 
-    String getDbUrl() {
-        String dbUrl = "jdbc:sqlserver://" + getHost() + ":" + getPort();
-        log.info("**************************** " + dbUrl + " +++++++++++++++++++++++++++++++++++");
-        return dbUrl;
+    String getDbUrl(String db) {
+        String uri = null;
+        if (db == null) {
+            uri = "jdbc:sqlserver://" + getHost() + ":" + getPort();
+        } else {
+            uri = "jdbc:sqlserver://" + getHost() + ":" + getPort() + ";databaseName=" + db;
+        }
+        log.info("**************************** " + uri + " +++++++++++++++++++++++++++++++++++");
+        return uri;
     }
 
     String getHost() {
@@ -115,7 +120,7 @@ public class SqlServerClient {
     Connection getSAConnection() {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(getDbUrl(), env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"));
+            return DriverManager.getConnection(getDbUrl(null), env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"));
         } catch (Throwable throwable) {
             throw new ServiceBrokerException(throwable.getMessage());
         }
@@ -124,7 +129,7 @@ public class SqlServerClient {
     Connection getUserConnection(String uid, String pw, String db) {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(getDbUrl() + ";databaseName=" + db, uid, pw);
+            return DriverManager.getConnection(getDbUrl(db), uid, pw);
         } catch (Throwable throwable) {
             throw new ServiceBrokerException(throwable.getMessage());
         }

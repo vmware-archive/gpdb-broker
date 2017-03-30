@@ -112,6 +112,7 @@ class SqlServerBroker extends DefaultServiceImpl {
         Map<String, String> userCredentials = client.createUserCreds(db);
         binding.getParameters().put(SqlServerClient.USERNAME, userCredentials.get(SqlServerClient.USERNAME));
         binding.getParameters().put(SqlServerClient.PASSWORD, userCredentials.get(SqlServerClient.PASSWORD));
+        binding.getParameters().put(SqlServerClient.DATABASE, db);
     }
 
     /**
@@ -145,12 +146,13 @@ class SqlServerBroker extends DefaultServiceImpl {
         Map<String, Object> m = new HashMap<>();
         m.put("hostname", env.getProperty("SQL_HOST"));
         m.put("port", env.getProperty("SQL_PORT"));
-        String uri = "jdbc:sqlserver://" + m.get("hostname") + ":" + m.get("port");
-        m.put("uri", uri);
+//        String uri = client.getDbUrl(binding.getParameters().get(SqlServerClient.DATABASE).toString());
+//        String uri = "jdbc:sqlserver://" + m.get("hostname") + ":" + m.get("port") + ";databaseName=" + binding.getParameters().get(SqlServerClient.DATABASE);
+        m.put("uri", client.getDbUrl(binding.getParameters().get(SqlServerClient.DATABASE).toString()));
 
         m.put(SqlServerClient.USERNAME, binding.getParameters().get(SqlServerClient.USERNAME));
         m.put(SqlServerClient.PASSWORD, binding.getParameters().get(SqlServerClient.PASSWORD));
-        m.put(SqlServerClient.DATABASE, instance.getParameters().get(SqlServerClient.DATABASE));
+        m.put(SqlServerClient.DATABASE, binding.getParameters().get(SqlServerClient.DATABASE));
 
         //TODO add uid and pw into connection string?
         return m;

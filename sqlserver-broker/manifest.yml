@@ -9,7 +9,7 @@ applications:
   env:
     SPRING_PROFILES_ACTIVE: cloud
     API_VERSION: '2.10'
-    SQL_HOST: 35.184.218.112
+    SQL_HOST: 35.188.63.27
     SQL_PORT: 1433
     SQLSERVER_USERNAME: sa
     SQLSERVER_PASSWORD: Passw0rd
