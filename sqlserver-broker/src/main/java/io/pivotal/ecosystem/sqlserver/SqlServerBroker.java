@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016-Present Pivotal Software, Inc. All rights reserved.
  * <p>
  * This program and the accompanying materials are made available under
@@ -37,6 +37,7 @@ import java.util.Map;
  * that if, for instance, your broker does not support binding you can just delete the binding methods below
  * (in other words, you do not need to implement your own no-op implementations).
  */
+
 @Service
 @Slf4j
 class SqlServerBroker extends DefaultServiceImpl {

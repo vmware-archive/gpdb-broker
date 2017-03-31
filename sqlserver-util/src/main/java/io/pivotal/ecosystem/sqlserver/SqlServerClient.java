@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2016-Present Pivotal Software, Inc. All rights reserved.
  * <p>
  * This program and the accompanying materials are made available under
@@ -33,15 +33,16 @@ public class SqlServerClient {
 
     private Environment env;
 
-    public static final String USERNAME = "uid";
-    public static final String PASSWORD = "pw";
-    public static final String DATABASE = "db";
-    public static final int DEFAULT_PORT = 1433;
+    static final String USERNAME = "uid";
+    static final String PASSWORD = "pw";
+    static final String DATABASE = "db";
+    static final int DEFAULT_PORT = 1433;
 
     public SqlServerClient(Environment env) {
         this.env = env;
     }
 
+    //TODO use jdbc template?
     private void execStatement(String statement) {
         Statement stmt = null;
         Connection conn = null;
@@ -49,7 +50,7 @@ public class SqlServerClient {
             conn = getSAConnection();
             stmt = conn.createStatement();
             stmt.execute(statement);
-            log.info(statement + " statement executed successfully...");
+            log.debug(statement + "statement executed successfully...");
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new ServiceBrokerException(e);
