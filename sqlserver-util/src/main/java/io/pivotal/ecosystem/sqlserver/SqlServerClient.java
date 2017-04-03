@@ -61,6 +61,9 @@ class SqlServerClient {
         return this.url + ";databaseName=" + db;
     }
 
+    //todo get a sql injection stopper in there to protect against elevation of privs.
+    //todo how to protect dbs etc. from bad actors?
+    //todo allow users to provide their own uid/pw/db names?
     private String getRandomishId() {
         return UUID.randomUUID().toString().replaceAll("[-]", "");
     }
