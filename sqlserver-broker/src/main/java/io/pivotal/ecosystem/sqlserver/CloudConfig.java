@@ -1,6 +1,7 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
+import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -20,12 +21,13 @@ public class CloudConfig {
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
 
         dataSource.setURL(dbUrl(env));
-        dataSource.setUser(env.getProperty(SqlServerClient.USER_KEY));
-        dataSource.setPassword(env.getProperty(SqlServerClient.PW_KEY));
+        dataSource.setUser(env.getProperty(SqlServerServiceInfo.USER_KEY));
+        dataSource.setPassword(env.getProperty(SqlServerServiceInfo.PW_KEY));
 
         return dataSource;
     }
 
+    //todo get rid of testconfigs
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource datasource) {
         return new JdbcTemplate(datasource);
@@ -33,6 +35,6 @@ public class CloudConfig {
 
     @Bean
     public String dbUrl(Environment env) {
-        return SqlServerClient.URI_SCHEME + "://" + env.getProperty(SqlServerClient.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerClient.PORT_KEY));
+        return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
     }
 }

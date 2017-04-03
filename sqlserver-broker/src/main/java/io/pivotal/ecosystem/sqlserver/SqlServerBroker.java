@@ -20,9 +20,9 @@ package io.pivotal.ecosystem.sqlserver;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
+import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -42,13 +42,11 @@ import java.util.Map;
 @Slf4j
 class SqlServerBroker extends DefaultServiceImpl {
 
-    private Environment env;
     private SqlServerClient client;
 
 
-    public SqlServerBroker(Environment env, SqlServerClient client) {
+    public SqlServerBroker(SqlServerClient client) {
         super();
-        this.env = env;
         this.client = client;
     }
 
@@ -64,7 +62,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("creating database...");
         String db = client.createDatabase();
-        instance.getParameters().put(SqlServerClient.DATABASE, db);
+        instance.getParameters().put(SqlServerServiceInfo.DATABASE, db);
         log.info("database: " + db + " created.");
     }
 
@@ -76,7 +74,7 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteInstance(ServiceInstance instance) {
-        String db = instance.getParameters().get(SqlServerClient.DATABASE).toString();
+        String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
         log.info("deleting database: " + db);
         client.deleteDatabase(db);
     }
@@ -107,13 +105,13 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
-        String db = instance.getParameters().get(SqlServerClient.DATABASE).toString();
+        String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
         log.info("binding app: " + binding.getAppGuid() + " to database: " + db);
 
         Map<String, String> userCredentials = client.createUserCreds(db);
-        binding.getParameters().put(SqlServerClient.USERNAME, userCredentials.get(SqlServerClient.USERNAME));
-        binding.getParameters().put(SqlServerClient.PASSWORD, userCredentials.get(SqlServerClient.PASSWORD));
-        binding.getParameters().put(SqlServerClient.DATABASE, db);
+        binding.getParameters().put(SqlServerServiceInfo.USERNAME, userCredentials.get(SqlServerServiceInfo.USERNAME));
+        binding.getParameters().put(SqlServerServiceInfo.PASSWORD, userCredentials.get(SqlServerServiceInfo.PASSWORD));
+        binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
     }
 
     /**
@@ -124,8 +122,8 @@ class SqlServerBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerClient.DATABASE));
-        client.deleteUserCreds(binding.getParameters().get(SqlServerClient.USERNAME).toString(), binding.getParameters().get(SqlServerClient.DATABASE).toString());
+        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(SqlServerServiceInfo.DATABASE));
+        client.deleteUserCreds(binding.getParameters().get(SqlServerServiceInfo.USERNAME).toString(), binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString());
     }
 
     /**
@@ -144,15 +142,14 @@ class SqlServerBroker extends DefaultServiceImpl {
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
         log.info("returning credentials.");
 
-        //todo find a good place to define keys
         Map<String, Object> m = new HashMap<>();
-        m.put("hostname", env.getProperty("SQL_HOST"));
-        m.put("port", env.getProperty("SQL_PORT"));
-        m.put("uri", client.getDbUrl(binding.getParameters().get(SqlServerClient.DATABASE).toString()));
+        m.put(SqlServerServiceInfo.HOSTNAME, SqlServerServiceInfo.HOST_KEY);
+        m.put(SqlServerServiceInfo.PORT, SqlServerServiceInfo.PORT_KEY);
+        m.put(SqlServerServiceInfo.URI, client.getDbUrl(binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString()));
 
-        m.put(SqlServerClient.USERNAME, binding.getParameters().get(SqlServerClient.USERNAME));
-        m.put(SqlServerClient.PASSWORD, binding.getParameters().get(SqlServerClient.PASSWORD));
-        m.put(SqlServerClient.DATABASE, binding.getParameters().get(SqlServerClient.DATABASE));
+        m.put(SqlServerServiceInfo.USERNAME, binding.getParameters().get(SqlServerServiceInfo.USERNAME));
+        m.put(SqlServerServiceInfo.PASSWORD, binding.getParameters().get(SqlServerServiceInfo.PASSWORD));
+        m.put(SqlServerServiceInfo.DATABASE, binding.getParameters().get(SqlServerServiceInfo.DATABASE));
 
         return m;
     }
@@ -161,5 +158,4 @@ class SqlServerBroker extends DefaultServiceImpl {
     public boolean isAsync() {
         return false;
     }
-
 }

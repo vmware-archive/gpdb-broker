@@ -23,10 +23,24 @@ import org.springframework.cloud.service.ServiceInfo;
 
 @Data
 @AllArgsConstructor
-class SqlServerServiceInfo implements ServiceInfo {
+public class SqlServerServiceInfo implements ServiceInfo {
 
-    //todo find a home for this
-    static final String URI_SCHEME = "jdbc:sqlserver";
+    //scheme used by connectors to tag this to sql server
+    public static final String URI_SCHEME = "jdbc:sqlserver";
+
+    //keys used to store metadata for service bindings
+    public static final String USERNAME = "uid";
+    public static final String PASSWORD = "pw";
+    public static final String URI = "uri";
+    public static final String DATABASE = "db";
+    public static final String HOSTNAME = "hostname";
+    public static final String PORT = "port";
+
+    //keys used to pull connection information out of env
+    public static final String HOST_KEY = "SQL_HOST";
+    public static final String PORT_KEY = "SQL_PORT";
+    public static final String USER_KEY = "SQLSERVER_USERNAME";
+    public static final String PW_KEY = "SQLSERVER_PASSWORD";
 
     private String id;
     private String user;

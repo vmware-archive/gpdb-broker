@@ -18,6 +18,7 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
+import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -46,8 +47,8 @@ class TestConfig {
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
 
         dataSource.setURL(dbUrl(env));
-        dataSource.setUser(env.getProperty(SqlServerClient.USER_KEY));
-        dataSource.setPassword(env.getProperty(SqlServerClient.PW_KEY));
+        dataSource.setUser(env.getProperty(SqlServerServiceInfo.USER_KEY));
+        dataSource.setPassword(env.getProperty(SqlServerServiceInfo.PW_KEY));
 
         return dataSource;
     }
@@ -59,6 +60,6 @@ class TestConfig {
 
     @Bean
     public String dbUrl(Environment env) {
-        return SqlServerClient.URI_SCHEME + "://" + env.getProperty(SqlServerClient.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerClient.PORT_KEY));
+        return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
     }
 }

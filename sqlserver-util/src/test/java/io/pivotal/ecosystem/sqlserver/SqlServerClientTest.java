@@ -18,6 +18,7 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
+import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,19 +45,19 @@ public class SqlServerClientTest {
 
         Map<String, String> userCredentials = client.createUserCreds(db);
 
-        String uid = userCredentials.get(SqlServerClient.USERNAME);
+        String uid = userCredentials.get(SqlServerServiceInfo.USERNAME);
         assertNotNull(uid);
 
-        String pw = userCredentials.get(SqlServerClient.PASSWORD);
+        String pw = userCredentials.get(SqlServerServiceInfo.PASSWORD);
         assertNotNull(pw);
 
-        assertEquals(db, userCredentials.get(SqlServerClient.DATABASE));
+        assertEquals(db, userCredentials.get(SqlServerServiceInfo.DATABASE));
 
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
         String url = client.getDbUrl(db);
         dataSource.setURL(url);
-        dataSource.setUser(userCredentials.get(SqlServerClient.USERNAME));
-        dataSource.setPassword(userCredentials.get(SqlServerClient.PASSWORD));
+        dataSource.setUser(userCredentials.get(SqlServerServiceInfo.USERNAME));
+        dataSource.setPassword(userCredentials.get(SqlServerServiceInfo.PASSWORD));
 
         Connection c = dataSource.getConnection();
         assertNotNull(c);

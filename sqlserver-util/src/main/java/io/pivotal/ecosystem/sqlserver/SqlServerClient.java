@@ -18,6 +18,7 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import lombok.extern.slf4j.Slf4j;
+import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -28,16 +29,6 @@ import java.util.UUID;
 @Service
 @Slf4j
 class SqlServerClient {
-
-    //todo literals
-    static final String USERNAME = "uid";
-    static final String PASSWORD = "pw";
-    static final String DATABASE = "db";
-    static final String HOST_KEY = "SQL_HOST";
-    static final String PORT_KEY = "SQL_PORT";
-    static final String USER_KEY = "SQLSERVER_USERNAME";
-    static final String PW_KEY = "SQLSERVER_PASSWORD";
-    static final String URI_SCHEME = "jdbc:sqlserver";
 
     private JdbcTemplate jdbcTemplate;
     private String url;
@@ -93,14 +84,14 @@ class SqlServerClient {
         String uid = createUserId();
         String pwd = createPassword();
 
-        userCredentials.put(USERNAME, uid);
-        userCredentials.put(PASSWORD, pwd);
-        userCredentials.put(DATABASE, db);
+        userCredentials.put(SqlServerServiceInfo.USERNAME, uid);
+        userCredentials.put(SqlServerServiceInfo.PASSWORD, pwd);
+        userCredentials.put(SqlServerServiceInfo.DATABASE, db);
 
         log.debug("creds: " + userCredentials.toString());
         jdbcTemplate.execute("USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '" + uid + "'");
 
-        log.info("Created user: " + userCredentials.get(USERNAME));
+        log.info("Created user: " + userCredentials.get(SqlServerServiceInfo.USERNAME));
         return userCredentials;
     }
 
