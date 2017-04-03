@@ -17,8 +17,8 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
-import lombok.extern.slf4j.Slf4j;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +54,6 @@ class SqlServerClient {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?", new Object[]{db}, Integer.class) > 0;
     }
 
-    //todo literals
     String getDbUrl(String db) {
         if (db == null) {
             return this.url;

@@ -5,14 +5,12 @@ import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
 
 @Configuration
-@Profile("cloud")
 @ComponentScan(basePackages = {"io.pivotal.ecosystem.servicebroker", "io.pivotal.cf.servicebroker", "io.pivotal.ecosystem.sqlserver"})
 public class CloudConfig {
 
@@ -27,7 +25,6 @@ public class CloudConfig {
         return dataSource;
     }
 
-    //todo get rid of testconfigs
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource datasource) {
         return new JdbcTemplate(datasource);

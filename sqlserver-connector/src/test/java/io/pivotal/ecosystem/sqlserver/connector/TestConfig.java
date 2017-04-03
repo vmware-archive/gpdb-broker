@@ -28,9 +28,8 @@ import org.springframework.core.env.Environment;
 @Slf4j
 class TestConfig {
 
-    //todo literals
     @Bean
     public SqlServerServiceInfo sqlServerServiceInfo(Environment env) {
-        return new SqlServerServiceInfo("1", env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"), SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty("SQL_HOST") + ":" + env.getProperty("SQL_PORT"));
+        return new SqlServerServiceInfo("1", env.getProperty(SqlServerServiceInfo.USER_KEY), env.getProperty(SqlServerServiceInfo.PW_KEY), SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + env.getProperty(SqlServerServiceInfo.PORT_KEY));
     }
 }
