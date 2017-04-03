@@ -17,13 +17,16 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
+import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:application.properties")
@@ -31,15 +34,31 @@ import org.springframework.core.env.Environment;
 class TestConfig {
 
     @Autowired
-    Environment env;
+    private Environment env;
 
     @Bean
-    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
-        return new PropertySourcesPlaceholderConfigurer();
+    public SqlServerClient client(JdbcTemplate jdbcTemplate, Environment env) {
+        return new SqlServerClient(jdbcTemplate, dbUrl(env));
     }
 
     @Bean
-    public SqlServerClient client(Environment env) {
-        return new SqlServerClient(env);
+    public DataSource datasource(Environment env) {
+        SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
+
+        dataSource.setURL(dbUrl(env));
+        dataSource.setUser(env.getProperty(SqlServerClient.USER_KEY));
+        dataSource.setPassword(env.getProperty(SqlServerClient.PW_KEY));
+
+        return dataSource;
+    }
+
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource datasource) {
+        return new JdbcTemplate(datasource);
+    }
+
+    @Bean
+    public String dbUrl(Environment env) {
+        return SqlServerClient.URI_SCHEME + "://" + env.getProperty(SqlServerClient.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerClient.PORT_KEY));
     }
 }

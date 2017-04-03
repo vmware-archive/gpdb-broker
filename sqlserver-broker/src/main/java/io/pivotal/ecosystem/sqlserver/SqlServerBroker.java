@@ -144,6 +144,7 @@ class SqlServerBroker extends DefaultServiceImpl {
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
         log.info("returning credentials.");
 
+        //todo find a good place to define keys
         Map<String, Object> m = new HashMap<>();
         m.put("hostname", env.getProperty("SQL_HOST"));
         m.put("port", env.getProperty("SQL_PORT"));
@@ -153,7 +154,6 @@ class SqlServerBroker extends DefaultServiceImpl {
         m.put(SqlServerClient.PASSWORD, binding.getParameters().get(SqlServerClient.PASSWORD));
         m.put(SqlServerClient.DATABASE, binding.getParameters().get(SqlServerClient.DATABASE));
 
-        //TODO add uid and pw into connection string?
         return m;
     }
 

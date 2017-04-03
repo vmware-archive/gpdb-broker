@@ -25,6 +25,7 @@ import org.springframework.cloud.service.ServiceInfo;
 @AllArgsConstructor
 class SqlServerServiceInfo implements ServiceInfo {
 
+    //todo find a home for this
     static final String URI_SCHEME = "jdbc:sqlserver";
 
     private String id;

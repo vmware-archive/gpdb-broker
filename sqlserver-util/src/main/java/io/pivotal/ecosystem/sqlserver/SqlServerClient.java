@@ -18,117 +18,57 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
-import org.springframework.core.env.Environment;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 @Service
 @Slf4j
-public class SqlServerClient {
+class SqlServerClient {
 
-    private Environment env;
-
+    //todo literals
     static final String USERNAME = "uid";
     static final String PASSWORD = "pw";
     static final String DATABASE = "db";
-    static final int DEFAULT_PORT = 1433;
+    static final String HOST_KEY = "SQL_HOST";
+    static final String PORT_KEY = "SQL_PORT";
+    static final String USER_KEY = "SQLSERVER_USERNAME";
+    static final String PW_KEY = "SQLSERVER_PASSWORD";
+    static final String URI_SCHEME = "jdbc:sqlserver";
 
-    public SqlServerClient(Environment env) {
-        this.env = env;
-    }
+    private JdbcTemplate jdbcTemplate;
+    private String url;
 
-    //TODO use jdbc template?
-    private void execStatement(String statement) {
-        Statement stmt = null;
-        Connection conn = null;
-        try {
-            conn = getSAConnection();
-            stmt = conn.createStatement();
-            stmt.execute(statement);
-            log.debug(statement + "statement executed successfully...");
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ServiceBrokerException(e);
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-            } catch (SQLException se2) {
-                try {
-                    conn.close();
-                } catch (SQLException se) {
-                    log.warn(se.getMessage());
-                }
-            }
-        }
+    SqlServerClient(JdbcTemplate jdbcTemplate, String dbUrl) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.url = dbUrl;
     }
 
     String createDatabase() {
         String db = createDbName();
-
-        execStatement("use [master]");
-        execStatement("exec sp_configure 'contained database authentication', 1");
-        execStatement("reconfigure");
-        execStatement("CREATE DATABASE [" + db + "]");
-        execStatement("ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
-
+        jdbcTemplate.execute("use [master]; exec sp_configure 'contained database authentication', 1 reconfigure; CREATE DATABASE [" + db + "]; ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
         log.info("Database: " + db + " created successfully...");
         return db;
     }
 
     void deleteDatabase(String db) {
-        String deleteStmt = "ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db;
-        log.debug(deleteStmt);
-        execStatement(deleteStmt);
+        jdbcTemplate.execute("ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db);
         log.info("Database: " + db + " deleted successfully...");
     }
 
     boolean checkDatabaseExists(String db) {
-        return checkIfExists("SELECT count(*) FROM sys.databases WHERE name = '" + db + "'");
+        return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?", new Object[]{db}, Integer.class) > 0;
     }
 
+    //todo literals
     String getDbUrl(String db) {
-        String uri;
         if (db == null) {
-            uri = "jdbc:sqlserver://" + getHost() + ":" + getPort();
-        } else {
-            uri = "jdbc:sqlserver://" + getHost() + ":" + getPort() + ";databaseName=" + db;
+            return this.url;
         }
-        return uri;
-    }
-
-    String getHost() {
-        return env.getProperty("SQL_HOST");
-    }
-
-    int getPort() {
-        if (env.getProperty("SQL_PORT") != null) {
-            return Integer.parseInt(env.getProperty("SQL_PORT"));
-        }
-        return DEFAULT_PORT;
-    }
-
-    Connection getSAConnection() {
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(getDbUrl(null), env.getProperty("SQLSERVER_USERNAME"), env.getProperty("SQLSERVER_PASSWORD"));
-        } catch (Throwable throwable) {
-            throw new ServiceBrokerException(throwable.getMessage());
-        }
-    }
-
-    Connection getUserConnection(String uid, String pw, String db) {
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            return DriverManager.getConnection(getDbUrl(db), uid, pw);
-        } catch (Throwable throwable) {
-            throw new ServiceBrokerException(throwable.getMessage());
-        }
+        return this.url + ";databaseName=" + db;
     }
 
     private String getRandomishId() {
@@ -143,12 +83,11 @@ public class SqlServerClient {
         return "P" + getRandomishId();
     }
 
-    String createDbName() {
+    private String createDbName() {
         return "d" + getRandomishId();
     }
 
     Map<String, String> createUserCreds(String db) {
-
         Map<String, String> userCredentials = new HashMap<>();
 
         String uid = createUserId();
@@ -158,50 +97,18 @@ public class SqlServerClient {
         userCredentials.put(PASSWORD, pwd);
         userCredentials.put(DATABASE, db);
 
-        log.info("creds: " + userCredentials.toString());
-
-        String s = " USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '" + uid + "'";
-        execStatement(s);
+        log.debug("creds: " + userCredentials.toString());
+        jdbcTemplate.execute("USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '" + uid + "'");
 
         log.info("Created user: " + userCredentials.get(USERNAME));
-
         return userCredentials;
     }
 
     void deleteUserCreds(String uid, String db) {
-        execStatement("use " + db + "; DROP USER IF EXISTS " + uid);
+        jdbcTemplate.execute("use " + db + "; DROP USER IF EXISTS " + uid);
     }
 
     boolean checkUserExists(String uid, String db) {
-        return checkIfExists("use " + db + "; SELECT count(name) FROM sys.database_principals WHERE name = '" + uid + "'");
-    }
-
-    private boolean checkIfExists(String countQuery) {
-        Connection conn = null;
-        Statement stmt = null;
-        try {
-            conn = getSAConnection();
-            stmt = conn.createStatement();
-            ResultSet rs = stmt.executeQuery(countQuery);
-            rs.next();
-            if (rs.getInt(1) > 0) {
-                return true;
-            }
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new ServiceBrokerException(e);
-        } finally {
-            try {
-                if (stmt != null)
-                    stmt.close();
-            } catch (SQLException se2) {
-                try {
-                    conn.close();
-                } catch (SQLException se) {
-                    log.warn(se.getMessage());
-                }
-            }
-        }
-        return false;
+        return jdbcTemplate.queryForObject("use " + db + "; SELECT count(name) FROM sys.database_principals WHERE name = ?", new Object[]{uid}, Integer.class) > 0;
     }
 }

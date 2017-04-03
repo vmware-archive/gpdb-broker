@@ -19,7 +19,6 @@ package io.pivotal.ecosystem.sqlserver.client;
 
 import lombok.Data;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -37,8 +36,7 @@ class Quote implements Serializable {
 
     private float low;
 
-    @Column(name = "opened")
-    private float open;
+    private float opened;
 
     private int volume;
 
@@ -48,6 +46,5 @@ class Quote implements Serializable {
 
     private String companyname;
 
-    @Column(name = "changed")
     private float change;
 }

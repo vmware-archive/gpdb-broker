@@ -26,7 +26,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -40,18 +39,10 @@ public class SqlServerClientTest {
     private SqlServerClient client;
 
     @Test
-    public void testSAConnection() throws SQLException {
-        Connection c = client.getSAConnection();
-        assertNotNull(c);
-        c.close();
-    }
-
-    @Test
     public void testCreateAndDeleteDatabase() throws Exception {
         String db = client.createDatabase();
 
         Map<String, String> userCredentials = client.createUserCreds(db);
-        assertTrue(client.checkDatabaseExists(db));
 
         String uid = userCredentials.get(SqlServerClient.USERNAME);
         assertNotNull(uid);
@@ -77,5 +68,17 @@ public class SqlServerClientTest {
 
         client.deleteDatabase(db);
         assertFalse(client.checkDatabaseExists(db));
+    }
+
+    @Test
+    public void testDbExists() {
+        assertTrue(client.checkDatabaseExists("master"));
+        assertFalse(client.checkDatabaseExists("kjfhskfjd"));
+    }
+
+    @Test
+    public void testUri() {
+        assertEquals("jdbc:sqlserver://35.188.63.27:1433", client.getDbUrl(null));
+        assertEquals("jdbc:sqlserver://35.188.63.27:1433;databaseName=foo", client.getDbUrl("foo"));
     }
 }

@@ -26,6 +26,7 @@ import java.util.Map;
 @Slf4j
 public class SqlServerServiceInfoCreator extends CloudFoundryServiceInfoCreator<SqlServerServiceInfo> {
 
+    //todo find a home for these
     private static final String USERNAME = "uid";
     private static final String PASSWORD = "pw";
     private static final String URI = "uri";
