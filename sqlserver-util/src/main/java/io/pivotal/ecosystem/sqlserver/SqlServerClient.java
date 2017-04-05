@@ -17,29 +17,33 @@
 
 package io.pivotal.ecosystem.sqlserver;
 
+import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
+import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Service
+@Repository
 @Slf4j
 class SqlServerClient {
 
     private JdbcTemplate jdbcTemplate;
     private String url;
 
-    SqlServerClient(JdbcTemplate jdbcTemplate, String dbUrl) {
-        this.jdbcTemplate = jdbcTemplate;
+    SqlServerClient(DataSource dataSource, String dbUrl) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.url = dbUrl;
     }
 
-    String createDatabase() {
-        String db = createDbName();
+    String createDatabase(ServiceInstance instance) {
+        String db = createDbName(instance.getParameters().get(SqlServerServiceInfo.DATABASE));
         jdbcTemplate.execute("use [master]; exec sp_configure 'contained database authentication', 1 reconfigure; CREATE DATABASE [" + db + "]; ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
         log.info("Database: " + db + " created successfully...");
         return db;
@@ -61,37 +65,64 @@ class SqlServerClient {
         return this.url + ";databaseName=" + db;
     }
 
-    //todo get a sql injection stopper in there to protect against elevation of privs.
     //todo how to protect dbs etc. from bad actors?
-    //todo allow users to provide their own uid/pw/db names?
     private String getRandomishId() {
-        return UUID.randomUUID().toString().replaceAll("[-]", "");
+        return clean(UUID.randomUUID().toString());
     }
 
-    private String createUserId() {
+    /**
+     * jdbcTemplate helps protect against sql injection, but also clean strings up just in case
+     */
+    String clean(String s) {
+        if (s == null) {
+            return "";
+        }
+        return s.replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    private String checkString(String s) throws ServiceBrokerException {
+        if (s.equals(clean(s))) {
+            return s;
+        }
+        throw new ServiceBrokerException("Name must contain only alphanumeric characters.");
+    }
+
+    private String createUserId(Object o) {
+        if (o != null) {
+            return checkString(o.toString());
+        }
         return "u" + getRandomishId();
     }
 
-    private String createPassword() {
+    private String createPassword(Object o) {
+        if (o != null) {
+            return checkString(o.toString());
+        }
         return "P" + getRandomishId();
     }
 
-    private String createDbName() {
+    private String createDbName(Object o) {
+        if (o != null) {
+            return checkString(o.toString());
+        }
         return "d" + getRandomishId();
     }
 
-    Map<String, String> createUserCreds(String db) {
+    Map<String, String> createUserCreds(ServiceBinding binding) {
+        String db = binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
 
-        String uid = createUserId();
-        String pwd = createPassword();
-
-        userCredentials.put(SqlServerServiceInfo.USERNAME, uid);
-        userCredentials.put(SqlServerServiceInfo.PASSWORD, pwd);
+        //users can optionally pass in uids and passwords
+        userCredentials.put(SqlServerServiceInfo.USERNAME, createUserId(binding.getParameters().get(SqlServerServiceInfo.USERNAME)));
+        userCredentials.put(SqlServerServiceInfo.PASSWORD, createPassword(binding.getParameters().get(SqlServerServiceInfo.PASSWORD)));
         userCredentials.put(SqlServerServiceInfo.DATABASE, db);
-
         log.debug("creds: " + userCredentials.toString());
-        jdbcTemplate.execute("USE [" + db + "]; CREATE USER [" + uid + "] WITH PASSWORD='" + pwd + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '" + uid + "'");
+
+        jdbcTemplate.execute("USE [" + db + "]; CREATE USER ["
+                + userCredentials.get(SqlServerServiceInfo.USERNAME)
+                + "] WITH PASSWORD='" + userCredentials.get(SqlServerServiceInfo.PASSWORD)
+                + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
+                + userCredentials.get(SqlServerServiceInfo.USERNAME) + "'");
 
         log.info("Created user: " + userCredentials.get(SqlServerServiceInfo.USERNAME));
         return userCredentials;

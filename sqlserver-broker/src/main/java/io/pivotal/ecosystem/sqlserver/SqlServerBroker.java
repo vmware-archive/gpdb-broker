@@ -61,7 +61,9 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("creating database...");
-        String db = client.createDatabase();
+
+        //user can optionally specify a db name
+        String db = client.createDatabase(instance);
         instance.getParameters().put(SqlServerServiceInfo.DATABASE, db);
         log.info("database: " + db + " created.");
     }
@@ -106,12 +108,13 @@ class SqlServerBroker extends DefaultServiceImpl {
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
         String db = instance.getParameters().get(SqlServerServiceInfo.DATABASE).toString();
-        log.info("binding app: " + binding.getAppGuid() + " to database: " + db);
+        binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
 
-        Map<String, String> userCredentials = client.createUserCreds(db);
+        Map<String, String> userCredentials = client.createUserCreds(binding);
         binding.getParameters().put(SqlServerServiceInfo.USERNAME, userCredentials.get(SqlServerServiceInfo.USERNAME));
         binding.getParameters().put(SqlServerServiceInfo.PASSWORD, userCredentials.get(SqlServerServiceInfo.PASSWORD));
-        binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
+
+        log.info("bound app: " + binding.getAppGuid() + " to database: " + db);
     }
 
     /**
@@ -143,8 +146,6 @@ class SqlServerBroker extends DefaultServiceImpl {
         log.info("returning credentials.");
 
         Map<String, Object> m = new HashMap<>();
-        m.put(SqlServerServiceInfo.HOSTNAME, SqlServerServiceInfo.HOST_KEY);
-        m.put(SqlServerServiceInfo.PORT, SqlServerServiceInfo.PORT_KEY);
         m.put(SqlServerServiceInfo.URI, client.getDbUrl(binding.getParameters().get(SqlServerServiceInfo.DATABASE).toString()));
 
         m.put(SqlServerServiceInfo.USERNAME, binding.getParameters().get(SqlServerServiceInfo.USERNAME));

@@ -18,6 +18,9 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
+import com.microsoft.sqlserver.jdbc.SQLServerException;
+import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
+import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -27,6 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -39,11 +43,34 @@ public class SqlServerClientTest {
     @Autowired
     private SqlServerClient client;
 
-    @Test
-    public void testCreateAndDeleteDatabase() throws Exception {
-        String db = client.createDatabase();
+    @Autowired
+    private ServiceBinding serviceBindingWithParms;
 
-        Map<String, String> userCredentials = client.createUserCreds(db);
+    @Autowired
+    private ServiceBinding serviceBindingNoParms;
+
+    @Autowired
+    private ServiceInstance serviceInstanceWithParams;
+
+    @Autowired
+    private ServiceInstance serviceInstanceNoParams;
+
+    @Test
+    public void testCreateAndDeleteWithParms() throws SQLException {
+        testCreateAndDeleteDatabase(serviceInstanceWithParams, serviceBindingWithParms);
+    }
+
+    @Test
+    public void testCreateAndDeleteNoParms() throws SQLException {
+        testCreateAndDeleteDatabase(serviceInstanceNoParams, serviceBindingNoParms);
+    }
+
+    private void testCreateAndDeleteDatabase(ServiceInstance serviceInstance, ServiceBinding binding) throws SQLException {
+        String db = client.createDatabase(serviceInstance);
+        assertNotNull(db);
+        binding.getParameters().put(SqlServerServiceInfo.DATABASE, db);
+
+        Map<String, String> userCredentials = client.createUserCreds(binding);
 
         String uid = userCredentials.get(SqlServerServiceInfo.USERNAME);
         assertNotNull(uid);
@@ -54,7 +81,7 @@ public class SqlServerClientTest {
         assertEquals(db, userCredentials.get(SqlServerServiceInfo.DATABASE));
 
         SQLServerConnectionPoolDataSource dataSource = new SQLServerConnectionPoolDataSource();
-        String url = client.getDbUrl(db);
+        String url = client.getDbUrl(db.toString());
         dataSource.setURL(url);
         dataSource.setUser(userCredentials.get(SqlServerServiceInfo.USERNAME));
         dataSource.setPassword(userCredentials.get(SqlServerServiceInfo.PASSWORD));
@@ -63,12 +90,12 @@ public class SqlServerClientTest {
         assertNotNull(c);
         c.close();
 
-        assertTrue(client.checkUserExists(uid, db));
-        client.deleteUserCreds(uid, db);
-        assertFalse(client.checkUserExists(uid, db));
+        assertTrue(client.checkUserExists(uid, db.toString()));
+        client.deleteUserCreds(uid, db.toString());
+        assertFalse(client.checkUserExists(uid, db.toString()));
 
-        client.deleteDatabase(db);
-        assertFalse(client.checkDatabaseExists(db));
+        client.deleteDatabase(db.toString());
+        assertFalse(client.checkDatabaseExists(db.toString()));
     }
 
     @Test
@@ -81,5 +108,15 @@ public class SqlServerClientTest {
     public void testUri() {
         assertEquals("jdbc:sqlserver://35.188.63.27:1433", client.getDbUrl(null));
         assertEquals("jdbc:sqlserver://35.188.63.27:1433;databaseName=foo", client.getDbUrl("foo"));
+    }
+
+    @Test
+    public void testClean() {
+        assertEquals("dsfuwe98fy2Yd9y2", client.clean("dsfuwe98fy2Yd9y2"));
+        assertEquals("dsfuwe98fy2Yd9y2", client.clean("dsfuw  e98f& ()$%^$ <> y2Yd9y2"));
+        assertEquals("", client.clean(""));
+        assertEquals("", client.clean("        "));
+        assertEquals("", client.clean(null));
+        assertEquals("dfjhgkjhfdgtjhowefiTT", client.clean("dfjhgkjhfd<>&gt;// \\ jhowefi TT "));
     }
 }

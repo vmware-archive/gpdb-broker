@@ -18,7 +18,11 @@
 package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
+import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
+import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
+import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
@@ -26,14 +30,16 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 @PropertySource("classpath:application.properties")
 class TestConfig {
 
     @Bean
-    public SqlServerClient client(JdbcTemplate jdbcTemplate, Environment env) {
-        return new SqlServerClient(jdbcTemplate, dbUrl(env));
+    public SqlServerClient client(Environment env) {
+        return new SqlServerClient(datasource(env), dbUrl(env));
     }
 
     @Bean
@@ -48,12 +54,34 @@ class TestConfig {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource datasource) {
-        return new JdbcTemplate(datasource);
+    public String dbUrl(Environment env) {
+        return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
     }
 
     @Bean
-    public String dbUrl(Environment env) {
-        return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
+    public ServiceBinding serviceBindingWithParms() {
+        Map<String, Object> params = new HashMap<>();
+        params.put(SqlServerServiceInfo.DATABASE, "testDb");
+        params.put(SqlServerServiceInfo.USERNAME, "testUser");
+        params.put(SqlServerServiceInfo.PASSWORD, "testPassw0rd");
+        CreateServiceInstanceBindingRequest request = new CreateServiceInstanceBindingRequest(null, null, null, null, params);
+        return new ServiceBinding(request);
+    }
+
+    @Bean
+    public ServiceBinding serviceBindingNoParms() {
+        return new ServiceBinding(new CreateServiceInstanceBindingRequest());
+    }
+
+    @Bean
+    public ServiceInstance serviceInstanceWithParams() {
+        Map<String, Object> params = new HashMap<>();
+        params.put(SqlServerServiceInfo.DATABASE, "testDb");
+        return new ServiceInstance(new CreateServiceInstanceRequest(null,null, null, null, params));
+    }
+
+    @Bean
+    public ServiceInstance serviceInstanceNoParams() {
+        return new ServiceInstance(new CreateServiceInstanceRequest());
     }
 }

@@ -58,3 +58,9 @@ A cloud foundry service broker for Microsoft SqlServer.
   SqlServer        sharedVM        SqlServer Broker for Pivotal Cloud Foundry
   ...
   ```
+  
+##
+cf cs SqlServer sharedVM aTest -c '{"db" : "helloDB"}'
+
+cf bs sqlserver-broker aTest  -c '{"uid" : "helloUser", "pw" : "HelloPw0"}'
+
