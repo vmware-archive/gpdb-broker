@@ -3,30 +3,26 @@ A cloud foundry service broker for Microsoft SqlServer.
 
 ##Using sqlserver-broker
 1. sqlserver-broker requires a redis datastore. To set this up:
-  
   ```bash
   cf create-service p-redis shared-vm redis-for-sqlserver
   ```
-2. The broker makes use of spring-security to protect itself against unauthorized meddling. To set its password edit the [application.properties file](https://github.com/cf-platform-eng/ms-sql-server-broker/blob/master/sqlserver-broker/src/main/resources/application.properties) (you probably don't want to check this in!)
-1. Edit the [manifest.yml](https://github.com/cf-platform-eng/ms-sql-server-broker/blob/master/sqlserver-broker/manifest.yml) file as needed for your SqlServer installation.
-1. Build the broker:
-  
+2. Edit the [manifest.yml](https://github.com/cf-platform-eng/ms-sql-server-broker/blob/master/sqlserver-broker/manifest.yml) file as needed for your SqlServer installation.
+1. check out and build the project
   ```bash
-  cd sqlserver-broker
-  mvn clean install
+  git clone git@github.com:cf-platform-eng/ms-sql-server-broker.git
+  cd ms-sql-server-broker
+  mvn clean install  
   ```
-5. Push the broker to cf:
+4. Push the broker to cf:
   
   ```bash
   cf push
   ```
-6. Register the broker:
-  
+5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
-  cf create-service-broker your_broker_name user the_password_from_application_properties https://uri.of.your.broker.app
+  cf create-service-broker SqlServer user passwordFromTheBrokerLog https://uri.of.your.broker.app
   ```
-7. See the broker:
-  
+6. See the broker:
   ```bash
   cf service-brokers
   Getting service brokers as admin...
@@ -35,8 +31,9 @@ A cloud foundry service broker for Microsoft SqlServer.
   ...
   sqlserver-broker              https://your-broker-url
   ...
-  
-  
+  ```
+7. Enable access to the broker:
+  ```bash
   cf service-access
   Getting service access as admin...
   ...
@@ -59,8 +56,31 @@ A cloud foundry service broker for Microsoft SqlServer.
   ...
   ```
   
-##
-cf cs SqlServer sharedVM aTest -c '{"db" : "helloDB"}'
+##Managing the broker
+Please refer to [this documentation](https://docs.cloudfoundry.org/services/managing-service-brokers.html) for general information on how to manage service brokers.
 
-cf bs sqlserver-broker aTest  -c '{"uid" : "helloUser", "pw" : "HelloPw0"}'
-
+###Creating a service instance
+Using the broker to create a service instance results in the creation of a new [contained](https://docs.microsoft.com/en-us/sql/relational-databases/databases/contained-databases) database with a random database name.
+  ```bash
+  cf create-service SqlServer sharedVM aSqlServerService
+  ```
+Optionally, users can provide an alpha-numeric name for the database as follows:
+  ```bash
+  cf create-service SqlServer sharedVM aSqlServerService -c '{"db" : "aDatabaseName"}'
+  ```
+###Deleting a service instance
+Deleting a service instance results in the immediate deletion of the corresponding database.
+  ```bash
+  cf delete-service aSqlServerService
+  ```
+###Binding to a service
+Once a service instance (contained database) has been created, users can bind application to it in the usual fashion. The binding process includes the creation of random database-level credentials that are tied to the binding.
+  ```bash
+  cf bind-service anApplicartion aSqlServerService
+  ```
+Optionally, users can provide an alpha-numeric udser names and passwords for the binding as follows:
+  ```bash
+  cf bind-service anApplicartion aSqlServerService -c '{"uid" : "aUserId", "pw" : "aValidSqlServerPassword"}'
+  ```
+###Security
+Sqlserver-broker is secured via the mechanisms provided via the spring boot cf service broker framework. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
