@@ -1,7 +1,7 @@
-#sqlserver-broker
+# sqlserver-broker
 A cloud foundry service broker for Microsoft SqlServer.
 
-##Using sqlserver-broker
+## Using sqlserver-broker
 1. sqlserver-broker requires a redis datastore. To set this up:
   ```bash
   cf create-service p-redis shared-vm redis-for-sqlserver
@@ -14,7 +14,6 @@ A cloud foundry service broker for Microsoft SqlServer.
   mvn clean install  
   ```
 4. Push the broker to cf:
-  
   ```bash
   cf push
   ```
@@ -56,31 +55,31 @@ A cloud foundry service broker for Microsoft SqlServer.
   ...
   ```
   
-##Managing the broker
+## Managing the broker
 Please refer to [this documentation](https://docs.cloudfoundry.org/services/managing-service-brokers.html) for general information on how to manage service brokers.
 
-###Creating a service instance
+### Creating a service instance
 Using the broker to create a service instance results in the creation of a new [contained](https://docs.microsoft.com/en-us/sql/relational-databases/databases/contained-databases) database with a random database name.
   ```bash
   cf create-service SqlServer sharedVM aSqlServerService
   ```
-Optionally, users can provide an alpha-numeric name for the database as follows:
+Optionally, users can provide an alphanumeric name for the database as follows:
   ```bash
   cf create-service SqlServer sharedVM aSqlServerService -c '{"db" : "aDatabaseName"}'
   ```
-###Deleting a service instance
+### Deleting a service instance
 Deleting a service instance results in the immediate deletion of the corresponding database.
   ```bash
   cf delete-service aSqlServerService
   ```
-###Binding to a service
+### Binding to a service
 Once a service instance (contained database) has been created, users can bind application to it in the usual fashion. The binding process includes the creation of random database-level credentials that are tied to the binding.
   ```bash
   cf bind-service anApplicartion aSqlServerService
   ```
-Optionally, users can provide an alpha-numeric udser names and passwords for the binding as follows:
+Optionally, users can provide an alphanumeric user names and passwords for the binding as follows:
   ```bash
   cf bind-service anApplicartion aSqlServerService -c '{"uid" : "aUserId", "pw" : "aValidSqlServerPassword"}'
   ```
-###Security
+### Security
 Sqlserver-broker is secured via the mechanisms provided via the spring boot cf service broker framework. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
