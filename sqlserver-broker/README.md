@@ -81,5 +81,3 @@ Optionally, users can provide an alphanumeric user names and passwords for the b
   ```bash
   cf bind-service anApplicartion aSqlServerService -c '{"uid" : "aUserId", "pw" : "aValidSqlServerPassword"}'
   ```
-### Security
-Sqlserver-broker is secured via the mechanisms provided via the spring boot cf service broker framework. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
