@@ -24,7 +24,7 @@ resources:
   source:
     uri: git@github.com:cf-platform-eng/ms-sql-server-broker.git
     branch: version
-    private_key: {{cf-platform-eng-github-private-key}}
+    private_key: {{github-mssql-private-key}}
     file: version
     initial_version: 0.1.0
     driver: git
@@ -33,7 +33,7 @@ resources:
   type: pool
   source:
     branch: master
-    pool: pcf
+    pool: pcf1_10
     private_key: {{github-pool-private-key}}
     uri: git@github.com:cf-platform-eng/pipeline-resource-pool-v2
 
@@ -46,21 +46,21 @@ resources:
 - name: broker-tile
   type: gcs-resource
   source:
-    json_key: {{gcp-storage-json-key}}
+    json_key: {{gcp_svc_acct_key}}
     bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.pivotal
 
 - name: broker-jar
   type: gcs-resource
   source:
-    json_key: {{gcp-storage-json-key}}
+    json_key: {{gcp_svc_acct_key}}
     bucket: {{gcp-bucket-name}}
     regexp: .*-(?P<version>.*)\.jar
 
 - name: tile-history
   type: gcs-resource
   source:
-    json_key: {{gcp-storage-json-key}}
+    json_key: {{gcp_svc_acct_key}}
     bucket: {{gcp-bucket-name}}
     regexp: tile-history-(?P<version>.*)\.yml
 
