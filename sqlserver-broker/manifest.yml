@@ -8,7 +8,7 @@ applications:
   services: [ redis-for-sqlserver  ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
-    API_VERSION: '2.10'
+    API_VERSION: '2.9'
     SQL_HOST: 35.188.63.27
     SQL_PORT: 1433
     SQLSERVER_USERNAME: sa
