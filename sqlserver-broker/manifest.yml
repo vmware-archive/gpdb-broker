@@ -5,7 +5,7 @@ applications:
   instances: 1
   buildpack: java_buildpack_offline
   path: target/sqlserver-broker.jar
-  services: [ sqlserver_broker-p-redis ]
+  services: [ redis-for-sqlserver  ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
     API_VERSION: '2.10'

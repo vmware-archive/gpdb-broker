@@ -12,15 +12,6 @@ packages:
   enable_global_access_to_plans: true
   manifest:
     path: target/sqlserver-broker.jar
-    env:
-        SPRING_PROFILES_ACTIVE: cloud
-        API_VERSION: '2.10'
-        SQL_HOST: 35.188.63.27
-        SQL_PORT: 1433
-        SQLSERVER_USERNAME: sa
-        SQLSERVER_PASSWORD: Passw0rd
-        SECURITY_USER_NAME: user
-        SECURITY_USER_PASSWORD: changeme
   auto_services: p-redis
 
 forms:
