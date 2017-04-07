@@ -2,6 +2,7 @@ package io.pivotal.ecosystem.sqlserver;
 
 import com.microsoft.sqlserver.jdbc.SQLServerConnectionPoolDataSource;
 import io.pivotal.ecosystem.sqlserver.connector.SqlServerServiceInfo;
+import org.springframework.cloud.servicebroker.model.BrokerApiVersion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -33,5 +34,10 @@ public class CloudConfig {
     @Bean
     public String dbUrl(Environment env) {
         return SqlServerServiceInfo.URI_SCHEME + "://" + env.getProperty(SqlServerServiceInfo.HOST_KEY) + ":" + Integer.parseInt(env.getProperty(SqlServerServiceInfo.PORT_KEY));
+    }
+
+    @Bean
+    public BrokerApiVersion brokerApiVersion() {
+        return new BrokerApiVersion();
     }
 }
