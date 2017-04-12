@@ -61,7 +61,7 @@ class DWaaSClient {
     */
 
     boolean checkDatabaseExists(String db) {
-        return jdbcTemplate.queryForObject("SELECT count(*) FROM sys.databases WHERE name = ?", new Object[]{db}, Integer.class) > 0;
+        return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
     }
 
     String getDbUrl() {

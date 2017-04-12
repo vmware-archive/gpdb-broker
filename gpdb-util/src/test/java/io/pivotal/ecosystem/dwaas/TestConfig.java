@@ -45,18 +45,18 @@ class TestConfig {
 
     @Bean
     public DWaaSClient client(DataSource datasource) {
-        return new DWaaSClient(datasource, "jdbc:datadirect:greenplum://104.198.46.128:5432;gpadmin;");
+        return new DWaaSClient(datasource, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;");
     }
     
     @Bean
 	public DataSource datasource() throws Exception {
 
 		/* jdbc:datadirect:greenplum://server1:5432;DatabaseName=jdbc;User=test;Password=secret */
-		String uri = "jdbc:datadirect:greenplum://104.198.46.128:5432;gpadmin;";
+		String uri = "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;";
 		String user = "gpadmin"; //props.getUsername();
 		String password = "password"; //props.getPassword();
 
-		String driverClass = "com.ddtek.jdbc.greenplum.GreenplumDriver"; //props.getDriverClassName();
+		String driverClass = "com.pivotal.jdbc.GreenplumDriver"; //props.getDriverClassName();
 
 		DataSource dataSource;
 		if ((uri != null) && (user != null)) {

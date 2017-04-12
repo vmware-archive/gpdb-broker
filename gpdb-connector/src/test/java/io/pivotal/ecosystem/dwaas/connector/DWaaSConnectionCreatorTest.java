@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.connector;
+package io.pivotal.ecosystem.dwaas.connector;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -34,9 +35,11 @@ public class DWaaSConnectionCreatorTest {
 
     //@Autowired
     //private DWaaSServiceInfo sqlServerServiceInfo;
+  @Resource(name = "testDatasource")
+    DataSource datasource;
 
     @Test
-    public void testCreate(DataSource datasource) throws SQLException {
+    public void testCreate() throws SQLException {
         //DataSource ds = new DWaaSConnectionCreator().create(sqlServerServiceInfo, null);
         assertNotNull(datasource);
         Connection c = datasource.getConnection();

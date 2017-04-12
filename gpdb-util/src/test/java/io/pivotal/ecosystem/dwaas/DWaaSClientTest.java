@@ -111,7 +111,7 @@ public class DWaaSClientTest {
 
     @Test
     public void testDbExists() {
-        assertTrue(client.checkDatabaseExists("master"));
+        assertTrue(client.checkDatabaseExists("template1"));
         assertFalse(client.checkDatabaseExists("kjfhskfjd"));
     }
 

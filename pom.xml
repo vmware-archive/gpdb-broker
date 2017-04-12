@@ -31,13 +31,17 @@
                 <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>
                 <version>1.0.0.RELEASE</version>
             </dependency>
-
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.16.6</version>
             </dependency>
-
+      <!--      <dependency>
+                <groupId>com.pivotal</groupId>
+                <artifactId>greenplum</artifactId>
+                <version>5.1.4</version>
+                <systemPath>/Users/zhansen/.m2/repository/com/pivotal/greenplum/5.1.4/greenplum-5.1.4.jar</systemPath>
+            </dependency>-->
         </dependencies>
 
     </dependencyManagement>

@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.connector;
-
-import lombok.extern.slf4j.Slf4j;
+package io.pivotal.ecosystem.dwaas.connector;
 
 import javax.sql.DataSource;
 
@@ -27,9 +25,6 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.core.env.Environment;
-
-import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 
 @Configuration
 @PropertySource("classpath:application.properties")
@@ -37,16 +32,16 @@ class TestConfig {
 
 	private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
 	
-    @Bean
-	public DataSource datasource() throws Exception {
+    @Bean(name="testDatasource")
+	public DataSource testdatasource() throws Exception {
     	log.info("Creating datasource bean");
     	
 		/* jdbc:datadirect:greenplum://server1:5432;DatabaseName=jdbc;User=test;Password=secret */
-		String uri = "jdbc:datadirect:greenplum://104.198.46.128:5432;gpadmin;";
+		String uri = "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;";
 		String user = "gpadmin"; //props.getUsername();
 		String password = "password"; //props.getPassword();
 
-		String driverClass = "com.ddtek.jdbc.greenplum.GreenplumDriver"; //props.getDriverClassName();
+		String driverClass = "com.pivotal.jdbc.GreenplumDriver"; //props.getDriverClassName();
 
 		DataSource dataSource;
 		if ((uri != null) && (user != null)) {

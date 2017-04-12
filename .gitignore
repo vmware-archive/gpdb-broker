@@ -17,3 +17,5 @@ gpdb-broker/.settings
 gpdb-client-example/.settings
 gpdb-connector/.settings
 gpdb-util/.settings
+**/.classpath
+**/.springBeans
