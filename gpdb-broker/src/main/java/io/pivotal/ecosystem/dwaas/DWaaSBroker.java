@@ -44,7 +44,6 @@ import java.util.Map;
  */
 
 @Service
-
 class DWaaSBroker extends DefaultServiceImpl {
 
     private DWaaSClient client;
