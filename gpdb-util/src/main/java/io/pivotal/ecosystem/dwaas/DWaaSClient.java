@@ -46,6 +46,13 @@ class DWaaSClient {
         this.url = dbUrl;
     }
 
+    public DWaaSClient(DataSource dataSource) {
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    public DWaaSClient() {
+    }
+
     /*
     String createDatabase(ServiceInstance instance) {
         String db = createDbName(instance.getParameters().get(DWaaSServiceInfo.DATABASE));

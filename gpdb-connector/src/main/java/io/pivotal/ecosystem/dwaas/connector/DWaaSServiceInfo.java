@@ -17,10 +17,13 @@
 
 package io.pivotal.ecosystem.dwaas.connector;
 
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.service.ServiceInfo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.context.annotation.Configuration;
 
 @Data
 @AllArgsConstructor
@@ -49,8 +52,11 @@ public class DWaaSServiceInfo implements ServiceInfo {
     private String uri;
     
     private String driverClassName;
-    
-    public DWaaSServiceInfo(String username, String id, String password, String uri) {
+
+	public DWaaSServiceInfo() {
+	}
+
+	public DWaaSServiceInfo(String username, String id, String password, String uri) {
 		super();
 		this.username = username;
 		this.id = id;
