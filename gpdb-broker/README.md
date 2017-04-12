@@ -5,7 +5,11 @@ A cloud foundry service broker for Greenplum.
 1. Go to https://network.pivotal.io/products/pivotal-gpdb
 2. Download the `Greenplum Database 4.x - DataDirect JDBC Driver 32 & 64 bit`
 3. Run the following command from the directory where the JDBC jar is downloaded:
-    mvn install:install-file -Dfile=greenplum.jar -DgroupId=com.pivotal -DartifactId=jdbc.greenplum -Dversion=5.1.4 -Dpackaging=jar -DgeneratePom=true
+
+  ```bash
+  mvn install:install-file -Dfile=greenplum.jar -DgroupId=com.pivotal \ 
+  -DartifactId=jdbc.greenplum -Dversion=5.1.4 -Dpackaging=jar -DgeneratePom=true
+  ```
 
 ## Using gpdb-broker
 1. gpdb-broker requires a redis datastore. To set this up:
