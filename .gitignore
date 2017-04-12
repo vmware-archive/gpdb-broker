@@ -4,3 +4,16 @@ target
 product
 release
 tile-history*.*
+**/target
+**/.settings
+**/.project
+
+gpdb-broker/target
+gpdb-client-example/target
+gpdb-connector/target
+gpdb-util/target
+
+gpdb-broker/.settings
+gpdb-client-example/.settings
+gpdb-connector/.settings
+gpdb-util/.settings

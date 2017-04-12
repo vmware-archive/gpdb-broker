@@ -5,15 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.pivotal.cf.broker</groupId>
-    <artifactId>ms-sql-server-broker</artifactId>
+    <artifactId>gpdb-broker-parent</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>sqlserver-broker</module>
-        <module>sqlserver-util</module>
-        <module>sqlserver-connector</module>
-        <module>sqlserver-client-example</module>
+        <module>gpdb-broker</module>
+        <module>gpdb-util</module>
+        <module>gpdb-connector</module>
+        <module>gpdb-client-example</module>
     </modules>
 
     <parent>
@@ -36,12 +36,6 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.16.6</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.microsoft.sqlserver</groupId>
-                <artifactId>mssql-jdbc</artifactId>
-                <version>6.1.0.jre8</version>
             </dependency>
 
         </dependencies>
