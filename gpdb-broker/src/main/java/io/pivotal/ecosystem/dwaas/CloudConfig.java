@@ -75,6 +75,7 @@ public class CloudConfig extends AbstractCloudConfig{
     }
 
     @Bean
+    @Autowired
     RedisTemplate<String, ServiceInstance> instanceTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, ServiceInstance> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
@@ -82,6 +83,7 @@ public class CloudConfig extends AbstractCloudConfig{
     }
 
     @Bean
+    @Autowired
     RedisTemplate<String, ServiceBinding> bindingTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, ServiceBinding> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
