@@ -103,6 +103,25 @@ public class DWaaSClientTest {
         assertFalse(client.checkDatabaseExists("kjfhskfjd"));
     }
 
+    @Test
+    public void testDBUrl() {
+        //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
+        Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
+
+        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
+        assertNotNull(uid);
+
+        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
+        assertNotNull(pw);
+
+        String db = userCredentials.get(DWaaSServiceInfo.DATABASE);
+        assertNotNull(db);
+
+        String connectionString = client.getDbUrl(uid, db, pw);
+
+        assertEquals(connectionString, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=testDB;;User=testUser;Password=testPassw0rd;");
+    }
+
 
     @Test
     public void testCreate() throws SQLException {

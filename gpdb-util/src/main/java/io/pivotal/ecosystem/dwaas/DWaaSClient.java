@@ -23,11 +23,11 @@ import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 
-import org.omg.CORBA.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -51,8 +51,9 @@ class DWaaSClient {
         this.url = dbUrl;
     }*/
 
-    public DWaaSClient(DataSource dataSource) {
+    public DWaaSClient(DataSource dataSource, String dbUrl) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.url=dbUrl;
     }
 
 
@@ -60,8 +61,14 @@ class DWaaSClient {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
     }
 
-    String getDbUrl() {
-        return this.url;
+    String getDbUrl(String user, String dbName, String passwd) {
+        //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
+        String connectionString = this.url.replace("gpadmin", dbName)
+                + ";User=" + user
+                + ";Password=" + passwd
+                + ";";
+
+        return connectionString;
     }
 
     //todo how to protect dbs etc. from bad actors?

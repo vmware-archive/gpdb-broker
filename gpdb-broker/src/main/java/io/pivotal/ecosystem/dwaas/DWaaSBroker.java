@@ -143,7 +143,7 @@ class DWaaSBroker extends DefaultServiceImpl {
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("DELETE Binding ");
-        Map<String,Object> userCredentials = getCredentials(instance,binding);
+        Map<String, Object> userCredentials = getCredentials(instance, binding);
         client.deleteUserCreds(userCredentials);
     }
 
@@ -162,13 +162,16 @@ class DWaaSBroker extends DefaultServiceImpl {
     @Override
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
         log.info("returning credentials.");
+        String theUser = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
+        String thePasswd = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
+        String theDB = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
+
 
         Map<String, Object> m = new HashMap<>();
-        // m.put(DWaaSServiceInfo.URI, client.getDbUrl());
-        m.put(DWaaSServiceInfo.URI, env.getProperty("spring.datasource.url"));
+        m.put(DWaaSServiceInfo.URI, client.getDbUrl(theUser, theDB, thePasswd));
 
-        m.put(DWaaSServiceInfo.USERNAME, binding.getParameters().get(DWaaSServiceInfo.USERNAME));
-        m.put(DWaaSServiceInfo.PASSWORD, binding.getParameters().get(DWaaSServiceInfo.PASSWORD));
+        m.put(DWaaSServiceInfo.USERNAME, theUser);
+        m.put(DWaaSServiceInfo.PASSWORD, thePasswd);
         //m.put(DWaaSServiceInfo.DATABASE, binding.getParameters().get(DWaaSServiceInfo.DATABASE));
         //m.put(DWaaSServiceInfo.DATABASE, instance.getParameters().get(DWaaSServiceInfo.DATABASE));
 
