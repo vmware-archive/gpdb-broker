@@ -45,6 +45,7 @@ import java.util.Map;
  */
 
 @Service
+@Slf4j
 class DWaaSBroker extends DefaultServiceImpl {
 
     @Autowired
@@ -119,8 +120,8 @@ class DWaaSBroker extends DefaultServiceImpl {
             log.info("CLIENT IS NULL***************");
             return;
         } else {
-            log.info("CLIENT IS NOT NULL!!");
             Map<String, String> userCredentials = client.createUserCreds(null);
+            log.info("USER CREDENTIALS CREATED");
             binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
             binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
         }

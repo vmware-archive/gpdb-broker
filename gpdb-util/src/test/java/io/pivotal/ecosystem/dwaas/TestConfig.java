@@ -40,37 +40,35 @@ import java.util.Map;
 @Configuration
 @PropertySource("classpath:application.properties")
 class TestConfig {
-	
-	private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
+
+    private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
 
     @Bean
     public DWaaSClient client(DataSource datasource) {
         return new DWaaSClient(datasource);
     }
-    
+
     @Bean
-	public DataSource datasource() throws Exception {
+    public DataSource datasource() throws Exception {
 
 		/* jdbc:datadirect:greenplum://server1:5432;DatabaseName=jdbc;User=test;Password=secret */
-		String uri = "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;";
-		String user = "gpadmin"; //props.getUsername();
-		String password = "password"; //props.getPassword();
+        String testuri = "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;";
+        String testuser = "gpadmin"; //props.getUsername();
+        String testpassword = "password"; //props.getPassword();
 
-		String driverClass = "com.pivotal.jdbc.GreenplumDriver"; //props.getDriverClassName();
+        String driverClass = "com.pivotal.jdbc.GreenplumDriver"; //props.getDriverClassName();
 
-		DataSource dataSource;
-		if ((uri != null) && (user != null)) {
-			log.info("JDBC Datasource profile=[Provided]");
-			log.info("jdbcGemfireDataSource initial properties [URL:{}, UserName:{}, DriverClassName:{}]", uri, user,
-					driverClass);
-
-			dataSource = DataSourceBuilder.create().driverClassName(driverClass).url(uri).username(user)
-					.password(password).build();
-		} else {
-			throw new Exception("Both URI and username must be provided.");
-		}
-		return dataSource;
-	}
+        DataSource dataSource;
+        if ((testuri != null) && (testuser != null)) {
+            log.info("jdbcGemfireDataSource initial properties [URL:{}, UserName:{}, DriverClassName:{}]", testuri, testuser,
+                    driverClass);
+            dataSource = DataSourceBuilder.create().driverClassName(driverClass).url(testuri).username(testuser)
+                    .password(testpassword).build();
+        } else {
+            throw new Exception("Both URI and username must be provided.");
+        }
+        return dataSource;
+    }
 
     @Bean
     public ServiceBinding serviceBindingWithParms() {
@@ -91,7 +89,7 @@ class TestConfig {
     public ServiceInstance serviceInstanceWithParams() {
         Map<String, Object> params = new HashMap<>();
         params.put(DWaaSServiceInfo.DATABASE, "testDb");
-        return new ServiceInstance(new CreateServiceInstanceRequest(null,null, null, null, params));
+        return new ServiceInstance(new CreateServiceInstanceRequest(null, null, null, null, params));
     }
 
     @Bean

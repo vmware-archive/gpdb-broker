@@ -23,21 +23,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import javax.sql.DataSource;
 
 @Configuration
-@ComponentScan(basePackages = {"io.pivotal.ecosystem.dwaas", "io.pivotal.ecosystem.servicebroker"})
 @Profile("cloud")
+@ComponentScan(basePackages = {"io.pivotal.ecosystem.dwaas", "io.pivotal.ecosystem.servicebroker"})
 public class CloudConfig {
 
     private static final Logger log = LoggerFactory.getLogger(CloudConfig.class);
 
-    /*@Autowired
-    DWaaSServiceInfo props;*/
     @Autowired
     private Environment environment;
 
     @Bean
     @Qualifier("JDBC")
     public DataSource datasource() throws Exception {
-
         String uri = environment.getProperty("spring.datasource.url");
         String user = environment.getProperty("spring.datasource.username");
         String password = environment.getProperty("spring.datasource.password");
@@ -47,9 +44,8 @@ public class CloudConfig {
         DataSource dataSource;
         if ((uri != null) && (user != null)) {
             log.info("JDBC Datasource profile=[Provided]");
-            log.info("jdbcGemfireDataSource initial properties [URL:{}, UserName:{}, DriverClassName:{}]", uri, user,
+            log.info("DataWarehouse initial properties [URL:{}, UserName:{}, DriverClassName:{}]", uri, user,
                     driverClass);
-
             dataSource = DataSourceBuilder.create().driverClassName(driverClass).url(uri).username(user)
                     .password(password).build();
         } else {

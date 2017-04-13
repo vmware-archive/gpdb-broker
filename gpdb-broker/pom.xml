@@ -19,11 +19,6 @@
             <version>1.0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>
-            <version>1.0.0.RELEASE</version>
-        </dependency>
-        <dependency>
             <groupId>io.pivotal.cf.broker</groupId>
             <artifactId>gpdb-util</artifactId>
             <version>${project.parent.version}</version>
@@ -37,14 +32,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
+ <!--       <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
+        </dependency>-->
     </dependencies>
     <build>
         <finalName>gpdb-broker</finalName>

@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -56,19 +57,12 @@ public class DWaaSClientTest {
     @Autowired
     private ServiceInstance serviceInstanceNoParams;
 
- /*   @Test
-    public void testCreateAndDeleteWithParms() throws SQLException {
-        testCreateCredentials(serviceInstanceWithParams, serviceBindingWithParms);
-    }
-
-*/
-
     @Autowired
     DataSource dataSource;
 
     @Test
     public void testCreateCredentials() throws Exception {
-        
+
         Map<String, String> userCredentials = client.createUserCreds(null);
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
@@ -82,7 +76,6 @@ public class DWaaSClientTest {
         assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.DATABASE));
 
 
-
     }
 
     @Test
@@ -92,14 +85,14 @@ public class DWaaSClientTest {
     }
 
 
-
-    /*
     @Test
-    public void testUri() {
-        assertEquals("jdbc:sqlserver://35.188.63.27:1433", client.getDbUrl(null));
-        assertEquals("jdbc:sqlserver://35.188.63.27:1433;databaseName=foo", client.getDbUrl("foo"));
+    public void testCreate() throws SQLException {
+        //DataSource ds = new DWaaSConnectionCreator().create(sqlServerServiceInfo, null);
+        assertNotNull(dataSource);
+        Connection c = dataSource.getConnection();
+        assertNotNull(c);
+        c.close();
     }
-    */
 
     @Test
     public void testClean() {
