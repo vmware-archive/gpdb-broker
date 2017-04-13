@@ -41,6 +41,7 @@ class DWaaSClient {
     private static final Logger log = LoggerFactory.getLogger(DWaaSClient.class);
     private JdbcTemplate jdbcTemplate;
     private String url;
+    private boolean isUserProvided = false;
 
  /*  public DWaaSClient() {
     }*/
@@ -137,6 +138,8 @@ class DWaaSClient {
             userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
             userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
             userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
+
+            this.isUserProvided = true;
             log.info("Bind Request [Credentials Provided: {} No New ROLE CREATED]", userCredential.toString());
 
         }
@@ -145,9 +148,9 @@ class DWaaSClient {
     }
 
 
-    void deleteUserCreds(Map userCredentials, ServiceBinding binding) {
+    void deleteUserCreds(Map userCredentials) {
         String uid;
-        if (binding.getParameters().get(DWaaSServiceInfo.USERNAME) == null) {
+        if (isUserProvided == false) {
             uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
             jdbcTemplate.execute("DROP ROLE IF EXISTS " + uid);
         }

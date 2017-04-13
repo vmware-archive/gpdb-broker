@@ -76,7 +76,7 @@ public class DWaaSClientTest {
         assertEquals("testUser", userCredentials.get(DWaaSServiceInfo.USERNAME));
         assertEquals("testPassw0rd", userCredentials.get(DWaaSServiceInfo.PASSWORD));
         assertEquals("testDb", userCredentials.get(DWaaSServiceInfo.DATABASE));
-        client.deleteUserCreds(userCredentials,serviceBindingWithParms);
+        client.deleteUserCreds(userCredentials);
     }
 
     @Test
@@ -93,7 +93,7 @@ public class DWaaSClientTest {
         assertNotNull(userCredentials.get(DWaaSServiceInfo.USERNAME));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.PASSWORD));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.DATABASE));
-        client.deleteUserCreds(userCredentials,serviceBindingNoParms);
+        client.deleteUserCreds(userCredentials);
     }
 
 

@@ -144,7 +144,7 @@ class DWaaSBroker extends DefaultServiceImpl {
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("DELETE Binding ");
         Map<String,Object> userCredentials = getCredentials(instance,binding);
-        client.deleteUserCreds(userCredentials, binding);
+        client.deleteUserCreds(userCredentials);
     }
 
     /**
