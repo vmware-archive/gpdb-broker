@@ -1,3 +1,4 @@
+/*
 package io.pivotal.ecosystem.dwaas;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,3 +59,4 @@ public class CatalogService implements org.springframework.cloud.servicebroker.s
         return catalog;
     }
 }
+*/

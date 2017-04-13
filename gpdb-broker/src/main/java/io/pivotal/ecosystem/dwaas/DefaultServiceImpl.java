@@ -1,3 +1,4 @@
+/*
 package io.pivotal.ecosystem.dwaas;
 
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
@@ -43,3 +44,4 @@ public class DefaultServiceImpl implements BrokeredService {
         return false;
     }
 }
+*/

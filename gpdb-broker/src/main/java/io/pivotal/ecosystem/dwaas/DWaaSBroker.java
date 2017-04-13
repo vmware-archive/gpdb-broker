@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ import java.util.Map;
 @Service
 class DWaaSBroker extends DefaultServiceImpl {
 
+    @Autowired
     private DWaaSClient client;
 
     private static final Logger log = LoggerFactory.getLogger(DWaaSBroker.class);
@@ -111,14 +113,18 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
-        String db = instance.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
-        binding.getParameters().put(DWaaSServiceInfo.DATABASE, db);
+        log.info("Binding a new Service Message For Testing");
 
-        Map<String, String> userCredentials = client.createUserCreds(binding);
-        binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
-        binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
-
-        log.info("bound app: " + binding.getAppGuid() + " to database: " + db);
+        if (client == null) {
+            log.info("CLIENT IS NULL***************");
+            return;
+        } else {
+            log.info("CLIENT IS NOT NULL!!");
+            Map<String, String> userCredentials = client.createUserCreds(null);
+            binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
+            binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
+        }
+        log.info("bound app: " + binding.getAppGuid() + " to database: " + "gpadmin");
     }
 
     /**
@@ -129,8 +135,9 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(DWaaSServiceInfo.DATABASE));
-        client.deleteUserCreds(binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString());
+        log.info("DELETE Binding a new Service Message For Testing");
+        // log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(DWaaSServiceInfo.DATABASE));
+        // client.deleteUserCreds(binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString());
     }
 
     /**
@@ -150,7 +157,8 @@ class DWaaSBroker extends DefaultServiceImpl {
         log.info("returning credentials.");
 
         Map<String, Object> m = new HashMap<>();
-        m.put(DWaaSServiceInfo.URI, client.getDbUrl());
+        // m.put(DWaaSServiceInfo.URI, client.getDbUrl());
+        m.put(DWaaSServiceInfo.URI, "gpadmin");
 
         m.put(DWaaSServiceInfo.USERNAME, binding.getParameters().get(DWaaSServiceInfo.USERNAME));
         m.put(DWaaSServiceInfo.PASSWORD, binding.getParameters().get(DWaaSServiceInfo.PASSWORD));

@@ -1,3 +1,4 @@
+/*
 package io.pivotal.ecosystem.dwaas;
 
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
@@ -129,3 +130,4 @@ public class InstanceService implements ServiceInstanceService {
         return instance;
     }
 }
+*/

@@ -13,11 +13,11 @@
     <artifactId>gpdb-broker</artifactId>
 
     <dependencies>
-      <!--  <dependency>
+        <dependency>
             <groupId>io.pivotal.ecosystem</groupId>
             <artifactId>simple-broker</artifactId>
             <version>1.0.1</version>
-        </dependency>-->
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-cloudfoundry-service-broker</artifactId>

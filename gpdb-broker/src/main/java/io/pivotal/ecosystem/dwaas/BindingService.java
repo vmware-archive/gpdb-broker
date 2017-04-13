@@ -1,3 +1,4 @@
+/*
 package io.pivotal.ecosystem.dwaas;
 
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
@@ -23,7 +24,7 @@ public class BindingService implements ServiceInstanceBindingService {
     private static final Logger log = LoggerFactory.getLogger(BindingService.class);
     private static final String OBJECT_ID = "binding";
 
-    public BindingService(InstanceService instanceService, BrokeredService brokeredService, RedisTemplate<String, ServiceBinding> bindingTemplate) {
+    public BindingService(InstanceService instanceService, BrokeredService brokeredService,RedisTemplate<String, ServiceBinding> bindingTemplate) {
         this.instanceService = instanceService;
         this.brokeredService = brokeredService;
         this.bindingTemplate = bindingTemplate;
@@ -55,6 +56,7 @@ public class BindingService implements ServiceInstanceBindingService {
         binding.getCredentials().putAll(creds);
 
         log.info("saving binding: " + request.getBindingId());
+
         bindingTemplate.opsForHash().put(OBJECT_ID, request.getBindingId(), binding);
 
         return binding.getCreateResponse();
@@ -88,12 +90,14 @@ public class BindingService implements ServiceInstanceBindingService {
             throw new ServiceBrokerException("null serviceBindingId");
         }
 
-        ServiceBinding sb = (ServiceBinding) bindingTemplate.opsForHash().get(OBJECT_ID, id);
+       ServiceBinding sb = (ServiceBinding) bindingTemplate.opsForHash().get(OBJECT_ID, id);
 
         if (sb == null) {
             throw new ServiceInstanceBindingDoesNotExistException(id);
         }
 
         return sb;
+
+
     }
-}
+}*/
