@@ -35,37 +35,22 @@ import java.util.UUID;
 
 @Repository
 class DWaaSClient {
-	
-	private static final Logger log = LoggerFactory.getLogger(DWaaSClient.class);
-
+    private static final Logger log = LoggerFactory.getLogger(DWaaSClient.class);
     private JdbcTemplate jdbcTemplate;
     private String url;
 
-    DWaaSClient(DataSource dataSource, String dbUrl) {
+ /*  public DWaaSClient() {
+    }*/
+
+/*    DWaaSClient(DataSource dataSource, String dbUrl) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.url = dbUrl;
-    }
+    }*/
 
     public DWaaSClient(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public DWaaSClient() {
-    }
-
-    /*
-    String createDatabase(ServiceInstance instance) {
-        String db = createDbName(instance.getParameters().get(DWaaSServiceInfo.DATABASE));
-        jdbcTemplate.execute("use [master]; exec sp_configure 'contained database authentication', 1 reconfigure; CREATE DATABASE [" + db + "]; ALTER DATABASE [" + db + "] SET CONTAINMENT = PARTIAL");
-        log.info("Database: " + db + " created successfully...");
-        return db;
-    }
-
-    void deleteDatabase(String db) {
-        jdbcTemplate.execute("ALTER DATABASE " + db + " SET SINGLE_USER WITH ROLLBACK IMMEDIATE; DROP DATABASE " + db);
-        log.info("Database: " + db + " deleted successfully...");
-    }
-    */
 
     boolean checkDatabaseExists(String db) {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
@@ -111,25 +96,43 @@ class DWaaSClient {
         return "P" + getRandomishId();
     }
 
-    private String createDbName(Object o) {
-        if (o != null) {
-            return checkString(o.toString());
-        }
-        return "d" + getRandomishId();
-    }
-
-    Map<String, String> createUserCreds(ServiceBinding binding) {
+   /* Map<String, String> createUserCreds(ServiceBinding binding) {
         String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
 
         //users can optionally pass in uids and passwords
         userCredentials.put(DWaaSServiceInfo.USERNAME, "gpadmin"); //createUserId(binding.getParameters().get(USERNAME)));
-        userCredentials.put(DWaaSServiceInfo.PASSWORD, "changeme"); //"createPassword(binding.getParameters().get(PASSWORD)));
+        userCredentials.put(DWaaSServiceInfo.PASSWORD, "password"); //"createPassword(binding.getParameters().get(PASSWORD)));
         userCredentials.put(DWaaSServiceInfo.DATABASE, "gpadmin"); //db);
         log.debug("creds: " + userCredentials.toString());
 
         jdbcTemplate.execute("CREATE ROLE testuser LOGIN SUPERUSER IDENTIFIED BY 'testpassword'");
-        		
+
+        *//*
+                + userCredentials.get(USERNAME)
+                + "] WITH PASSWORD='" + userCredentials.get(PASSWORD)
+                + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
+                + userCredentials.get(USERNAME) + "'");
+        *//*
+
+        log.info("Created user: " + "testuser"); // userCredentials.get(USERNAME));
+        return userCredentials;
+    }*/
+
+    Map<String, String> createUserCreds(ServiceBinding binding) {
+        log.info("CREATING USER CREDS... ");
+        System.out.println("CREATING USER CREDS...");
+        // String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
+        Map<String, String> userCredentials = new HashMap<>();
+
+        //users can optionally pass in uids and passwords
+        userCredentials.put(DWaaSServiceInfo.USERNAME, createUserId("gpadmin")); //createUserId(binding.getParameters().get(USERNAME)));
+        userCredentials.put(DWaaSServiceInfo.PASSWORD, createPassword("password")); //"createPassword(binding.getParameters().get(PASSWORD)));
+        userCredentials.put(DWaaSServiceInfo.DATABASE, "gpadmin"); //db);
+        log.debug("creds: " + userCredentials.toString());
+
+        //  jdbcTemplate.execute("CREATE ROLE testuser LOGIN SUPERUSER IDENTIFIED BY 'testpassword'");
+
         /*
                 + userCredentials.get(USERNAME)
                 + "] WITH PASSWORD='" + userCredentials.get(PASSWORD)
@@ -137,7 +140,7 @@ class DWaaSClient {
                 + userCredentials.get(USERNAME) + "'");
         */
 
-        log.info("Created user: " + "testuser"); // userCredentials.get(USERNAME));
+        log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
         return userCredentials;
     }
 

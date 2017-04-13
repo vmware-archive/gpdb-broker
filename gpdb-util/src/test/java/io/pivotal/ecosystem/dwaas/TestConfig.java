@@ -45,7 +45,7 @@ class TestConfig {
 
     @Bean
     public DWaaSClient client(DataSource datasource) {
-        return new DWaaSClient(datasource, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;");
+        return new DWaaSClient(datasource);
     }
     
     @Bean

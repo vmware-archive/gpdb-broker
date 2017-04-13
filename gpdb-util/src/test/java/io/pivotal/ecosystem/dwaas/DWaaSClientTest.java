@@ -17,22 +17,17 @@
 
 package io.pivotal.ecosystem.dwaas;
 
-import io.pivotal.ecosystem.dwaas.DWaaSClient;
 import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
-import org.springframework.core.env.Environment;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -43,8 +38,8 @@ import static org.junit.Assert.*;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = TestConfig.class)
 public class DWaaSClientTest {
-	
-	private static final Logger log = LoggerFactory.getLogger(DWaaSClientTest.class);
+
+    private static final Logger log = LoggerFactory.getLogger(DWaaSClientTest.class);
 
     @Autowired
     private DWaaSClient client;
@@ -61,27 +56,20 @@ public class DWaaSClientTest {
     @Autowired
     private ServiceInstance serviceInstanceNoParams;
 
-    /*
-    @Test
+ /*   @Test
     public void testCreateAndDeleteWithParms() throws SQLException {
-        testCreateAndDeleteDatabase(serviceInstanceWithParams, serviceBindingWithParms);
+        testCreateCredentials(serviceInstanceWithParams, serviceBindingWithParms);
     }
 
-    @Test
-    public void testCreateAndDeleteNoParms() throws SQLException {
-        testCreateAndDeleteDatabase(serviceInstanceNoParams, serviceBindingNoParms);
-    }
-    */
-    
+*/
+
     @Autowired
     DataSource dataSource;
 
-    private void testCreateAndDeleteDatabase(ServiceInstance serviceInstance, ServiceBinding binding) throws Exception {
-        String db = "gpadmin"; //client.createDatabase(serviceInstance);
-        assertNotNull(db);
-        binding.getParameters().put(DWaaSServiceInfo.DATABASE, db);
-
-        Map<String, String> userCredentials = client.createUserCreds(binding);
+    @Test
+    public void testCreateCredentials() throws Exception {
+        
+        Map<String, String> userCredentials = client.createUserCreds(null);
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
         assertNotNull(uid);
@@ -89,24 +77,12 @@ public class DWaaSClientTest {
         String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
         assertNotNull(pw);
 
-        assertEquals(db, userCredentials.get(DWaaSServiceInfo.DATABASE));
+        assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.USERNAME));
+        assertEquals("password", userCredentials.get(DWaaSServiceInfo.PASSWORD));
+        assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.DATABASE));
 
-        //DataSource dataSource = datasource();
-        //String url = client.getDbUrl();
-        //dataSource.setURL(url);
-        //dataSource.setUser(userCredentials.get(DWaaSServiceInfo.USERNAME));
-        //dataSource.setPassword(userCredentials.get(DWaaSServiceInfo.PASSWORD));
 
-        Connection c = dataSource.getConnection();
-        assertNotNull(c);
-        c.close();
 
-        assertTrue(client.checkUserExists(uid));
-        client.deleteUserCreds(uid);
-        assertFalse(client.checkUserExists(uid));
-
-        //client.deleteDatabase(db.toString());
-        //assertFalse(client.checkDatabaseExists(db.toString()));
     }
 
     @Test
@@ -114,6 +90,8 @@ public class DWaaSClientTest {
         assertTrue(client.checkDatabaseExists("template1"));
         assertFalse(client.checkDatabaseExists("kjfhskfjd"));
     }
+
+
 
     /*
     @Test
