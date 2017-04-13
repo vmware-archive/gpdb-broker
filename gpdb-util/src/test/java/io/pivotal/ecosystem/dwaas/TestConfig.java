@@ -60,7 +60,7 @@ class TestConfig {
 
         DataSource dataSource;
         if ((testuri != null) && (testuser != null)) {
-            log.info("jdbcGemfireDataSource initial properties [URL:{}, UserName:{}, DriverClassName:{}]", testuri, testuser,
+            log.info("DataWareHouse initial properties [URL:{}, UserName:{}, DriverClassName:{}]", testuri, testuser,
                     driverClass);
             dataSource = DataSourceBuilder.create().driverClassName(driverClass).url(testuri).username(testuser)
                     .password(testpassword).build();

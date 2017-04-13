@@ -124,6 +124,7 @@ class DWaaSBroker extends DefaultServiceImpl {
             log.info("USER CREDENTIALS CREATED");
             binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
             binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
+            binding.getParameters().put(DWaaSServiceInfo.DATABASE, userCredentials.get(DWaaSServiceInfo.DATABASE));
         }
         log.info("bound app: " + binding.getAppGuid() + " to database: " + "gpadmin");
     }
@@ -136,9 +137,10 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("DELETE Binding a new Service Message For Testing");
+        String userRole = binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString();
+        log.info("DELETE Binding - DROP ROLE : {}", userRole);
         // log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(DWaaSServiceInfo.DATABASE));
-        // client.deleteUserCreds(binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString());
+        client.deleteUserCreds(userRole);
     }
 
     /**
@@ -159,7 +161,7 @@ class DWaaSBroker extends DefaultServiceImpl {
 
         Map<String, Object> m = new HashMap<>();
         // m.put(DWaaSServiceInfo.URI, client.getDbUrl());
-        m.put(DWaaSServiceInfo.URI, "gpadmin");
+       // m.put(DWaaSServiceInfo.URI, "gpadmin");
 
         m.put(DWaaSServiceInfo.USERNAME, binding.getParameters().get(DWaaSServiceInfo.USERNAME));
         m.put(DWaaSServiceInfo.PASSWORD, binding.getParameters().get(DWaaSServiceInfo.PASSWORD));

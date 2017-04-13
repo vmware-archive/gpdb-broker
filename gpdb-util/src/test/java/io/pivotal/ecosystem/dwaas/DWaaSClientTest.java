@@ -25,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -60,6 +61,8 @@ public class DWaaSClientTest {
     @Autowired
     DataSource dataSource;
 
+
+
     @Test
     public void testCreateCredentials() throws Exception {
 
@@ -71,11 +74,16 @@ public class DWaaSClientTest {
         String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
         assertNotNull(pw);
 
-        assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.USERNAME));
+        assertEquals("cfuser", userCredentials.get(DWaaSServiceInfo.USERNAME));
         assertEquals("password", userCredentials.get(DWaaSServiceInfo.PASSWORD));
         assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.DATABASE));
 
 
+    }
+
+    @Test
+    public void testDeleteCredentials() throws Exception{
+        client.deleteUserCreds("cfuser");
     }
 
     @Test

@@ -17,6 +17,7 @@
 
 package io.pivotal.ecosystem.dwaas;
 
+import com.sun.javafx.font.directwrite.DWFactory;
 import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
@@ -96,55 +97,31 @@ class DWaaSClient {
         return "P" + getRandomishId();
     }
 
-   /* Map<String, String> createUserCreds(ServiceBinding binding) {
-        String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
-        Map<String, String> userCredentials = new HashMap<>();
-
-        //users can optionally pass in uids and passwords
-        userCredentials.put(DWaaSServiceInfo.USERNAME, "gpadmin"); //createUserId(binding.getParameters().get(USERNAME)));
-        userCredentials.put(DWaaSServiceInfo.PASSWORD, "password"); //"createPassword(binding.getParameters().get(PASSWORD)));
-        userCredentials.put(DWaaSServiceInfo.DATABASE, "gpadmin"); //db);
-        log.debug("creds: " + userCredentials.toString());
-
-        jdbcTemplate.execute("CREATE ROLE testuser LOGIN SUPERUSER IDENTIFIED BY 'testpassword'");
-
-        *//*
-                + userCredentials.get(USERNAME)
-                + "] WITH PASSWORD='" + userCredentials.get(PASSWORD)
-                + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
-                + userCredentials.get(USERNAME) + "'");
-        *//*
-
-        log.info("Created user: " + "testuser"); // userCredentials.get(USERNAME));
-        return userCredentials;
-    }*/
-
     Map<String, String> createUserCreds(ServiceBinding binding) {
-        log.info("CREATING USER CREDS... ");
-        System.out.println("CREATING USER CREDS...");
         // String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
 
         //users can optionally pass in uids and passwords
-        userCredentials.put(DWaaSServiceInfo.USERNAME, createUserId("gpadmin")); //createUserId(binding.getParameters().get(USERNAME)));
-        userCredentials.put(DWaaSServiceInfo.PASSWORD, createPassword("password")); //"createPassword(binding.getParameters().get(PASSWORD)));
-        userCredentials.put(DWaaSServiceInfo.DATABASE, "gpadmin"); //db);
+        userCredentials.put(DWaaSServiceInfo.USERNAME, createUserId(null)); //createUserId(binding.getParameters().get(USERNAME)));
+        userCredentials.put(DWaaSServiceInfo.PASSWORD, createPassword(null)); //"createPassword(binding.getParameters().get(PASSWORD)));
+        userCredentials.put(DWaaSServiceInfo.DATABASE, "database"); //db);
         log.debug("creds: " + userCredentials.toString());
 
-        //  jdbcTemplate.execute("CREATE ROLE testuser LOGIN SUPERUSER IDENTIFIED BY 'testpassword'");
-
-        /*
-                + userCredentials.get(USERNAME)
-                + "] WITH PASSWORD='" + userCredentials.get(PASSWORD)
-                + "', DEFAULT_SCHEMA=[dbo]; EXEC sp_addrolemember 'db_owner', '"
-                + userCredentials.get(USERNAME) + "'");
-        */
+        jdbcTemplate.execute("CREATE ROLE "
+                + userCredentials.get(DWaaSServiceInfo.USERNAME)
+                + " LOGIN SUPERUSER PASSWORD '"
+                + userCredentials.get(DWaaSServiceInfo.PASSWORD)
+                + "'");
 
         log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
         return userCredentials;
     }
 
     void deleteUserCreds(String uid) {
+        if(uid=="gpadmin"){
+            log.warn("CANNOT DELETE GPADMIN FROM GREENPLUM!!!");
+            return;
+        }
         jdbcTemplate.execute("DROP ROLE IF EXISTS " + uid);
     }
 
