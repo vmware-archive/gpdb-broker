@@ -62,11 +62,10 @@ public class DWaaSClientTest {
     DataSource dataSource;
 
 
-
     @Test
-    public void testCreateCredentials() throws Exception {
+    public void testCreateCredentialsProvided() throws Exception {
 
-        Map<String, String> userCredentials = client.createUserCreds(null);
+        Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
         assertNotNull(uid);
@@ -74,17 +73,29 @@ public class DWaaSClientTest {
         String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
         assertNotNull(pw);
 
-        assertEquals("cfuser", userCredentials.get(DWaaSServiceInfo.USERNAME));
-        assertEquals("password", userCredentials.get(DWaaSServiceInfo.PASSWORD));
-        assertEquals("gpadmin", userCredentials.get(DWaaSServiceInfo.DATABASE));
-
-
+        assertEquals("testUser", userCredentials.get(DWaaSServiceInfo.USERNAME));
+        assertEquals("testPassw0rd", userCredentials.get(DWaaSServiceInfo.PASSWORD));
+        assertEquals("testDb", userCredentials.get(DWaaSServiceInfo.DATABASE));
+        client.deleteUserCreds(userCredentials,serviceBindingWithParms);
     }
 
     @Test
-    public void testDeleteCredentials() throws Exception{
-        client.deleteUserCreds("cfuser");
+    public void testCreateCredentialsGenerated() throws Exception {
+
+        Map<String, String> userCredentials = client.createUserCreds(serviceBindingNoParms);
+
+        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
+        assertNotNull(uid);
+
+        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
+        assertNotNull(pw);
+
+        assertNotNull(userCredentials.get(DWaaSServiceInfo.USERNAME));
+        assertNotNull(userCredentials.get(DWaaSServiceInfo.PASSWORD));
+        assertNotNull(userCredentials.get(DWaaSServiceInfo.DATABASE));
+        client.deleteUserCreds(userCredentials,serviceBindingNoParms);
     }
+
 
     @Test
     public void testDbExists() {

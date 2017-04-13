@@ -24,11 +24,14 @@ import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -51,10 +54,14 @@ class DWaaSBroker extends DefaultServiceImpl {
     @Autowired
     private DWaaSClient client;
 
+
+    private Environment env;
+
     private static final Logger log = LoggerFactory.getLogger(DWaaSBroker.class);
 
-    public DWaaSBroker(DWaaSClient client) {
+    public DWaaSBroker(Environment env, DWaaSClient client) {
         super();
+        this.env = env;
         this.client = client;
     }
 
@@ -70,8 +77,6 @@ class DWaaSBroker extends DefaultServiceImpl {
         log.info("creating database...");
 
         //user can optionally specify a db name
-        //String db = client.createDatabase(instance);
-        //instance.getParameters().put(DWaaSServiceInfo.DATABASE, db);
         log.info("instance created.");
     }
 
@@ -120,7 +125,7 @@ class DWaaSBroker extends DefaultServiceImpl {
             log.info("CLIENT IS NULL***************");
             return;
         } else {
-            Map<String, String> userCredentials = client.createUserCreds(null);
+            Map<String, String> userCredentials = client.createUserCreds(binding);
             log.info("USER CREDENTIALS CREATED");
             binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
             binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
@@ -137,10 +142,9 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        String userRole = binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString();
-        log.info("DELETE Binding - DROP ROLE : {}", userRole);
-        // log.info("unbinding app: " + binding.getAppGuid() + " from database: " + instance.getParameters().get(DWaaSServiceInfo.DATABASE));
-        client.deleteUserCreds(userRole);
+        log.info("DELETE Binding ");
+        Map<String,Object> userCredentials = getCredentials(instance,binding);
+        client.deleteUserCreds(userCredentials, binding);
     }
 
     /**
@@ -161,11 +165,12 @@ class DWaaSBroker extends DefaultServiceImpl {
 
         Map<String, Object> m = new HashMap<>();
         // m.put(DWaaSServiceInfo.URI, client.getDbUrl());
-       // m.put(DWaaSServiceInfo.URI, "gpadmin");
+        m.put(DWaaSServiceInfo.URI, env.getProperty("spring.datasource.url"));
 
         m.put(DWaaSServiceInfo.USERNAME, binding.getParameters().get(DWaaSServiceInfo.USERNAME));
         m.put(DWaaSServiceInfo.PASSWORD, binding.getParameters().get(DWaaSServiceInfo.PASSWORD));
-        m.put(DWaaSServiceInfo.DATABASE, binding.getParameters().get(DWaaSServiceInfo.DATABASE));
+        //m.put(DWaaSServiceInfo.DATABASE, binding.getParameters().get(DWaaSServiceInfo.DATABASE));
+        //m.put(DWaaSServiceInfo.DATABASE, instance.getParameters().get(DWaaSServiceInfo.DATABASE));
 
         return m;
     }

@@ -23,8 +23,10 @@ import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 
+import org.omg.CORBA.Environment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -98,31 +100,57 @@ class DWaaSClient {
     }
 
     Map<String, String> createUserCreds(ServiceBinding binding) {
+        log.info("Inside createUserCred()");
+
         // String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
+        String userCredential;
+        String passCredential;
+        String providedDatabase = "database";
 
-        //users can optionally pass in uids and passwords
-        userCredentials.put(DWaaSServiceInfo.USERNAME, createUserId(null)); //createUserId(binding.getParameters().get(USERNAME)));
-        userCredentials.put(DWaaSServiceInfo.PASSWORD, createPassword(null)); //"createPassword(binding.getParameters().get(PASSWORD)));
-        userCredentials.put(DWaaSServiceInfo.DATABASE, "database"); //db);
-        log.debug("creds: " + userCredentials.toString());
 
-        jdbcTemplate.execute("CREATE ROLE "
-                + userCredentials.get(DWaaSServiceInfo.USERNAME)
-                + " LOGIN SUPERUSER PASSWORD '"
-                + userCredentials.get(DWaaSServiceInfo.PASSWORD)
-                + "'");
+        if (binding.getParameters().get(DWaaSServiceInfo.USERNAME) == null) {
+            log.info("Created random credentials");
 
-        log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
+            userCredential = createUserId(null);
+            passCredential = createPassword(null);
+
+            userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
+            userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
+            userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
+
+            jdbcTemplate.execute("CREATE ROLE "
+                    + userCredentials.get(DWaaSServiceInfo.USERNAME)
+                    + " LOGIN SUPERUSER PASSWORD '"
+                    + userCredentials.get(DWaaSServiceInfo.PASSWORD)
+                    + "'");
+
+            log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
+
+
+        } else {
+            log.info("Populating map with provided credentials");
+            userCredential = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
+            passCredential = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
+            providedDatabase = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
+
+            userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
+            userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
+            userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
+            log.info("Bind Request [Credentials Provided: {} No New ROLE CREATED]", userCredential.toString());
+
+        }
+
         return userCredentials;
     }
 
-    void deleteUserCreds(String uid) {
-        if(uid=="gpadmin"){
-            log.warn("CANNOT DELETE GPADMIN FROM GREENPLUM!!!");
-            return;
+
+    void deleteUserCreds(Map userCredentials, ServiceBinding binding) {
+        String uid;
+        if (binding.getParameters().get(DWaaSServiceInfo.USERNAME) == null) {
+            uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
+            jdbcTemplate.execute("DROP ROLE IF EXISTS " + uid);
         }
-        jdbcTemplate.execute("DROP ROLE IF EXISTS " + uid);
     }
 
     boolean checkUserExists(String uid) {
