@@ -1,23 +1,23 @@
 {
   "services":[
     {
-      "id":"DwaaS",
-      "name":"DwaaS",
-      "description":"DwaaS Broker for Pivotal Cloud Foundry",
+      "id":"DWaaS",
+      "name":"DWaaS",
+      "description":"DWaaS Broker for Pivotal Cloud Foundry",
       "bindable": true,
       "tags":[
         "dwaas"
       ],
       "metadata":{
-        "displayName":"DwwaSServer",
-        "imageUrl":"https://assets.onestore.ms/cdnfiles/external/uhf/long/9a49a7e9d8e881327e81b9eb43dabc01de70a9bb/images/microsoft-gray.png",
-        "longDescription":"DwaaS Service Broker for Pivotal Cloud Foundry",
+        "displayName":"DWaaSBroker",
+        "imageUrl":"http://greenplum.org/images/events/event-greenplum-chat.png",
+        "longDescription":"DWaaS Service Broker for Pivotal Cloud Foundry",
         "providerDisplayName":"Pivotal",
         "documentationUrl":"https://docs.cloudfoundry.org/services/api.html"
       },
       "plans":[
         {
-          "id":"DwaaSSErvice",
+          "id":"DWaaSBroker",
           "name":"dwaas",
           "description":"mvp service",
           "metadata": {
