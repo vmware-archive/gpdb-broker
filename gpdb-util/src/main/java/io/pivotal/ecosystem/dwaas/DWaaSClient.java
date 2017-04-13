@@ -43,27 +43,23 @@ class DWaaSClient {
     private String url;
     private boolean isUserProvided = false;
 
- /*  public DWaaSClient() {
-    }*/
-
-/*    DWaaSClient(DataSource dataSource, String dbUrl) {
+    public DWaaSClient(DataSource dataSource, Environment env) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.url = dbUrl;
-    }*/
-
-    public DWaaSClient(DataSource dataSource, String dbUrl) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.url=dbUrl;
+        this.url = env.getProperty(DWaaSServiceInfo.URI);
     }
 
 
     boolean checkDatabaseExists(String db) {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
     }
+    
+    void setDbUrl(String u) {
+    	this.url = u;
+    }
 
     String getDbUrl(String user, String dbName, String passwd) {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
-        String connectionString = this.url.replace("gpadmin", dbName)
+        String connectionString = url.replace("gpadmin", dbName)
                 + ";User=" + user
                 + ";Password=" + passwd
                 + ";";

@@ -44,8 +44,8 @@ class TestConfig {
     private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
 
     @Bean
-    public DWaaSClient client(DataSource datasource) {
-        return new DWaaSClient(datasource);
+    public DWaaSClient client(DataSource datasource, Environment env) {
+        return new DWaaSClient(datasource, env);
     }
 
     @Bean
