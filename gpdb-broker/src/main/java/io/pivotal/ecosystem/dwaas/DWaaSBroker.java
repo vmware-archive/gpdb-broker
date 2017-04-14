@@ -119,23 +119,23 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void createBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("Binding a new Service Message For Testing");
+        log.debug("Binding a new Service Message For Testing");
 
         if (client == null) {
-            log.info("CLIENT IS NULL***************");
+            log.debug("CLIENT IS NULL***************");
             return;
         } else {
             try {
                 Map<String, String> userCredentials = client.createUserCreds(binding);
-                log.info("USER CREDENTIALS CREATED");
+                log.debug("USER CREDENTIALS CREATED");
                 binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
                 binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
                 binding.getParameters().put(DWaaSServiceInfo.DATABASE, userCredentials.get(DWaaSServiceInfo.DATABASE));
             } catch (Exception e) {
-                log.error("BindingException: {}",e.getMessage());
+                log.error("BindingException: {}", e.getMessage());
             }
         }
-        log.info("bound app: " + binding.getAppGuid() + " to database: " + "gpadmin");
+        log.info("bound app: " + binding.getAppGuid());
     }
 
     /**
@@ -146,7 +146,7 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
-        log.info("DELETE Binding ");
+        log.debug("DELETE Binding ");
         Map<String, Object> userCredentials = getCredentials(instance, binding);
         client.deleteUserCreds(userCredentials);
     }
@@ -165,23 +165,15 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
-        log.info("returning credentials.");
         String theUser = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
-        log.info("User,{}", theUser);
         String thePasswd = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
-        log.info("Password {}", thePasswd);
         String theDB = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
-        log.info("theDB {}", theDB);
         String uri = client.getDbUrl(theUser, theDB, thePasswd);
-        log.info("URI {}", uri);
 
         Map<String, Object> m = new HashMap<>();
         m.put(DWaaSServiceInfo.URI, uri);
-
         m.put(DWaaSServiceInfo.USERNAME, theUser);
         m.put(DWaaSServiceInfo.PASSWORD, thePasswd);
-        //m.put(DWaaSServiceInfo.DATABASE, binding.getParameters().get(DWaaSServiceInfo.DATABASE));
-        //m.put(DWaaSServiceInfo.DATABASE, instance.getParameters().get(DWaaSServiceInfo.DATABASE));
 
         return m;
     }

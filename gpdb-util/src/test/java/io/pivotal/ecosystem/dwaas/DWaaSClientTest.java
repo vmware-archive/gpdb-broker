@@ -83,16 +83,10 @@ public class DWaaSClientTest {
     public void testCreateCredentialsGenerated() throws Exception {
 
         Map<String, String> userCredentials = client.createUserCreds(serviceBindingNoParms);
-
-        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
-        assertNotNull(uid);
-
-        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
-        assertNotNull(pw);
-
         assertNotNull(userCredentials.get(DWaaSServiceInfo.USERNAME));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.PASSWORD));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.DATABASE));
+        assertEquals(true, client.checkUserExists(userCredentials.get(DWaaSServiceInfo.USERNAME)));
         client.deleteUserCreds(userCredentials);
     }
 
@@ -104,7 +98,7 @@ public class DWaaSClientTest {
     }
 
     @Test
-    public void testDBUrl() throws Exception{
+    public void testDBUrl() throws Exception {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
         Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
 
@@ -120,7 +114,7 @@ public class DWaaSClientTest {
 
         String connectionString = client.getDbUrl(uid, db, pw);
 
-        log.info("ConnectionString [{}]",connectionString);
+        log.info("ConnectionString [{}]", connectionString);
 
         assertEquals(connectionString, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=testDb;;User=testUser;Password=testPassw0rd;");
     }

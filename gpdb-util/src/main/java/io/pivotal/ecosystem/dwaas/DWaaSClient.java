@@ -48,18 +48,12 @@ class DWaaSClient {
         this.url = env.getProperty("spring.datasource.url");
     }
 
-
     boolean checkDatabaseExists(String db) {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
     }
 
-    void setDbUrl(String u) {
-        this.url = u;
-    }
-
     String getDbUrl(String user, String dbName, String passwd) {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
-      //  log.info("this.url from dbURL {}", url);
         String connectionString = url.replace("gpadmin", dbName)
                 + ";User=" + user
                 + ";Password=" + passwd
@@ -105,9 +99,8 @@ class DWaaSClient {
     }
 
     Map<String, String> createUserCreds(ServiceBinding binding) throws Exception {
-        log.info("Inside createUserCred()");
+        log.debug("Inside createUserCred()");
 
-        // String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
         String userCredential;
         String passCredential;
@@ -142,7 +135,7 @@ class DWaaSClient {
         } else
 
         {
-            log.info("Populating map with provided credentials");
+            log.info("Populating with provided credentials");
             userCredential = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
             passCredential = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
             providedDatabase = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
@@ -169,6 +162,6 @@ class DWaaSClient {
     }
 
     boolean checkUserExists(String uid) {
-        return jdbcTemplate.queryForObject("select count(*) from pg_roles where rolname = '?'", new Object[]{uid}, Integer.class) > 0;
+        return jdbcTemplate.queryForObject("select count(*) from pg_roles where rolname = ?", new Object[]{uid}, Integer.class) == 1;
     }
 }
