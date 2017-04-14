@@ -45,20 +45,21 @@ class DWaaSClient {
 
     public DWaaSClient(DataSource dataSource, Environment env) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.url = env.getProperty(DWaaSServiceInfo.URI);
+        this.url = env.getProperty("spring.datasource.url");
     }
 
 
     boolean checkDatabaseExists(String db) {
         return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[]{db}, Integer.class) > 0;
     }
-    
+
     void setDbUrl(String u) {
-    	this.url = u;
+        this.url = u;
     }
 
     String getDbUrl(String user, String dbName, String passwd) {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
+      //  log.info("this.url from dbURL {}", url);
         String connectionString = url.replace("gpadmin", dbName)
                 + ";User=" + user
                 + ";Password=" + passwd
@@ -103,14 +104,14 @@ class DWaaSClient {
         return "P" + getRandomishId();
     }
 
-    Map<String, String> createUserCreds(ServiceBinding binding) {
+    Map<String, String> createUserCreds(ServiceBinding binding) throws Exception {
         log.info("Inside createUserCred()");
 
         // String db = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         Map<String, String> userCredentials = new HashMap<>();
         String userCredential;
         String passCredential;
-        String providedDatabase = "database";
+        String providedDatabase;
 
 
         if (binding.getParameters().get(DWaaSServiceInfo.USERNAME) == null) {
@@ -118,21 +119,29 @@ class DWaaSClient {
 
             userCredential = createUserId(null);
             passCredential = createPassword(null);
+            providedDatabase = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
+            if (providedDatabase != null) {
 
-            userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
-            userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
-            userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
+                userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
+                userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
+                userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
 
-            jdbcTemplate.execute("CREATE ROLE "
-                    + userCredentials.get(DWaaSServiceInfo.USERNAME)
-                    + " LOGIN SUPERUSER PASSWORD '"
-                    + userCredentials.get(DWaaSServiceInfo.PASSWORD)
-                    + "'");
+                jdbcTemplate.execute("CREATE ROLE "
+                        + userCredentials.get(DWaaSServiceInfo.USERNAME)
+                        + " LOGIN SUPERUSER PASSWORD '"
+                        + userCredentials.get(DWaaSServiceInfo.PASSWORD)
+                        + "'");
 
-            log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
+                log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
+            } else {
+                log.error("You must pass a Database Name on Binding");
+                throw new Exception();
+            }
 
 
-        } else {
+        } else
+
+        {
             log.info("Populating map with provided credentials");
             userCredential = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
             passCredential = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);

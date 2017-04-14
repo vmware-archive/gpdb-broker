@@ -104,10 +104,10 @@ public class DWaaSClientTest {
     }
 
     @Test
-    public void testDBUrl() {
+    public void testDBUrl() throws Exception{
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
         Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
-        client.setDbUrl("jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;");
+
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
         assertNotNull(uid);
@@ -119,6 +119,8 @@ public class DWaaSClientTest {
         assertNotNull(db);
 
         String connectionString = client.getDbUrl(uid, db, pw);
+
+        log.info("ConnectionString [{}]",connectionString);
 
         assertEquals(connectionString, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=testDb;;User=testUser;Password=testPassw0rd;");
     }
