@@ -65,12 +65,12 @@ public class DWaaSClientTest {
     @Test
     public void testCreateCredentialsProvided() throws Exception {
 
-        Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
+        Map<String, Object> userCredentials = client.createUserCreds(serviceBindingWithParms);
 
-        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
+        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
         assertNotNull(uid);
 
-        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
+        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD).toString();
         assertNotNull(pw);
 
         assertEquals("testUser", userCredentials.get(DWaaSServiceInfo.USERNAME));
@@ -82,12 +82,12 @@ public class DWaaSClientTest {
     @Test
     public void testCreateCredentialsGenerated() throws Exception {
 
-        Map<String, String> userCredentials = client.createUserCreds(serviceBindingNoParms);
+        Map<String, Object> userCredentials = client.createUserCreds(serviceBindingNoParms);
 
-        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
+        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
         assertNotNull(uid);
 
-        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
+        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD).toString();
         assertNotNull(pw);
 
         assertNotNull(userCredentials.get(DWaaSServiceInfo.USERNAME));
@@ -106,16 +106,16 @@ public class DWaaSClientTest {
     @Test
     public void testDBUrl() {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
-        Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
+        Map<String, Object> userCredentials = client.createUserCreds(serviceBindingWithParms);
         client.setDbUrl("jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;");
 
-        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME);
+        String uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
         assertNotNull(uid);
 
-        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD);
+        String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD).toString();
         assertNotNull(pw);
 
-        String db = userCredentials.get(DWaaSServiceInfo.DATABASE);
+        String db = userCredentials.get(DWaaSServiceInfo.DATABASE).toString();
         assertNotNull(db);
 
         String connectionString = client.getDbUrl(uid, db, pw);

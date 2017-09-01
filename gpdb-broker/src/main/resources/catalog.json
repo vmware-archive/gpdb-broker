@@ -1,29 +1,53 @@
 {
   "services":[
     {
-      "id":"DWaaS",
-      "name":"DWaaS",
-      "description":"DWaaS Broker for Pivotal Cloud Foundry",
+      "id":"Cognition",
+      "name":"Cognition",
+      "description":"Cognition for Pivotal Cloud Foundry",
       "bindable": true,
       "tags":[
-        "dwaas"
+        "dwaas", "cognition", "greenplum", "gemfire"
       ],
       "metadata":{
-        "displayName":"DWaaSBroker",
+        "displayName":"Cognition",
         "imageUrl":"http://greenplum.org/images/events/event-greenplum-chat.png",
-        "longDescription":"DWaaS Service Broker for Pivotal Cloud Foundry",
+        "longDescription":"Cognition for Pivotal Cloud Foundry",
         "providerDisplayName":"Pivotal",
         "documentationUrl":"https://docs.cloudfoundry.org/services/api.html"
       },
       "plans":[
         {
-          "id":"DWaaSBroker",
-          "name":"dwaas",
-          "description":"mvp service",
+          "id":"AwsBroker",
+          "name":"aws",
+          "description":"Burst into AWS using CloudFormation",
           "metadata": {
             "cost": 0,
             "bullets": [{
-              "content": "shared instance mvp"
+              "content": "dedicated single node instance"
+            }]
+          },
+          "free": true
+        },
+        {
+          "id":"AzureBroker",
+          "name":"azure",
+          "description":"Burst into AWS using Azure Resource Manager",
+          "metadata": {
+            "cost": 0,
+            "bullets": [{
+              "content": "dedicated cluster instance"
+            }]
+          },
+          "free": true
+        },
+        {
+          "id":"vSphereBroker",
+          "name":"vsphere",
+          "description":"Burst into vSphere",
+          "metadata": {
+            "cost": 0,
+            "bullets": [{
+              "content": "dedicated instance"
             }]
           },
           "free": true

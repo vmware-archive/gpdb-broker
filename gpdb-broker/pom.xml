@@ -1,50 +1,251 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>io.pivotal.cf.broker</groupId>
-        <artifactId>gpdb-broker-parent</artifactId>
-        <version>1.0.0</version>
-    </parent>
+	<parent>
+		<groupId>io.pivotal.cf.broker</groupId>
+		<artifactId>gpdb-broker-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
 
-    <artifactId>gpdb-broker</artifactId>
+	<artifactId>gpdb-broker</artifactId>
 
-    <dependencies>
+	<properties>
+		<java.version>1.8</java.version>
+		<spring-cloud-deployer-spi.version>1.1.4.RELEASE</spring-cloud-deployer-spi.version>
+		<spring-cloud-deployer-cf.version>1.1.1.RELEASE</spring-cloud-deployer-cf.version>
+		<cloudfoundry-java-lib.version>2.9.0.RELEASE</cloudfoundry-java-lib.version>
+        <awssdk.version>1.11.183</awssdk.version>
+        <azuresdk.version>1.2.0</azuresdk.version>
+        <azureannotations.version>1.2.0</azureannotations.version>
+        <azureclient.version>1.1.0</azureclient.version>
+        <vsphereapi.version>2.7.0</vsphereapi.version>
+        <vmwaresdk.version>6.6.1</vmwaresdk.version>
+	</properties>
+
+	<dependencies>
         <dependency>
-            <groupId>io.pivotal.ecosystem</groupId>
-            <artifactId>simple-broker</artifactId>
-            <version>1.0.1</version>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-cloudformation</artifactId>
+            <version>${awssdk.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.pivotal.cf.broker</groupId>
-            <artifactId>gpdb-util</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+            <version>2.6</version>
         </dependency>
         <dependency>
-            <groupId>io.pivotal.cf.broker</groupId>
-            <artifactId>gpdb-connector</artifactId>
-            <version>1.0.0</version>
+            <groupId>com.vmware.vapi</groupId>
+            <artifactId>vapi-runtime</artifactId>
+            <version>${vsphereapi.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.vmware.vapi</groupId>
+            <artifactId>vapi-authentication</artifactId>
+            <version>${vsphereapi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vmware.vapi</groupId>
+            <artifactId>vapi-samltoken</artifactId>
+            <version>${vsphereapi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vmware</groupId>
+            <artifactId>vsphereautomation-client-sdk</artifactId>
+            <version>${vmwaresdk.version}</version>
+        </dependency>
+        <!-- dependency>
+            <groupId>com.vmware.sso</groupId>
+            <artifactId>ssoclient</artifactId>
+            <version>${vsphereapi.version}</version>
+        </dependency -->
+        <!-- dependency>
+            <groupId>com.vmware.vsphereautomation.lookup</groupId>
+            <artifactId>vsphereautomation-lookupservice</artifactId>
+            <version>${vsphereapi.version}</version>
+        </dependency -->
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure</artifactId>
+            <version>${azuresdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-client-runtime</artifactId>
+            <version>${azureclient.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-client-authentication</artifactId>
+            <version>${azureclient.version}</version>
+            <!-- scope>test</scope -->
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-annotations</artifactId>
+            <version>${azureannotations.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-deployer-local</artifactId>
+            <version>${spring-cloud-deployer-cf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-deployer-cloudfoundry</artifactId>
+            <version>${spring-cloud-deployer-cf.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-deployer-spi</artifactId>
+			<version>${spring-cloud-deployer-spi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-deployer-resource-support</artifactId>
+			<version>${spring-cloud-deployer-spi.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+            <groupId>org.cloudfoundry</groupId>
+            <artifactId>cloudfoundry-operations</artifactId>
+            <version>${cloudfoundry-java-lib.version}</version>
+        </dependency>
+		<dependency>
+			<groupId>io.pivotal.ecosystem</groupId>
+			<artifactId>simple-broker</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>io.pivotal.cf.broker</groupId>
+			<artifactId>gpdb-util</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.pivotal.cf.broker</groupId>
+			<artifactId>gpdb-connector</artifactId>
+			<version>1.0.0</version>
+		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
- <!--       <dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+		</dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>-->
-    </dependencies>
-    <build>
-        <finalName>gpdb-broker</finalName>
-        <plugins>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+	</dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>bom</artifactId>
+                <version>2.0.0-preview-2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <scm>
+        <url>scm:git:https://github.com/Azure/azure-sdk-for-java</url>
+        <connection>scm:git:git@github.com:Azure/azure-sdk-for-java.git</connection>
+        <tag>HEAD</tag>
+    </scm>
+
+	<build>
+		<finalName>gpdb-broker</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
             <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <id>install-vapi-authentication</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <groupId>com.vmware.vapi</groupId>
+                            <artifactId>vapi-authentication</artifactId>
+                            <version>${vsphereapi.version}</version>
+                            <file>./lib/vapi-authentication-${vsphereapi.version}.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-vapi-runtime</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <groupId>com.vmware.vapi</groupId>
+                            <artifactId>vapi-runtime</artifactId>
+                            <version>${vsphereapi.version}</version>
+                            <file>./lib/vapi-runtime-${vsphereapi.version}.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-vapi-samltoken</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <groupId>com.vmware.vapi</groupId>
+                            <artifactId>vapi-samltoken</artifactId>
+                            <version>${vsphereapi.version}</version>
+                            <file>./lib/vapi-samltoken-${vsphereapi.version}.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-lookupservice</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <groupId>com.vmware.vsphereautomation.lookup</groupId>
+                            <artifactId>vsphereautomation-lookupservice</artifactId>
+                            <version>${vmwaresdk.version}</version>
+                            <file>./lib/vsphereautomation-lookupservice-${vmwaresdk.version}.jar</file>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>install-vsphereautomation-sdk</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <packaging>jar</packaging>
+                            <groupId>com.vmware</groupId>
+                            <artifactId>vsphereautomation-client-sdk</artifactId>
+                            <version>${vmwaresdk.version}</version>
+                            <file>./lib/vsphereautomation-client-sdk-${vmwaresdk.version}.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-        </plugins>
-    </build>
+		</plugins>
+	</build>
+
 
 </project>

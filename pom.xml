@@ -19,6 +19,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
+        <!-- gpdb-broker Azure provisioning requires an old version due to jacksonxml issues -->
         <version>1.4.1.RELEASE</version>
     </parent>
 

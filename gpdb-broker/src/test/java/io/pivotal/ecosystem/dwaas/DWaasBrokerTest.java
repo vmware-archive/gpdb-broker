@@ -8,7 +8,19 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes=TestConfig.class)
 public class DWaasBrokerTest {
-	
+
+    @Test
+    public void createInstance() throws Exception {
+    }
+
+    @Test
+    public void deleteInstance() throws Exception {
+    }
+
+    @Test
+    public void updateInstance() throws Exception {
+    }
+
     @Test
     public void createBinding() throws Exception {
     }

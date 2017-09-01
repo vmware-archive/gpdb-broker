@@ -11,12 +11,23 @@ A cloud foundry service broker for Greenplum.
   -DartifactId=jdbc.greenplum -Dversion=5.1.4 -Dpackaging=jar -DgeneratePom=true
   ```
 
+## Download the vSphere JARs:
+
+  ```bash
+  cd lib
+  wget -O vapi-authentication-2.7.0.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vapi-authentication-2.7.0.jar?raw=true'
+  wget -O vapi-runtime-2.7.0.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vapi-runtime-2.7.0.jar?raw=true'
+  wget -O vapi-samltoken-2.7.0.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vapi-samltoken-2.7.0.jar?raw=true'
+  wget -O vsphereautomation-client-sdk-6.6.1.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vsphereautomation-client-sdk-6.6.1.jar?raw=true'
+   cd ../ && mvn initialize
+  ```
+
 ## Using gpdb-broker
 1. gpdb-broker requires a redis datastore. To set this up:
   ```bash
   cf create-service p-redis shared-vm redis-for-gpdb
   ```
-2. Edit the [manifest.yml](https://github.com/cf-platform-eng/ms-sql-server-broker/blob/master/gpdb-broker/manifest.yml) file as needed for your  installation.
+2. Edit the [manifest.yml](https://github.com/kdunn-pivotal/gpdb-broker/blob/master/gpdb-broker/manifest.yml) file as needed for your installation.
 1. check out and build the project
   ```bash
   git clone git@github.com:kdunn-pivotal/gpdb-broker.git
@@ -29,7 +40,7 @@ A cloud foundry service broker for Greenplum.
   ```
 5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
-  cf create-service-broker gpdb user passwordFromTheBrokerLog https://uri.of.your.broker.app
+  cf create-service-broker gpdbUser passwordFromTheBrokerLog https://uri.of.your.broker.app
   ```
 6. See the broker:
   ```bash
@@ -53,7 +64,7 @@ A cloud foundry service broker for Greenplum.
   
   
   cf enable-service-access gpdb
-  Enabling access to all plans of service SqlServer for all orgs as admin...
+  Enabling access to all plans of service GPDB for all orgs as admin...
 
 
   cf marketplace
@@ -89,5 +100,5 @@ Once a service instance (contained database) has been created, users can bind ap
   ```
 Optionally, users can provide an alphanumeric user names and passwords for the binding as follows:
   ```bash
-  cf bind-service anApplicartion aGpdbService -c '{"uid" : "aUserId", "pw" : "aValidSqlServerPassword"}'
+  cf bind-service anApplicartion aGpdbService -c '{"uid" : "aUserId", "pw" : "aValidGpdbPassword"}'
   ```

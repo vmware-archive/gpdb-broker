@@ -17,20 +17,18 @@
 
 package io.pivotal.ecosystem.dwaas;
 
-import io.pivotal.ecosystem.dwaas.DWaaSClient;
+import com.amazonaws.services.cloudformation.AmazonCloudFormation;
+import io.pivotal.ecosystem.dwaas.aws.AWSCloudFormationDeployer;
 import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
 import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 import io.pivotal.ecosystem.servicebroker.service.DefaultServiceImpl;
-import lombok.extern.slf4j.Slf4j;
 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.cloud.servicebroker.exception.ServiceBrokerException;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -48,16 +46,22 @@ import java.util.Map;
  */
 
 @Service
-@Slf4j
 class DWaaSBroker extends DefaultServiceImpl {
 
     @Autowired
     private DWaaSClient client;
 
-
     private Environment env;
 
     private static final Logger log = LoggerFactory.getLogger(DWaaSBroker.class);
+
+    @Autowired
+    AmazonCloudFormation cloudformationClient;
+
+    @Autowired
+    AWSCloudFormationDeployer deployer;
+
+
 
     public DWaaSBroker(Environment env, DWaaSClient client) {
         super();
@@ -76,6 +80,34 @@ class DWaaSBroker extends DefaultServiceImpl {
     public void createInstance(ServiceInstance instance) throws ServiceBrokerException {
         log.info("creating database...");
 
+        String templateUrl = "https://s3.amazonaws.com/awsmp-fulfillment-cf-templates-prod/a11bec62-52d1-4fce-9a09-ea8e38ddcd3b.5b93ff4f-cc7f-49e2-a568-e6e9881a0fc8.template";
+
+        //instance.getParameters().get(DWaaSServiceInfo.CLOUD_PROVIDER).toString()          // string: AWS, Azure [, or vSphere, GCP]
+        //instance.getParameters().get(DWaaSServiceInfo.CLOUD_CREDENTIALS).toString()       // object: specific to each cloud
+        //instance.getParameters().get(DWaaSServiceInfo.CLOUD_INSTANCE_TYPE).toString()     // string: specific to each cloud
+        //instance.getParameters().get(DWaaSServiceInfo.CLOUD_REGION).toString()            // string
+
+        //instance.getParameters().get(DWaaSServiceInfo.PIVNET_APIKEY).toString()
+        //instance.getParameters().get(DWaaSServiceInfo.CLUSTER_SIZE).toString()
+        //instance.getParameters().get(DWaaSServiceInfo.NETWORK_ACCESS_MASK).toString()
+
+        //instance.getParameters().get(DWaaSServiceInfo.SQL_BOOTSTRAP_URL).toString()
+
+
+        this.deployer.setDeploymentOptions("sb-gpdb","1", "us-west-2a", "G3vyGKeP-yz9YxJUizGd", "cognition-testing", "d2.4xlarge-Ephemeral-24TB", "0.0.0.0/0");
+
+
+        //this.stackName           = "java-greenplum-cloudformation";
+        String logicalResourceName = "SampleNotificationTopic";
+
+        try {
+            deployer.makeStack(cloudformationClient);
+        }
+        catch (Exception e) {
+
+        }
+
+
         //user can optionally specify a db name
         log.info("instance created.");
     }
@@ -91,6 +123,13 @@ class DWaaSBroker extends DefaultServiceImpl {
         String db = instance.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
         log.info("deleting database: " + db);
         //client.deleteDatabase(db);
+
+        try {
+            deployer.deleteStack(cloudformationClient);
+        }
+        catch (Exception e) {
+
+        }
     }
 
     /**
@@ -125,7 +164,7 @@ class DWaaSBroker extends DefaultServiceImpl {
             log.info("CLIENT IS NULL***************");
             return;
         } else {
-            Map<String, String> userCredentials = client.createUserCreds(binding);
+            Map<String, Object> userCredentials = client.createUserCreds(binding);
             log.info("USER CREDENTIALS CREATED");
             binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
             binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
@@ -144,6 +183,7 @@ class DWaaSBroker extends DefaultServiceImpl {
     public void deleteBinding(ServiceInstance instance, ServiceBinding binding) {
         log.info("DELETE Binding ");
         Map<String, Object> userCredentials = getCredentials(instance, binding);
+
         client.deleteUserCreds(userCredentials);
     }
 
@@ -162,12 +202,12 @@ class DWaaSBroker extends DefaultServiceImpl {
     @Override
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
         log.info("returning credentials.");
-        String theUser = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
-        String thePasswd = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
-        String theDB = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
+        String theUser = binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString();
+        String thePasswd = binding.getParameters().get(DWaaSServiceInfo.PASSWORD).toString();
+        String theDB = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
 
 
-        Map<String, Object> m = new HashMap<>();
+        Map<String, Object> m = new HashMap<String, Object>();
         m.put(DWaaSServiceInfo.URI, client.getDbUrl(theUser, theDB, thePasswd));
 
         m.put(DWaaSServiceInfo.USERNAME, theUser);
