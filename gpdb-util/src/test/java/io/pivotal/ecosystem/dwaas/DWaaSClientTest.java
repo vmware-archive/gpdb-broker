@@ -82,6 +82,7 @@ public class DWaaSClientTest {
     @Test
     public void testCreateCredentialsGenerated() throws Exception {
 
+<<<<<<< HEAD
         Map<String, Object> userCredentials = client.createUserCreds(serviceBindingNoParms);
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
@@ -90,9 +91,13 @@ public class DWaaSClientTest {
         String pw = userCredentials.get(DWaaSServiceInfo.PASSWORD).toString();
         assertNotNull(pw);
 
+=======
+        Map<String, String> userCredentials = client.createUserCreds(serviceBindingNoParms);
+>>>>>>> 7b640b25e86752162a30dbbae9107f634e415131
         assertNotNull(userCredentials.get(DWaaSServiceInfo.USERNAME));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.PASSWORD));
         assertNotNull(userCredentials.get(DWaaSServiceInfo.DATABASE));
+        assertEquals(true, client.checkUserExists(userCredentials.get(DWaaSServiceInfo.USERNAME)));
         client.deleteUserCreds(userCredentials);
     }
 
@@ -104,10 +109,15 @@ public class DWaaSClientTest {
     }
 
     @Test
-    public void testDBUrl() {
+    public void testDBUrl() throws Exception {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
+<<<<<<< HEAD
         Map<String, Object> userCredentials = client.createUserCreds(serviceBindingWithParms);
         client.setDbUrl("jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;");
+=======
+        Map<String, String> userCredentials = client.createUserCreds(serviceBindingWithParms);
+
+>>>>>>> 7b640b25e86752162a30dbbae9107f634e415131
 
         String uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
         assertNotNull(uid);
@@ -119,6 +129,8 @@ public class DWaaSClientTest {
         assertNotNull(db);
 
         String connectionString = client.getDbUrl(uid, db, pw);
+
+        log.info("ConnectionString [{}]", connectionString);
 
         assertEquals(connectionString, "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=testDb;;User=testUser;Password=testPassw0rd;");
     }

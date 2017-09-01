@@ -24,6 +24,7 @@ import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceBindingRequest;
 import org.springframework.cloud.servicebroker.model.CreateServiceInstanceRequest;
@@ -43,8 +44,12 @@ class TestConfig {
 
     private static final Logger log = LoggerFactory.getLogger(TestConfig.class);
 
+ /*   @Autowired
+    Environment env;*/
+
     @Bean
     public DWaaSClient client(DataSource datasource, Environment env) {
+        log.info("Configuring Test Suite ENV.GETPROPERTY={}", env.getProperty("spring.datasource.url"));
         return new DWaaSClient(datasource, env);
     }
 
@@ -82,7 +87,9 @@ class TestConfig {
 
     @Bean
     public ServiceBinding serviceBindingNoParms() {
-        return new ServiceBinding(new CreateServiceInstanceBindingRequest());
+        Map<String, Object> params = new HashMap<>();
+        params.put(DWaaSServiceInfo.DATABASE, "testDb");
+        return new ServiceBinding(new CreateServiceInstanceBindingRequest(null, null, null, null, params));
     }
 
     @Bean
