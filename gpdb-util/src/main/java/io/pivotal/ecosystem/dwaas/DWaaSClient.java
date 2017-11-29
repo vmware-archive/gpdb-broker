@@ -36,126 +36,6 @@ import java.util.UUID;
 
 @Repository
 class DWaaSClient {
-<<<<<<< HEAD
-	private static final Logger log = LoggerFactory.getLogger(DWaaSClient.class);
-	private JdbcTemplate jdbcTemplate;
-	private String url;
-	private boolean isUserProvided = false;
-
-	public DWaaSClient(DataSource dataSource, Environment env) {
-		this.jdbcTemplate = new JdbcTemplate(dataSource);
-		this.url = env.getProperty(DWaaSServiceInfo.URI);
-	}
-
-	boolean checkDatabaseExists(String db) {
-		return jdbcTemplate.queryForObject("SELECT count(*) FROM pg_database WHERE datname = ?", new Object[] { db },
-				Integer.class) == 1;
-	}
-
-	void setDbUrl(String u) {
-		this.url = u;
-	}
-
-	public String getDbUrl(String user, String dbName, String passwd) {
-		// "jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
-		return url.replace("gpadmin", dbName) + ";User=" + user + ";Password=" + passwd + ";";
-
-		//return connectionString;
-	}
-
-	// todo how to protect dbs etc. from bad actors?
-	private String getRandomishId() {
-		return clean(UUID.randomUUID().toString());
-	}
-
-	/**
-	 * jdbcTemplate helps protect against sql injection, but also clean strings
-	 * up just in case
-	 */
-	String clean(String s) {
-		if (s == null) {
-			return "";
-		}
-		return s.replaceAll("[^a-zA-Z0-9]", "");
-	}
-
-	private String checkString(String s) throws ServiceBrokerException {
-		if (s.equals(clean(s))) {
-			return s;
-		}
-		throw new ServiceBrokerException("Name must contain only alphanumeric characters.");
-	}
-
-	private String createUserId(Object o) {
-		if (o != null) {
-			return checkString(o.toString());
-		}
-		return "u" + getRandomishId();
-	}
-
-	private String createPassword(Object o) {
-		if (o != null) {
-			return checkString(o.toString());
-		}
-		return "P" + getRandomishId();
-	}
-
-	public Map<String, Object> createUserCreds(ServiceBinding binding) {
-		log.info("Inside createUserCred()");
-
-		// String db =
-		// binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
-		Map<String, Object> userCredentials = new HashMap<String, Object>();
-		String userCredential;
-		String passCredential;
-		String providedDatabase = "database";
-
-		if (binding.getParameters().get(DWaaSServiceInfo.USERNAME) == null) {
-			log.info("Created random credentials");
-
-			userCredential = createUserId(null);
-			passCredential = createPassword(null);
-
-			userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
-			userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
-			userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
-
-			jdbcTemplate.execute("CREATE ROLE " + userCredentials.get(DWaaSServiceInfo.USERNAME)
-					+ " LOGIN SUPERUSER PASSWORD '" + userCredentials.get(DWaaSServiceInfo.PASSWORD) + "'");
-
-			log.info("Created user: " + userCredentials.get(DWaaSServiceInfo.USERNAME));
-
-		} else {
-			log.info("Populating map with provided credentials");
-			userCredential = binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString();
-			passCredential = binding.getParameters().get(DWaaSServiceInfo.PASSWORD).toString();
-			providedDatabase = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
-
-			userCredentials.put(DWaaSServiceInfo.USERNAME, userCredential);
-			userCredentials.put(DWaaSServiceInfo.PASSWORD, passCredential);
-			userCredentials.put(DWaaSServiceInfo.DATABASE, providedDatabase);
-
-			this.isUserProvided = true;
-			log.info("Bind Request [Credentials Provided: {} No New ROLE CREATED]", userCredential.toString());
-
-		}
-
-		return userCredentials;
-	}
-
-	public void deleteUserCreds(Map<String, Object> userCredentials) {
-		String uid;
-		if (isUserProvided == false) {
-			uid = userCredentials.get(DWaaSServiceInfo.USERNAME).toString();
-			jdbcTemplate.execute("DROP ROLE IF EXISTS " + uid);
-		}
-	}
-
-	boolean checkUserExists(String uid) {
-		return jdbcTemplate.queryForObject("select count(*) from pg_roles where rolname = '?'", new Object[] { uid },
-				Integer.class) == 1;
-	}
-=======
     private static final Logger log = LoggerFactory.getLogger(DWaaSClient.class);
     private JdbcTemplate jdbcTemplate;
     private String url;
@@ -172,7 +52,7 @@ class DWaaSClient {
 
     String getDbUrl(String user, String dbName, String passwd) {
         //"jdbc:pivotal:greenplum://104.198.46.128:5432;DatabaseName=gpadmin;"
-        String connectionString = url.replace("gpadmin", dbName)
+        String connectionString = url.replace("gpadmin", "gpadmin")
                 + ";User=" + user
                 + ";Password=" + passwd
                 + ";";
@@ -282,5 +162,4 @@ class DWaaSClient {
     boolean checkUserExists(String uid) {
         return jdbcTemplate.queryForObject("select count(*) from pg_roles where rolname = ?", new Object[]{uid}, Integer.class) == 1;
     }
->>>>>>> 7b640b25e86752162a30dbbae9107f634e415131
 }

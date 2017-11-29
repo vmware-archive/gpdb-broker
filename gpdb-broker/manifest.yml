@@ -1,10 +1,10 @@
 ---
 applications:
-- name: gpdb-broker
-  memory: 512M
+- name: pbardhan-gpdb-broker
+  memory: 1024M
   instances: 1
   path: target/gpdb-broker.jar
-  services: [redis]
+  services: [redis-for-gpdb]
   env:
     SPRING_PROFILES_ACTIVE: cloud
 

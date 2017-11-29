@@ -11,9 +11,10 @@ import com.vmware.vcenter.vm.hardware.ScsiAddressSpec;
 import com.vmware.vcenter.vm.hardware.boot.DeviceTypes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 
 import java.util.*;
-
+@Profile("vmware")
 public class vSphereClient {
 
     private String vmFolderName;

@@ -8,7 +8,8 @@ import com.microsoft.rest.credentials.ServiceClientCredentials;
 import okhttp3.OkHttpClient;
 import org.springframework.stereotype.Component;
 import retrofit2.Retrofit;
-
+import org.springframework.context.annotation.Profile;
+@Profile("azure")
 @Component
 public class AzureDeployClient extends ServiceClient {
 

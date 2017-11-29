@@ -13,7 +13,7 @@ packages:
   manifest:
     path: target/sqlserver-broker.jar
     buildpack: java_buildpack_offline
-  auto_services: p-redis
+  auto_services: rediscloud
 
 forms:
 - name: sqlserver_properties
@@ -43,4 +43,3 @@ forms:
 
 requires_product_versions:
 - name: p-redis
-  version: '~> 1.5'

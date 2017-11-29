@@ -164,13 +164,6 @@ class DWaaSBroker extends DefaultServiceImpl {
             log.debug("CLIENT IS NULL***************");
             return;
         } else {
-<<<<<<< HEAD
-            Map<String, Object> userCredentials = client.createUserCreds(binding);
-            log.info("USER CREDENTIALS CREATED");
-            binding.getParameters().put(DWaaSServiceInfo.USERNAME, userCredentials.get(DWaaSServiceInfo.USERNAME));
-            binding.getParameters().put(DWaaSServiceInfo.PASSWORD, userCredentials.get(DWaaSServiceInfo.PASSWORD));
-            binding.getParameters().put(DWaaSServiceInfo.DATABASE, userCredentials.get(DWaaSServiceInfo.DATABASE));
-=======
             try {
                 Map<String, String> userCredentials = client.createUserCreds(binding);
                 log.debug("USER CREDENTIALS CREATED");
@@ -180,7 +173,6 @@ class DWaaSBroker extends DefaultServiceImpl {
             } catch (Exception e) {
                 log.error("BindingException: {}", e.getMessage());
             }
->>>>>>> 7b640b25e86752162a30dbbae9107f634e415131
         }
         log.info("bound app: " + binding.getAppGuid());
     }
@@ -213,17 +205,6 @@ class DWaaSBroker extends DefaultServiceImpl {
      */
     @Override
     public Map<String, Object> getCredentials(ServiceInstance instance, ServiceBinding binding) {
-<<<<<<< HEAD
-        log.info("returning credentials.");
-        String theUser = binding.getParameters().get(DWaaSServiceInfo.USERNAME).toString();
-        String thePasswd = binding.getParameters().get(DWaaSServiceInfo.PASSWORD).toString();
-        String theDB = binding.getParameters().get(DWaaSServiceInfo.DATABASE).toString();
-
-
-        Map<String, Object> m = new HashMap<String, Object>();
-        m.put(DWaaSServiceInfo.URI, client.getDbUrl(theUser, theDB, thePasswd));
-
-=======
         String theUser = (String) binding.getParameters().get(DWaaSServiceInfo.USERNAME);
         String thePasswd = (String) binding.getParameters().get(DWaaSServiceInfo.PASSWORD);
         String theDB = (String) binding.getParameters().get(DWaaSServiceInfo.DATABASE);
@@ -231,7 +212,6 @@ class DWaaSBroker extends DefaultServiceImpl {
 
         Map<String, Object> m = new HashMap<>();
         m.put(DWaaSServiceInfo.URI, uri);
->>>>>>> 7b640b25e86752162a30dbbae9107f634e415131
         m.put(DWaaSServiceInfo.USERNAME, theUser);
         m.put(DWaaSServiceInfo.PASSWORD, thePasswd);
 

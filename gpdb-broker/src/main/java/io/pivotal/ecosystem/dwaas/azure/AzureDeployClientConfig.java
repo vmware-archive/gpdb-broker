@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import retrofit2.Retrofit;
-
+import org.springframework.context.annotation.Profile;
+@Profile("azure")
 @Configuration
 public class AzureDeployClientConfig {
 

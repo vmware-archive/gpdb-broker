@@ -86,7 +86,7 @@
             <artifactId>azure-annotations</artifactId>
             <version>${azureannotations.version}</version>
         </dependency>
-        <dependency>
+        <!-- dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-deployer-local</artifactId>
             <version>${spring-cloud-deployer-cf.version}</version>
@@ -106,7 +106,7 @@
 			<artifactId>spring-cloud-deployer-resource-support</artifactId>
 			<version>${spring-cloud-deployer-spi.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency -->
 		<dependency>
             <groupId>org.cloudfoundry</groupId>
             <artifactId>cloudfoundry-operations</artifactId>
