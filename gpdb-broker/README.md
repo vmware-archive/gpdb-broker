@@ -8,10 +8,14 @@ A cloud foundry service broker for Greenplum.
 
   ```bash
   mvn install:install-file -Dfile=greenplum.jar -DgroupId=com.pivotal \ 
-  -DartifactId=jdbc.greenplum -Dversion=5.1.4 -Dpackaging=jar -DgeneratePom=true
+  -DartifactId=greenplum -Dversion=5.1.4 -Dpackaging=jar -DgeneratePom=true
+  ```
+## Create lib under gpdb-broker/gpdb-broker
+  ```bash
+  mkdir lib
   ```
 
-## Download the vSphere JARs:
+## Download the vSphere JARs insd=ide lib:
 
   ```bash
   cd lib
@@ -19,18 +23,32 @@ A cloud foundry service broker for Greenplum.
   wget -O vapi-runtime-2.7.0.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vapi-runtime-2.7.0.jar?raw=true'
   wget -O vapi-samltoken-2.7.0.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vapi-samltoken-2.7.0.jar?raw=true'
   wget -O vsphereautomation-client-sdk-6.6.1.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vsphereautomation-client-sdk-6.6.1.jar?raw=true'
-   cd ../ && mvn initialize
+  wget -O vsphereautomation-lookupservice-6.6.1.jar 'https://github.com/vmware/vsphere-automation-sdk-java/blob/master/lib/vsphereautomation-lookupservice-6.6.1.jar?raw=true'
+  ```
+
+## Install jars to local maven
+
+  ```bash
+  mvn install:install-file -Dfile=vapi-runtime-2.7.0.jar -DgroupId=com.vmware.vapi -DartifactId=vapi-runtime -Dversion=2.7.0 -Dpackaging=jar
+
+  mvn install:install-file -Dfile=vapi-authentication-2.7.0.jar -DgroupId=com.vmware.vapi -DartifactId=vapi-authentication -Dversion=2.7.0 -Dpackaging=jar
+
+  mvn install:install-file -Dfile=vapi-samltoken-2.7.0.jar -DgroupId=com.vmware.vapi -DartifactId=vapi-samltoken -Dversion=2.7.0 -Dpackaging=jar
+
+  mvn install:install-file -Dfile=vsphereautomation-client-sdk-6.6.1.jar -DgroupId=com.vmware -DartifactId=vsphereautomation-client-sdk -Dversion=6.6.1 -Dpackaging=jar
+
+  mvn install:install-file -Dfile=vsphereautomation-lookupservice-6.6.1.jar -DgroupId=com.vmware.vsphereautomation.lookup -DartifactId=vsphereautomation-lookupservice -Dversion=6.6.1 -Dpackaging=jar 
   ```
 
 ## Using gpdb-broker
-1. gpdb-broker requires a redis datastore. To set this up:
+1. gpdb-broker requires a redis datastore. To set this up (depending on the environment it can be p-redis or rediscloud. Make sure to check the cf marketplace for available redis offerings)
   ```bash
   cf create-service p-redis shared-vm redis-for-gpdb
   ```
 2. Edit the [manifest.yml](https://github.com/kdunn-pivotal/gpdb-broker/blob/master/gpdb-broker/manifest.yml) file as needed for your installation.
 1. check out and build the project
   ```bash
-  git clone git@github.com:kdunn-pivotal/gpdb-broker.git
+  git clone git@github.com:parthobardhan/gpdb-broker.git
   cd gpdb-broker
   mvn clean install  
   ```
@@ -40,7 +58,7 @@ A cloud foundry service broker for Greenplum.
   ```
 5. Register the broker. The broker makes use of spring-security to protect itself against unauthorized meddling. For more information, please see [here](https://github.com/cloudfoundry-community/spring-boot-cf-service-broker#security).
   ```bash
-  cf create-service-broker gpdbUser passwordFromTheBrokerLog https://uri.of.your.broker.app
+  cf create-service-broker <gpdbUser> <gpdb password> https://uri.of.your.broker.app
   ```
 6. See the broker:
   ```bash
@@ -58,12 +76,14 @@ A cloud foundry service broker for Greenplum.
   Getting service access as admin...
   ...
   broker: gpdb-broker
-     service          plan      access   orgs
-     gpdb             sharedVM  none
+   service     plan      access   orgs
+   Cognition   aws       none
+   Cognition   azure     none
+   Cognition   vsphere   none
   ...
   
   
-  cf enable-service-access gpdb
+  cf enable-service-access Cognition
   Enabling access to all plans of service GPDB for all orgs as admin...
 
 
@@ -71,8 +91,8 @@ A cloud foundry service broker for Greenplum.
   Getting services from marketplace in org your-org / space your-space as you...
   OK
   
-  service          plans           description
-  gpdb             sharedVM        GPDB Broker for Pivotal Cloud Foundry
+  service          plans                     description
+  Cognition        aws, azure, vsphere       Cognition for Pivotal Cloud Foundry
   ...
   ```
   
@@ -82,23 +102,23 @@ Please refer to [this documentation](https://docs.cloudfoundry.org/services/mana
 ### Creating a service instance
 Using the broker to create a service instance results in the creation of a new role with a random name and password.
   ```bash
-  cf create-service gpdb sharedVM aGpdbService
+  cf create-service Cognition aws myCognition
   ```
 Optionally, users can provide an alphanumeric name for the database as follows:
   ```bash
-  cf create-service gpdb sharedVM aGpdbService -c '{"db" : "aDatabaseName"}'
+  cf create-service Cognition aws myCognition -c '{"db" : "aDatabaseName"}'
   ```
 ### Deleting a service instance
 Deleting a service instance results in the immediate deletion of the corresponding database.
   ```bash
-  cf delete-service aGpdbService
+  cf delete-service myCognition
   ```
 ### Binding to a service
 Once a service instance (contained database) has been created, users can bind application to it in the usual fashion. The binding process includes the creation of random database-level credentials that are tied to the binding.
   ```bash
-  cf bind-service anApplicartion aGpdbService
+  cf bind-service anApplication myCognition
   ```
 Optionally, users can provide an alphanumeric user names and passwords for the binding as follows:
   ```bash
-  cf bind-service anApplicartion aGpdbService -c '{"uid" : "aUserId", "pw" : "aValidGpdbPassword"}'
+  cf bind-service anApplication myCognition -c '{"uid" : "aUserId", "pw" : "aValidGpdbPassword"}'
   ```
