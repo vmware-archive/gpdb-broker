@@ -17,10 +17,11 @@
 
 package io.pivotal.ecosystem.dwaas;
 
-import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
-import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
-import io.pivotal.ecosystem.servicebroker.model.ServiceInstance;
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +30,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import io.pivotal.ecosystem.dwaas.connector.DWaaSServiceInfo;
+import io.pivotal.ecosystem.servicebroker.model.ServiceBinding;
 
 @Repository
 class DWaaSClient {
@@ -44,6 +43,7 @@ class DWaaSClient {
     public DWaaSClient(DataSource dataSource, Environment env) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.url = env.getProperty("spring.datasource.url");
+        
     }
 
     boolean checkDatabaseExists(String db) {

@@ -5,6 +5,6 @@ applications:
   instances: 1
   buildpack: java_buildpack_offline
   path: target/gpdb-client-example-1.0.0.jar
-  services: [ myCognition ]
+  services: [ myGPDB2 ]
   env:
     SPRING_PROFILES_ACTIVE: cloud

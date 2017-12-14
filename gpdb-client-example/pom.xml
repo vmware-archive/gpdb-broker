@@ -13,11 +13,11 @@
     <artifactId>gpdb-client-example</artifactId>
 
     <dependencies>
-        <dependency>
-            <groupId>io.pivotal.cf.broker</groupId>
-            <artifactId>gpdb-connector</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>io.pivotal.cf.broker</groupId> -->
+<!--             <artifactId>gpdb-connector</artifactId> -->
+<!--             <version>${project.parent.version}</version> -->
+<!--         </dependency> -->
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
