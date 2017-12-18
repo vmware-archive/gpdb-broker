@@ -19,7 +19,7 @@ broker: gpdb-broker
    Greenplum-PB   pws    none
 
 ```
-6) Enable service access with `cf enable-service-access Greenplum-PB``
+6) Enable service access with `cf enable-service-access Greenplum-PB`
 7) Re-check service access on the broker with `cf service-access`. You should see something like 
 ```
 broker: gpdb-broker
