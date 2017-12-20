@@ -15,19 +15,36 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.client;
+package io.pivotal.ecosystem.greenplum.client;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import lombok.Data;
 
-@SpringBootApplication
-@Configuration
-@EnableJpaRepositories
-public class Application {
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import java.io.Serializable;
 
-    public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
-    }
+@Entity
+@Table(name = "quote")
+@Data
+class Quote implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    private String symbol = "";
+
+    private float low;
+
+    private float opened;
+
+    private int volume;
+
+    private float price;
+
+    private float high;
+
+    private String companyname;
+
+    private float change;
 }

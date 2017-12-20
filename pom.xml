@@ -14,6 +14,7 @@
         <module>gpdb-util</module>
         <module>gpdb-connector</module>
         <module>gpdb-client-example</module>
+        <module>gpdb-client</module>
     </modules>
 
     <parent>

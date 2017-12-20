@@ -15,13 +15,21 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.client;
+package io.pivotal.ecosystem.greenplum.client;
 
-import org.springframework.data.repository.PagingAndSortingRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@Repository
-interface QuoteRepository extends PagingAndSortingRepository<Quote, String> {
+@SpringBootApplication
+@Configuration
+@EnableJpaRepositories
+@ComponentScan
+public class Application {
 
-    Quote findBySymbol(String symbol);
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
 }

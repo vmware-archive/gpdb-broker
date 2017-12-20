@@ -49,12 +49,14 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 				GreenplumDatabase.getDatabasePort(), serviceInstanceId);
 
 		
-		String jdbcURL = String.format("jdbc:pivotal:greenplum://%s:%d/;DatabaseName=%s", GreenplumDatabase.getDatabaseHost(),
+		String jdbcURL = String.format("jdbc:pivotal:greenplum://%s:%d;DatabaseName=%s", GreenplumDatabase.getDatabaseHost(),
 				GreenplumDatabase.getDatabasePort(), serviceInstanceId);
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", uri);
 		credentials.put("jdbcUrl", jdbcURL);
+        credentials.put("master host", GreenplumDatabase.getDatabaseHost());
+        credentials.put("master port", GreenplumDatabase.getDatabasePort());
 		credentials.put("username", serviceInstanceId);
 		credentials.put("password", passwd);
 

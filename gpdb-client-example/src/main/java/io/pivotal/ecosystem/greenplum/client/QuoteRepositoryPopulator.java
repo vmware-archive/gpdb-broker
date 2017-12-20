@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.client;
+package io.pivotal.ecosystem.greenplum.client;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;

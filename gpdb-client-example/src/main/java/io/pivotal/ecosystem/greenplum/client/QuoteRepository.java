@@ -15,36 +15,13 @@
  * limitations under the License.
  */
 
-package io.pivotal.ecosystem.sqlserver.client;
+package io.pivotal.ecosystem.greenplum.client;
 
-import lombok.Data;
+import org.springframework.data.repository.PagingAndSortingRepository;
+import org.springframework.stereotype.Repository;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
+@Repository
+interface QuoteRepository extends PagingAndSortingRepository<Quote, String> {
 
-@Entity
-@Table(name = "QUOTE")
-@Data
-class Quote implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    @Id
-    private String symbol = "";
-
-    private float low;
-
-    private float opened;
-
-    private int volume;
-
-    private float price;
-
-    private float high;
-
-    private String companyname;
-
-    private float change;
+    Quote findBySymbol(String symbol);
 }
