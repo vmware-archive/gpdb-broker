@@ -8,6 +8,7 @@ spring.datasource.url=<greenplum remote master host>
 spring.datasource.username=<greenplum username>
 spring.datasource.password=<greenplum password>
 ```
+2)Update id and name in `gpdb-broker/gpdb-broker/src/main/resources/catalog.json`
 
 2) Run `mvn clean install` 
 3) Run `cf push`
