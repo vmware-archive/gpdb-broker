@@ -1,45 +1,45 @@
 ---
-name: sqlserver-broker
-icon_file: resources/microsoft-gray.png
-label: SqlServer Service Broker
-description: A service broker for Microsoft SqServer
+name: greenplum-broker
+icon_file: resources/pivotal-color.png
+label: Greenplum Service Broker
+description: Massively Parallel Processing Data Platform Built for Advanced Analytics
 
 apply_open_security_group: true
 
 packages:
-- name: sqlserver-broker
+- name: greenplum-broker
   type: app-broker
   enable_global_access_to_plans: true
   manifest:
-    path: target/sqlserver-broker.jar
+    path: target/greenplum-broker.jar
     buildpack: java_buildpack_offline
   auto_services: rediscloud
 
 forms:
-- name: sqlserver_properties
-  label: SqlServer
-  description: SqlServer Broker properties
+- name: greenplum_properties
+  label: Greenplum
+  description: Greenplum Broker properties
   properties:
-  - name: sql-host
+  - name: master-host
     type: string
     default: 'localhost'
-    label: sql-host
-    description: SqlServer host
-  - name: sql-port
+    label: master-host
+    description: Greenplum Master host
+  - name: master-port
     type: string
-    default: '1433'
-    label: sql-port
-    description: SqlServer port
-  - name: sqlserver-username
+    default: '5432'
+    label: master-port
+    description: Greenplum Master port
+  - name: greenplum-username
     type: string
-    default: 'sa'
-    label: sqlserver-username
-    description: SqlServer admin user name
-  - name: sqlserver-password
+    default: 'gpadmin'
+    label: greenplum-username
+    description: Greenplum admin user name
+  - name: greenplum-password
     type: string
-    default: 'secret'
-    label: sqlserver-password
-    description: SqlServer admin password
+    default: 'changeme'
+    label: greenplum-password
+    description: Greenplum admin user password
 
 requires_product_versions:
 - name: p-redis

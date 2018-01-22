@@ -1,5 +1,3 @@
-package io.pivotal.ecosystem.greenplum.broker.util;
-
 /*
  * Copyright 2014 the original author or authors.
  *
@@ -15,6 +13,8 @@ package io.pivotal.ecosystem.greenplum.broker.util;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package io.pivotal.ecosystem.greenplum.broker.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -17,11 +17,12 @@
 package io.pivotal.ecosystem.greenplum.broker.database;
 
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.sql.Types;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.pivotal.ecosystem.greenplum.broker.util.Utils;
@@ -29,29 +30,28 @@ import io.pivotal.ecosystem.greenplum.broker.util.Utils;
 @Component
 public class Database {
 	private static final Logger logger = LoggerFactory.getLogger(Database.class);
+    private String tableName = "gpbroker_service";
 
+	@Autowired
+	private GreenplumDatabase greenplum;
+	
     public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        GreenplumDatabase.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-        GreenplumDatabase.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
+        greenplum.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+        greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM public");
 
-        Map<Integer, String> parameterMap = new HashMap<Integer, String>();
-        parameterMap.put(1, instanceId);
-        parameterMap.put(2, serviceId);
-        parameterMap.put(3, planId);
-        parameterMap.put(4, organizationGuid);
-        parameterMap.put(5, spaceGuid);
-
-        GreenplumDatabase.executePreparedUpdate("INSERT INTO service (serviceinstanceid, servicedefinitionid, planid, organizationguid, spaceguid) VALUES (?, ?, ?, ?, ?)", parameterMap);
+        Object[] params = { instanceId, serviceId, planId, organizationGuid, spaceGuid};
+        int[] types = {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR};
+    		
+        greenplum.executePreparedUpdate("INSERT INTO " + tableName +
+                   " (service_instance_id, service_definition_id, plan_id, organization_guid, space_guid) " +
+				   " VALUES (?,?,?,?,?)", params, types);
     }
 
     public void deleteDatabase(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
 
-        Map<Integer, String> parameterMap = new HashMap<Integer, String>();
-        parameterMap.put(1, instanceId);
-
-        Map<String, String> result = GreenplumDatabase.executeSelect("SELECT current_user");
+        Map<String, String> result = greenplum.executeSelect("SELECT current_user");
         String currentUser = null;
         if(result != null) {
             currentUser = result.get("current_user");
@@ -62,10 +62,11 @@ public class Database {
             logger.error("Current user for instance '" + instanceId + "' could not be found");
         }
 
-        GreenplumDatabase.executePreparedSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) FROM pg_stat_activity WHERE pg_stat_activity.datname = ? AND procpid <> pg_backend_pid()", parameterMap);
-        GreenplumDatabase.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
-        GreenplumDatabase.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
-        GreenplumDatabase.executePreparedUpdate("DELETE FROM service WHERE serviceinstanceid=?", parameterMap);
+        greenplum.executeUpdate("SELECT pg_terminate_backend(pg_stat_activity.procpid) "
+                                + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
+        		                + instanceId + "' AND procpid <> pg_backend_pid()");
+        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
+        greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
+        greenplum.executeUpdate("DELETE FROM " + tableName + " WHERE service_instance_id = '" + instanceId + "'");
     }
-
 }

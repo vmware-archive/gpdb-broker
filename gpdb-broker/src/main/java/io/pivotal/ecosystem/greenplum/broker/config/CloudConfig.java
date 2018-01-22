@@ -1,13 +1,9 @@
 package io.pivotal.ecosystem.greenplum.broker.config;
 
-import javax.sql.DataSource;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceBuilder;
 import org.springframework.cloud.servicebroker.model.BrokerApiVersion;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -15,6 +11,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
+
+import org.apache.tomcat.jdbc.pool.DataSource;
+import org.apache.tomcat.jdbc.pool.PoolProperties;
 
 @Configuration
 @Profile("cloud")
@@ -26,35 +25,43 @@ public class CloudConfig {
 	@Autowired
 	private Environment environment;
 
-
 	@Bean
 	@Qualifier("JDBC")
 	public DataSource datasource() throws Exception {
-		String uri = environment.getProperty("spring.datasource.url");
-		String user = environment.getProperty("spring.datasource.username");
-		String password = environment.getProperty("spring.datasource.password");
-		String driverClass = environment.getProperty("spring.datasource.driver-class-name");
-		logger.info("Got config: URL:{}, USER:{}, DRIVER:{}", uri, user, driverClass);
 
-		DataSource dataSource;
-		if ((uri != null) && (user != null)) {
-			logger.info("JDBC Datasource profile=[Provided]");
-			logger.info("DataWarehouse initial properties [URL:{}, UserName:{}, DriverClassName:{}]", uri, user,
-					driverClass);
-			dataSource = DataSourceBuilder.create().driverClassName(driverClass).url(uri).username(user)
-					.password(password).build();
-		} else {
-			throw new Exception("Both URI and username must be provided.");
-		}
+        PoolProperties p = new PoolProperties();
+        p.setUrl(environment.getProperty("spring.datasource.url"));
+        p.setDriverClassName(environment.getProperty("spring.datasource.driver-class-name"));
+        p.setUsername(environment.getProperty("spring.datasource.username"));
+        p.setPassword(environment.getProperty("spring.datasource.password"));
+                		
+        p.setTestOnBorrow(environment.getProperty("spring.datasource.tomcat.test-on-borrow", Boolean.class));
+        p.setTestOnConnect(environment.getProperty("spring.datasource.tomcat.test-on-connect", Boolean.class));
+        p.setValidationQuery(environment.getProperty("spring.datasource.tomcat.validation-query"));
+        p.setInitialSize(environment.getProperty("spring.datasource.tomcat.initial-size", Integer.class));
+        p.setMaxActive(environment.getProperty("spring.datasource.tomcat.max-active", Integer.class));
+
+        DataSource dataSource = new DataSource();
+        dataSource.setPoolProperties(p);
+        
+        logger.info("datasource:" + dataSource + "\n");
+		
 		JdbcTemplate jdbcTemplate= new JdbcTemplate(dataSource);
-		if (jdbcTemplate.queryForObject("SELECT count(*) FROM pg_class WHERE relname = ?", new Object[]{"service"}, Integer.class) == 0){
-			String serviceTable = "CREATE TABLE service (serviceinstanceid varchar(200) not null default '',"
-					+ " servicedefinitionid varchar(200) not null default '',"
-					+ " planid varchar(200) not null default '',"
-					+ " organizationguid varchar(200) not null default '',"
-					+ " spaceguid varchar(200) not null default '')";
+        String tableName = "gpbroker_service";
+        String sqlCmd = "";
 
-			jdbcTemplate.execute(serviceTable);
+        sqlCmd = "SELECT count(1) FROM pg_class WHERE relname = '" + tableName + "'";
+		if (jdbcTemplate.queryForObject(sqlCmd, Integer.class) == 0) {
+			sqlCmd = "CREATE TABLE " + tableName + " ("
+					+ " service_instance_id varchar(200) not null default '',"
+					+ " service_definition_id varchar(200) not null default '',"
+					+ " plan_id varchar(200) not null default '',"
+					+ " organization_guid varchar(200) not null default '',"
+					+ " space_guid varchar(200) not null default '',"
+					+ " created_at timestamp not null default current_timestamp,"
+					+ " last_access date default null )";
+
+			jdbcTemplate.execute(sqlCmd);
 		}
 		return dataSource;
 	}

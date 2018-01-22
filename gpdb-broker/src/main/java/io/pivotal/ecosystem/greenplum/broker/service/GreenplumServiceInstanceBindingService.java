@@ -1,3 +1,17 @@
+/*
+ * Copyright (C) 2016-Present Pivotal Software, Inc. All rights reserved.
+ * This program and the accompanying materials are made available under
+ * the terms of the under the Apache License, Version 2.0 (the "License”);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+*/
+
 package io.pivotal.ecosystem.greenplum.broker.service;
 
 import java.sql.SQLException;
@@ -25,6 +39,9 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 	private final Role role;
 
 	@Autowired
+	private GreenplumDatabase greenplum;
+	
+	@Autowired
 	public GreenplumServiceInstanceBindingService(Role role) {
 		this.role = role;
 	}
@@ -37,6 +54,7 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 		String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
 		String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
 		String passwd = "";
+		logger.debug("ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
 
 		try {
 			passwd = this.role.bindRoleToDatabase(serviceInstanceId);
@@ -44,21 +62,40 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 			logger.error("Error while creating service instance binding '" + bindingId + "'", e);
 			throw new ServiceBrokerException(e.getMessage());
 		}
-		
-		String uri = String.format("pivotal:greenplum://%s:%s@%s:%d/%s", serviceInstanceId, passwd, GreenplumDatabase.getDatabaseHost(),
-				GreenplumDatabase.getDatabasePort(), serviceInstanceId);
 
-		
-		String jdbcURL = String.format("jdbc:pivotal:greenplum://%s:%d;DatabaseName=%s", GreenplumDatabase.getDatabaseHost(),
-				GreenplumDatabase.getDatabasePort(), serviceInstanceId);
+//		Settings when using the Greenplum JDBC driver
+//		String uri = String.format("pivotal:greenplum://%s:%s@%s:%d/%s",
+//                serviceInstanceId, passwd,
+//                gpdb.getDatabaseHost(), gpdb.getDatabasePort(),
+//                serviceInstanceId);
+//		
+//		String jdbcURL = String.format("jdbc:pivotal:greenplum://%s:%d;DatabaseName=%s",
+//                gpdb.getDatabaseHost(),
+//				gpdb.getDatabasePort(),
+//                serviceInstanceId);
 
+//		Settings when using the Postgres JDBC driver
+		String uri = String.format("postgres://%s:%s@%s:%d/%s",
+                serviceInstanceId, passwd,
+                greenplum.getDatabaseHost(), greenplum.getDatabasePort(),
+                serviceInstanceId);
+//		String jdbcURL = String.format("jdbc:postgresql://%s:%d/%s",
+//				gpdb.getDatabaseHost(), gpdb.getDatabasePort(), serviceInstanceId);
+		
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", uri);
-		credentials.put("jdbcUrl", jdbcURL);
-        credentials.put("master host", GreenplumDatabase.getDatabaseHost());
-        credentials.put("master port", GreenplumDatabase.getDatabasePort());
-		credentials.put("username", serviceInstanceId);
-		credentials.put("password", passwd);
+		credentials.put("max-conns", 5);
+		
+// CraigS: Removed the entries below since it was causing clients to fail. The log message received was:
+// Caused by: org.postgresql.util.PSQLException: The server requested password-based authentication, but no password was provided.
+// Found this out when comparing what the PWS services for Postgres provided in the client env vs what this broker was providing.
+//
+//		credentials.put("jdbcUrl", jdbcURL);
+//		credentials.put("master host", gpdb.getDatabaseHost());
+//		credentials.put("master port", gpdb.getDatabasePort());
+//		credentials.put("username", serviceInstanceId);
+//		credentials.put("password", passwd);
+		logger.debug("credentials '" + credentials + "");
 
 		return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 	}

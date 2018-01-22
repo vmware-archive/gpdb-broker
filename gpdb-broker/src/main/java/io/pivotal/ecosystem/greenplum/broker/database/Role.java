@@ -13,28 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.pivotal.ecosystem.greenplum.broker.database;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import io.pivotal.ecosystem.greenplum.broker.util.Utils;
-
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.SQLException;
 
 @Component
 public class Role {
+	
+	@Autowired
+	private GreenplumDatabase greenplum;
 
     public void createRoleForInstance(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        GreenplumDatabase.executeUpdate("CREATE ROLE \"" + instanceId + "\" LOGIN");
-        GreenplumDatabase.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+        greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\" LOGIN");
+        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
     }
 
     public void deleteRole(String instanceId) throws SQLException {
         Utils.checkValidUUID(instanceId);
-        GreenplumDatabase.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
+        greenplum.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
     }
 
     public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
@@ -43,12 +46,12 @@ public class Role {
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
 
-        GreenplumDatabase.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
+        greenplum.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
         return passwd;
     }
 
     public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
         Utils.checkValidUUID(dbInstanceId);
-        GreenplumDatabase.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
+        greenplum.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
     }
 }

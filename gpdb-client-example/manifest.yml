@@ -1,10 +1,9 @@
 ---
 applications:
-- name: gpdb-client-example
+- name: gpdb-client
   memory: 2048M
   instances: 1
-  buildpack: java_buildpack_offline
   path: target/gpdb-client-example-1.0.0.jar
-  services: [ myGPDB ]
+  services: [ greenplum ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
