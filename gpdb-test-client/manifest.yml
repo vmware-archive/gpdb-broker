@@ -1,0 +1,9 @@
+---
+applications:
+- name: gpdb-test-client
+  memory: 2048M
+  instances: 1
+  path: target/gpdb-test-client-1.0.0.jar
+  services: [ greenplum-test ]
+  env:
+    SPRING_PROFILES_ACTIVE: cloud

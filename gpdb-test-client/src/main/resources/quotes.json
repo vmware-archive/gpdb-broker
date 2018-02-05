@@ -1,0 +1,12 @@
+[
+{"low" : 127.75 , "opened" : 127.75 , "volume" : 6 , "price" : 132.75 , "high" : 144.75 , "companyname" : "Amazon.com, Inc." , "symbol" : "AMZN" , "change" : 2 },
+{"low" : 118.65 , "opened" : 130.65 , "volume" : 9 , "price" : 118.65 , "high" : 122.65 , "companyname" : "Apple Inc." , "symbol" : "AAPL" , "change" : 567.89 },
+{"low" : 39.31 , "opened" : 48.31 , "volume" : 3 , "price" : 26.31 , "high" : 57.31 , "companyname" : "Cisco Systems, Inc." , "symbol" : "CSCO" , "change" : 345.22 },
+{"low" : 143.05 , "opened" : 154.05 , "volume" : 4 , "price" : 150.05 , "high" : 152.05 , "companyname" : "eBay Inc." , "symbol" : "EBAY" , "change" : 6 },
+{"low" : 148.46 , "opened" : 157.46 , "volume" : 6 , "price" : 163.46 , "high" : 157.46 , "companyname" : "Expedia, Inc." , "symbol" : "EXPE" , "change" : 10 },
+{"low" : 54.58 , "opened" : 72.58 , "volume" : 2 , "price" : 55.58 , "high" : 63.58 , "companyname" : "F5 Networks, Inc." , "symbol" : "FFIV" , "change" : 6 },
+{"low" : 78.11 , "opened" : 86.11 , "volume" : 2 , "price" : 84.11 , "high" : 79.11 , "companyname" : "Netflix, Inc." , "symbol" : "NFLX" , "change" : 4 },
+{"low" : 158.48 , "opened" : 158.48 , "volume" : 7 , "price" : 164.48 , "high" : 177.48 , "companyname" : "Starbucks Corporation" , "symbol" : "SBUX" , "change" : 15 },
+{"low" : 33.29 , "opened" : 43.29 , "volume" : 4 , "price" : 40.29 , "high" : 48.29 , "companyname" : "Urban Outfitters, Inc." , "symbol" : "URBN" , "change" : 11 },
+{"low" : 145.18 , "opened" : 159.18 , "volume" : 1 , "price" : 154.18 , "high" : 161.18 , "companyname" : "VMware" , "symbol" : "VMW" , "change" : 3 }
+]
