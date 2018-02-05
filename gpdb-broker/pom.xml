@@ -9,7 +9,7 @@
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>gpdb-broker</artifactId>
+	<artifactId>greenplum-broker</artifactId>
 
 	<properties>
 		<java.version>1.8</java.version>
@@ -29,44 +29,11 @@
 			<artifactId>commons-lang</artifactId>
 			<version>2.6</version>
 		</dependency>
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.cloud</groupId> -->
-		<!-- <artifactId>spring-cloud-deployer-local</artifactId> -->
-		<!-- <version>${spring-cloud-deployer-cf.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.cloud</groupId> -->
-		<!-- <artifactId>spring-cloud-deployer-cloudfoundry</artifactId> -->
-		<!-- <version>${spring-cloud-deployer-cf.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.cloud</groupId> -->
-		<!-- <artifactId>spring-cloud-deployer-spi</artifactId> -->
-		<!-- <version>${spring-cloud-deployer-spi.version}</version> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.springframework.cloud</groupId> -->
-		<!-- <artifactId>spring-cloud-deployer-resource-support</artifactId> -->
-		<!-- <version>${spring-cloud-deployer-spi.version}</version> -->
-		<!-- <scope>test</scope> -->
-		<!-- </dependency> -->
-		<!-- <dependency> -->
-		<!-- <groupId>org.cloudfoundry</groupId> -->
-		<!-- <artifactId>cloudfoundry-operations</artifactId> -->
-		<!-- <version>${cloudfoundry-java-lib.version}</version> -->
-		<!-- </dependency> -->
 		<dependency>
 			<groupId>io.pivotal.ecosystem</groupId>
 			<artifactId>simple-broker</artifactId>
 			<version>1.0.1</version>
 		</dependency>
-<!--
-            <dependency>
- 			    <groupId>io.pivotal.cf.broker</groupId>
- 			    <artifactId>gpdb-util</artifactId>
- 			    <version>${project.parent.version}</version>
- 		   </dependency>
--->
 		<dependency>
 			<groupId>io.pivotal.cf.broker</groupId>
 			<artifactId>gpdb-connector</artifactId>
@@ -91,7 +58,8 @@
 			<optional>true</optional>
 		</dependency>
 	</dependencies>
-	<dependencyManagement>
+
+	<!-- <dependencyManagement>
 		<dependencies>
 			<dependency>
 				<groupId>software.amazon.awssdk</groupId>
@@ -102,6 +70,7 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
+   -->
 
 	<scm>
 		<tag>HEAD</tag>
