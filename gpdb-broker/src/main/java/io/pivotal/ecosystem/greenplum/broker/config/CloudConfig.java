@@ -59,7 +59,8 @@ public class CloudConfig {
 					+ " organization_guid varchar(200) not null default '',"
 					+ " space_guid varchar(200) not null default '',"
 					+ " created_at timestamp not null default current_timestamp,"
-					+ " last_access date default null )";
+					+ " last_access date default null,"
+					+ " dropped_at timestamp default null )";
 
 			jdbcTemplate.execute(sqlCmd);
 		}

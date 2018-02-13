@@ -67,6 +67,6 @@ public class Database {
         		                + instanceId + "' AND procpid <> pg_backend_pid()");
         greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
         greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
-        greenplum.executeUpdate("DELETE FROM " + tableName + " WHERE service_instance_id = '" + instanceId + "'");
+        greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '" + instanceId + "'");
     }
 }

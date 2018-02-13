@@ -77,7 +77,7 @@
 	</scm>
 
 	<build>
-		<finalName>gpdb-broker</finalName>
+		<finalName>greenplum-broker</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
