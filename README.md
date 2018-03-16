@@ -7,14 +7,14 @@ This version should be considered a beta product, and has been tested against PC
 The service broker requires an existing Greenplum instance.
 
 ## The Modules
-### [gpdb-broker](https://github.com/parthobardhan/gpdb-broker/tree/master/gpdb-broker)
-This module contains the broker code. Its [readme](https://github.com/parthobardhan/gpdb-broker/blob/master/gpdb-broker/README.md) contains information on how to build, configure, and deploy the broker.
+### [gpdb-broker](https://github.com/Pivotal-Field-Engineering/gpdb-broker/tree/master/gpdb-broker)
+This module contains the broker code. Its [readme](https://github.com/Pivotal-Field-Engineering/gpdb-broker/tree/master/gpdb-broker/README.md) contains information on how to build, configure, and deploy the broker.
 
-### [gpdb-connector](https://github.com/parthobardhan/gpdb-broker/tree/master/gpdb-connector)
+### [gpdb-connector](https://github.com/Pivotal-Field-Engineering/gpdb-broker/tree/master/gpdb-connector)
 This module contains spring-cloud-connector code that can optionally be used by consumers of a brokered service.
 
-### [gpdb-test-client](https://github.com/parthobardhan/gpdb-broker/tree/master/gpdb-test-client)
+### [gpdb-test-client](https://github.com/Pivotal-Field-Engineering/gpdb-broker/tree/master/gpdb-test-client)
 A test project that demos usage of the broker and can be used to verify a bound service. See its [readme](https://github.com/parthobardhan/gpdb-broker/blob/master/gpdb-test-client/README.md) for more details.
  
-### [gpdb-util](https://github.com/parthobardhan/gpdb-broker/tree/master/gpdb-util)
+### [gpdb-util](https://github.com/Pivotal-Field-Engineering/gpdb-broker/tree/master/gpdb-util)
 Shared utilities for interacting with the Greenplum backend.
