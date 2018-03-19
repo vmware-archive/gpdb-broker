@@ -38,30 +38,30 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 	private static final Logger logger = LoggerFactory.getLogger(GreenplumServiceInstanceBindingService.class);
 	private final Role role;
 
-	@Autowired
-	private GreenplumDatabase greenplum;
+    @Autowired
+    private GreenplumDatabase greenplum;
 	
-	@Autowired
-	public GreenplumServiceInstanceBindingService(Role role) {
-		this.role = role;
-	}
+    @Autowired
+    public GreenplumServiceInstanceBindingService(Role role) {
+        this.role = role;
+    }
 
-	@Override
-	public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
-			CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) {
+    @Override
+    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
+            CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) {
 
-		String bindingId = createServiceInstanceBindingRequest.getBindingId();
-		String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
-		String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
-		String passwd = "";
-		logger.debug("ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
+        String bindingId = createServiceInstanceBindingRequest.getBindingId();
+        String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
+        String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
+        String passwd = "";
+        logger.debug("ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
 
-		try {
-			passwd = this.role.bindRoleToDatabase(serviceInstanceId);
-		} catch (SQLException e) {
-			logger.error("Error while creating service instance binding '" + bindingId + "'", e);
-			throw new ServiceBrokerException(e.getMessage());
-		}
+        try {
+            passwd = this.role.bindRoleToDatabase(serviceInstanceId);
+        } catch (SQLException e) {
+            logger.error("Error while creating service instance binding '" + bindingId + "'", e);
+            throw new ServiceBrokerException(e.getMessage());
+        }
 
 //		Settings when using the Greenplum JDBC driver
 //		String uri = String.format("pivotal:greenplum://%s:%s@%s:%d/%s",
@@ -75,29 +75,33 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
 //                serviceInstanceId);
 
 //		Settings when using the Postgres JDBC driver
-		String uri = String.format("postgres://%s:%s@%s:%d/%s",
+        String uri = String.format("postgres://%s:%s@%s:%d/%s",
                 serviceInstanceId, passwd,
                 greenplum.getDatabaseHost(), greenplum.getDatabasePort(),
                 serviceInstanceId);
-//		String jdbcURL = String.format("jdbc:postgresql://%s:%d/%s",
-//				gpdb.getDatabaseHost(), gpdb.getDatabasePort(), serviceInstanceId);
+        String jdbcURL = String.format("jdbc:postgresql://%s:%d/%s?user=%s&password=%s&%s",
+                greenplum.getDatabaseHost(), greenplum.getDatabasePort(),
+                serviceInstanceId,  // database
+                serviceInstanceId,  // user
+                passwd,             // user password
+                "sslmode=require");
 		
-		Map<String, Object> credentials = new HashMap<String, Object>();
-		credentials.put("uri", uri);
-		credentials.put("max-conns", 5);
+        Map<String, Object> credentials = new HashMap<String, Object>();
+        credentials.put("uri", uri);
+        credentials.put("max-conns", 5);
+        credentials.put("jdbcUrl", jdbcURL);
 		
 // CraigS: Removed the entries below since it was causing clients to fail. The log message received was:
 // Caused by: org.postgresql.util.PSQLException: The server requested password-based authentication, but no password was provided.
 // Found this out when comparing what the PWS services for Postgres provided in the client env vs what this broker was providing.
 //
-//		credentials.put("jdbcUrl", jdbcURL);
 //		credentials.put("master host", gpdb.getDatabaseHost());
 //		credentials.put("master port", gpdb.getDatabasePort());
 //		credentials.put("username", serviceInstanceId);
 //		credentials.put("password", passwd);
-		logger.debug("credentials '" + credentials + "");
+        logger.debug("credentials '" + credentials + "");
 
-		return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+        return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 	}
 
 	@Override
