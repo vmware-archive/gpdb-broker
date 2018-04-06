@@ -7,15 +7,19 @@ tile-history*.*
 **/target
 **/.settings
 **/.project
+**/.factorypath
 
 gpdb-broker/target
 gpdb-client-example/target
 gpdb-connector/target
 gpdb-util/target
+greenplum-healthcheck/target
 
 gpdb-broker/.settings
 gpdb-client-example/.settings
 gpdb-connector/.settings
 gpdb-util/.settings
+greenplum-healthcheck/.settings
+
 **/.classpath
 **/.springBeans
