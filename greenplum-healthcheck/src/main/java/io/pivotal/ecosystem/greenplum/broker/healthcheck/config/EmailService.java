@@ -23,7 +23,6 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
 		SendGrid sendgrid = new SendGrid(sendgridConfig.getUsername(), sendgridConfig.getPassword());
 		Email email = new SendGrid.Email();
 		email.addTo("data-cloud-dev@pivotal.io");
-		email.addTo("pbardhan@pivotal.io");
 		email.setFrom("no-reply@pivotal.io");
 		email.setSubject("Greenplum Service Healthcheck Failed");
 		email.setText(message);
