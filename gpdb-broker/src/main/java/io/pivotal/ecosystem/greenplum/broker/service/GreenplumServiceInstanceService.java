@@ -65,7 +65,7 @@ public class GreenplumServiceInstanceService implements ServiceInstanceService {
 			logger.error("Error while creating service instance '" + serviceInstanceId + "'", e);
 			throw new ServiceBrokerException(e.getMessage());
 		}
-		return new CreateServiceInstanceResponse();
+		return new CreateServiceInstanceResponse().withDashboardUrl("");
 	}
 
 	@Override
