@@ -62,9 +62,16 @@ public class Database {
             logger.error("Current user for instance '" + instanceId + "' could not be found");
         }
 
-        greenplum.executeUpdate("SELECT pg_terminate_backend(pg_stat_activity.procpid) "
-                                + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
-        		                + instanceId + "' AND procpid <> pg_backend_pid()");
+//        greenplum.executeUpdate("SELECT pg_terminate_backend(pg_stat_activity.procpid) "
+//                                + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
+//        		                + instanceId + "' AND procpid <> pg_backend_pid()");
+        result = greenplum.executeSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) as status "
+                            + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
+       	                    + instanceId + "' AND procpid <> pg_backend_pid()");
+        if(result != null && result.get("status") != "true") {
+            logger.info ("Terminate GP backend process returned status = '" + result.get("status") + "'");
+            logger.error ("Failed to terminate GP backend process for service id '" + instanceId + "'");
+        }
         greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
         greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
         greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '" + instanceId + "'");

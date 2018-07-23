@@ -1,1 +1,3 @@
 src/test/resources/test.properties
+make_clean.sh
+make_install.sh
