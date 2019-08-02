@@ -19,9 +19,11 @@ package io.pivotal.ecosystem.greenplum.broker.database;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Map;
+import java.security.InvalidParameterException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.env.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -34,42 +36,48 @@ public class Database {
 
 	@Autowired
 	private GreenplumDatabase greenplum;
+
+    @Autowired
+    private Environment env;
 	
-    public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid, String spaceGuid) throws SQLException {
+    public void createDatabaseForInstance(String instanceId, String serviceId, String planId,
+                                          String organizationGuid, String spaceGuid)
+            throws SQLException
+    {
+        logger.info("in createDatabaseForInstance: " + instanceId);
         Utils.checkValidUUID(instanceId);
         greenplum.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
         greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM public");
 
         Object[] params = { instanceId, serviceId, planId, organizationGuid, spaceGuid};
         int[] types = {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR};
-    		
+
         greenplum.executePreparedUpdate("INSERT INTO " + tableName +
-                   " (service_instance_id, service_definition_id, plan_id, organization_guid, space_guid) " +
-				   " VALUES (?,?,?,?,?)", params, types);
+                " (service_instance_id, service_definition_id, plan_id, organization_guid, space_guid) " +
+                " VALUES (?,?,?,?,?)", params, types);
     }
 
-    public void deleteDatabase(String instanceId) throws SQLException {
+    public void deleteDatabase(String instanceId)
+            throws SQLException, InvalidParameterException
+    {
+        String adminUserProperty="spring.datasource.username";
+
+        logger.info("in deleteDatabase: " + instanceId);
         Utils.checkValidUUID(instanceId);
 
-        Map<String, String> result = greenplum.executeSelect("SELECT current_user");
-        String currentUser = null;
-        if(result != null) {
-            currentUser = result.get("current_user");
-        }
-//      logger.debug("check user" + currentUser);
-
-        if(currentUser == null) {
-            logger.error("Current user for instance '" + instanceId + "' could not be found");
+        String adminUser = env.getProperty(adminUserProperty);
+        if (adminUser == null) {
+            throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
         }
 
-        result = greenplum.executeSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) as status "
+        Map<String, String> result = greenplum.executeSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) as status "
                             + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
        	                    + instanceId + "' AND procpid <> pg_backend_pid()");
         if(result != null && result.get("status") != "true") {
             logger.info ("Terminate GP backend process returned status = '" + result.get("status") + "'");
             logger.error ("Failed to terminate GP backend process for service id '" + instanceId + "'");
         }
-        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + currentUser + "\"");
+        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + adminUser + "\"");
         greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
         greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '" + instanceId + "'");
     }

@@ -4,6 +4,6 @@ applications:
   memory: 2048M
   instances: 1
   path: target/gpdb-test-client-1.0.0.jar
-  services: [ cjs2-gp ]
+  services: [ cjs-test-gp ]
   env:
     SPRING_PROFILES_ACTIVE: cloud

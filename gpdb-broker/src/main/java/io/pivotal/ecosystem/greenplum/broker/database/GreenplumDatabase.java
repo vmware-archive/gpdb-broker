@@ -46,7 +46,9 @@ public class GreenplumDatabase {
 
 
     @Autowired
-    public GreenplumDatabase(DataSource dataSource) throws SQLException {
+    public GreenplumDatabase(DataSource dataSource)
+            throws SQLException
+    {
 //    	GreenplumDatabase.conn = dataSource.getConnection();
 		this.SqlTemplate = new JdbcTemplate(dataSource);
         try {
@@ -54,13 +56,13 @@ public class GreenplumDatabase {
             // Remove "jdbc:" prefix from the connection JDBC URL to create an URI out of it.
 //            String cleanJdbcUrl = jdbcUrl.replace("jdbc:pivotal", "");  // Greenplum JDBC
             String cleanJdbcUrl = jdbcUrl.replace("jdbc:", "");
-            logger.debug("cleanJdbcUrl: " + cleanJdbcUrl);
+            logger.info("cleanJdbcUrl: " + cleanJdbcUrl);
             int index = cleanJdbcUrl.indexOf(";");
             if (index != -1)
             		cleanJdbcUrl = cleanJdbcUrl.substring(0, index);
             URI uri = new URI(cleanJdbcUrl);
             this.databaseHost = uri.getHost();
-           	logger.debug("uri: " + uri + ", (Host:Port) = (" + uri.getHost() + ":" + uri.getPort() + ")");
+           	logger.info("uri: " + uri + ", (Host:Port) = (" + uri.getHost() + ":" + uri.getPort() + ")");
             this.databasePort = uri.getPort() == -1 ? 5432 : uri.getPort();
         } catch (SQLException e) {
             throw new IllegalStateException("Unable to get DatabaseMetadata from Connection", e);
@@ -69,9 +71,11 @@ public class GreenplumDatabase {
         }
     }
 
-    public  void executeUpdate(String query) throws SQLException {
+    public  void executeUpdate(String query)
+            throws SQLException
+    {
     	
-        logger.debug("In executeUpdate: query '" + query + "'");
+        logger.info("In executeUpdate: query '" + query + "'");
 		try {
 			SqlTemplate.update(query);
 		}
@@ -84,19 +88,23 @@ public class GreenplumDatabase {
     }
 
 
-    public  Map<String, String> executeSelect(String query) throws SQLException {
-    		  SqlRowSet rs = SqlTemplate.queryForRowSet(query);
-    		  return getResultMapFromRowSet(rs);
+    public  Map<String, String> executeSelect(String query)
+            throws SQLException
+    {
+        logger.info("In executeSelect: (" + query + ")");
+    	SqlRowSet rs = SqlTemplate.queryForRowSet(query);
+    	return getResultMapFromRowSet(rs);
     }
 
-    public  void executePreparedUpdate(String query, Object[] params, int[] types) throws SQLException {
-		
+    public  void executePreparedUpdate(String query, Object[] params, int[] types)
+            throws SQLException
+    {
+        logger.info("In executePrepareUpdate: (" + query + ")");
         try {
         		SqlTemplate.update(query, params, types);
         } catch (DataAccessException e) {
-        		logger.error("Error while executing SQL prepared UPDATE query '" + query + "'", e);
+        		logger.error("Error while executing SQL prepared UPDATE query (" + query + ")", e);
         }
-
     }
 
 /*
@@ -133,7 +141,11 @@ public class GreenplumDatabase {
         return this.databasePort;
     }
     
-    private  Map<String, String> getResultMapFromRowSet(SqlRowSet result) throws SQLException {
+    private  Map<String, String> getResultMapFromRowSet(SqlRowSet result)
+            throws SQLException
+    {
+        logger.info("in getResultMapFromRowSet");
+
         SqlRowSetMetaData resultMetaData = result.getMetaData();
         int columns = resultMetaData.getColumnCount();
 
@@ -144,7 +156,6 @@ public class GreenplumDatabase {
                 resultMap.put(resultMetaData.getColumnName(i), result.getString(i));
             }
         }
-
         return resultMap;
     }
 }

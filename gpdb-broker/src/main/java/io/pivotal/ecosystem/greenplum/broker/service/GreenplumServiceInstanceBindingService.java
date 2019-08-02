@@ -54,7 +54,7 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
         String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
         String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
         String passwd = "";
-        logger.debug("ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
+        logger.info("in CreateServiceInstanceBindingResponse: ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
 
         try {
             passwd = this.role.bindRoleToDatabase(serviceInstanceId);
@@ -62,17 +62,6 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
             logger.error("Error while creating service instance binding '" + bindingId + "'", e);
             throw new ServiceBrokerException(e.getMessage());
         }
-
-//		Settings when using the Greenplum JDBC driver
-//		String uri = String.format("pivotal:greenplum://%s:%s@%s:%d/%s",
-//                serviceInstanceId, passwd,
-//                gpdb.getDatabaseHost(), gpdb.getDatabasePort(),
-//                serviceInstanceId);
-//		
-//		String jdbcURL = String.format("jdbc:pivotal:greenplum://%s:%d;DatabaseName=%s",
-//                gpdb.getDatabaseHost(),
-//				gpdb.getDatabasePort(),
-//                serviceInstanceId);
 
 //		Settings when using the Postgres JDBC driver
         String uri = String.format("postgres://%s:%s@%s:%d/%s",
@@ -91,15 +80,17 @@ public class GreenplumServiceInstanceBindingService implements ServiceInstanceBi
         credentials.put("max-conns", 5);
         credentials.put("jdbcUrl", jdbcURL);
 		
-// CraigS: Removed the entries below since it was causing clients to fail. The log message received was:
-// Caused by: org.postgresql.util.PSQLException: The server requested password-based authentication, but no password was provided.
-// Found this out when comparing what the PWS services for Postgres provided in the client env vs what this broker was providing.
-//
-//		credentials.put("master host", gpdb.getDatabaseHost());
-//		credentials.put("master port", gpdb.getDatabasePort());
-//		credentials.put("username", serviceInstanceId);
-//		credentials.put("password", passwd);
-        logger.debug("credentials '" + credentials + "");
+/*
+ CraigS: Removed the entries below since it was causing clients to fail. The log message received was:
+ Caused by: org.postgresql.util.PSQLException: The server requested password-based authentication, but no password was provided.
+ Found this out when comparing what the PWS services for Postgres provided in the client env vs what this broker was providing.
+
+		credentials.put("master host", gpdb.getDatabaseHost());
+		credentials.put("master port", gpdb.getDatabasePort());
+		credentials.put("username", serviceInstanceId);
+		credentials.put("password", passwd);
+*/
+        logger.info("credentials '" + credentials + "");
 
         return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 	}
