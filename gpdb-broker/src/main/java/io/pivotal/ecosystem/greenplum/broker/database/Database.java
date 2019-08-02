@@ -62,9 +62,6 @@ public class Database {
             logger.error("Current user for instance '" + instanceId + "' could not be found");
         }
 
-//        greenplum.executeUpdate("SELECT pg_terminate_backend(pg_stat_activity.procpid) "
-//                                + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
-//        		                + instanceId + "' AND procpid <> pg_backend_pid()");
         result = greenplum.executeSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) as status "
                             + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
        	                    + instanceId + "' AND procpid <> pg_backend_pid()");

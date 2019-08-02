@@ -1,6 +1,6 @@
 ---
 applications:
-- name: greenplum-broker
+- name: greenplum-broker-green
   memory: 1024M
   instances: 1
   path: target/greenplum-broker.jar
