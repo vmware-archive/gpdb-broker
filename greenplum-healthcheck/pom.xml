@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>io.pivotal.cf.broker</groupId>
 		<artifactId>gpdb-broker-parent</artifactId>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 	</parent>
 	<artifactId>greenplum-healthcheck</artifactId>
 	<name>greenplum-healthcheck</name>

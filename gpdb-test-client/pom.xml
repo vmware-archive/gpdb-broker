@@ -6,7 +6,7 @@
     <parent>
         <artifactId>gpdb-broker-parent</artifactId>
         <groupId>io.pivotal.cf.broker</groupId>
-        <version>1.0.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>gpdb-test-client</artifactId>
