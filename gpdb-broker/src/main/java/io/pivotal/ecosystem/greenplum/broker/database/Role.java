@@ -21,70 +21,78 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.sql.SQLException;
-import java.security.InvalidParameterException;
 
 import io.pivotal.ecosystem.greenplum.broker.util.Utils;
 
+import java.sql.SQLException;
+import java.security.InvalidParameterException;
 
 @Component
 public class Role {
-    private static final Logger logger = LoggerFactory.getLogger(GreenplumDatabase.class);
-	
+	private static final Logger logger = LoggerFactory.getLogger(GreenplumDatabase.class);
+
 	@Autowired
 	private GreenplumDatabase greenplum;
 
-    @Autowired
+	@Autowired
 	private Environment env;
 
-    public void createRoleForInstance(String instanceId)
-            throws SQLException
-    {
-        String adminUserProperty="spring.datasource.username";
+	public void createRoleForInstance(String instanceId) throws SQLException {
+		String adminUserProperty = "spring.datasource.username";
 
-        logger.info("in createRoleForInstance, instanceID = " + instanceId);
+		logger.info("in createRoleForInstance, instanceID = " + instanceId);
 
-        Utils.checkValidUUID(instanceId);
+		Utils.checkValidUUID(instanceId);
 
-        String adminUser = env.getProperty(adminUserProperty);
-        if (adminUser == null) {
-            throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
-        }
+		String adminUser = env.getProperty(adminUserProperty);
+		if (adminUser == null) {
+			throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
+		}
+		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\""); // No LOGIN for this role
+		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + adminUser + "\"");
+		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+	}
+	
+	public void deleteRole(String db, String role) throws SQLException {
+		logger.info("in deleteRole(db = " + db + ", role = " + role + ")");
+		Utils.checkValidUUID(role);
+		String sql = "DROP OWNED BY \"" + role + "\" CASCADE;";
+		sql += "DROP ROLE IF EXISTS \"" + role + "\"";
+		greenplum.executeUpdateForDb(db, sql);
+	}
 
-        greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\" LOGIN");
-        greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + adminUser + "\"");
-        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
-    }
+	public void deleteRole(String role) throws SQLException {
+		logger.info("in deleteRole, role = " + role);
+		Utils.checkValidUUID(role);
+		greenplum.executeUpdate("DROP ROLE IF EXISTS \"" + role + "\"");
+	}
 
-    public void deleteRole(String instanceId)
-            throws SQLException
-    {
-        logger.info("in deleteRole, instanceID = " + instanceId);
-        Utils.checkValidUUID(instanceId);
-        greenplum.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
-    }
+	/*
+	 * NOTE: This is used for the initial service instance creation, but not for any bind
+	 * operation.
+	 */
+	public String bindRoleToDatabase(String role) throws SQLException {
+		logger.info("in bindRoleToDatabase, role = " + role);
+		Utils.checkValidUUID(role);
+		String passwd = Utils.genRandPasswd();
+		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
+		return passwd;
+	}
+	
+	/* 
+	 * New approach: the owner role isn't actually used for connections, but each binding
+	 * causes creation of new [role, passwd] here, where this new role is granted the role
+	 * which owns the DB.  A `cf create-service-key ...` looks just like `cf bind-service ...`,
+	 * so this seems like the best way.
+	 */
+	public String createAndBindRole(String instanceId, String role) throws SQLException {
+		logger.info("in bindRoleToDatabase, role = " + role);
+		Utils.checkValidUUID(role);
+		greenplum.executeUpdate("CREATE ROLE \"" + role + "\"");
+		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + role + "\"");
+		String passwd = Utils.genRandPasswd();
+		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
+		return passwd;
+	}
 
-    public String bindRoleToDatabase(String dbInstanceId)
-            throws SQLException
-    {
-        logger.info("in bindRoleToDatabase, dbInstanceID = " + dbInstanceId);
-
-        Utils.checkValidUUID(dbInstanceId);
-
-        SecureRandom random = new SecureRandom();
-        String passwd = new BigInteger(130, random).toString(32);
-
-        greenplum.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
-        return passwd;
-    }
-
-    public void unBindRoleFromDatabase(String dbInstanceId)
-            throws SQLException
-    {
-        logger.info("in unBindRoleFromDatabase, dbInstanceID = " + dbInstanceId);
-        Utils.checkValidUUID(dbInstanceId);
-        greenplum.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
-    }
 }

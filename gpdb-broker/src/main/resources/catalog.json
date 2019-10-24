@@ -2,11 +2,11 @@
   "services":[
     {
       "id":"greenplum-service",
-      "name":"Greenplum",
-      "description":"Greenplum for Pivotal Cloud Foundry",
+      "name":"greenplum",
+      "description":"Greenplum for Pivotal Platform",
       "bindable": true,
       "tags":[
-        "dwaas", "greenplum", "analytics", "machine learning"
+        "dwaas", "greenplum", "analytics", "machine learning", "gpaas"
       ],
       "metadata":{
         "displayName":"Greenplum",
@@ -18,12 +18,12 @@
       "plans":[
         {
           "id":"free-plan",
-          "name":"Free",
+          "name":"free",
           "description":"Connect apps on Cloud Foundry to a managed Greenplum cluster",
           "metadata": {
             "cost": 0,
             "bullets": [{
-              "content": "shared multi-node instance"
+              "content": "shared single-node instance"
             }]
           },
           "free": true

@@ -19,21 +19,29 @@ package io.pivotal.ecosystem.greenplum.broker.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.UUID;
 
 public class Utils {
 
-    private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+  private static final Logger logger = LoggerFactory.getLogger(Utils.class);
 
-    private Utils() {
+  private Utils() {
+  }
+
+  public static void checkValidUUID(String uuidString) {
+    logger.debug("Checking if this UUID string is a valid UUID: " + uuidString);
+    UUID uuid = UUID.fromString(uuidString);
+
+    if (!uuidString.equals(uuid.toString())) {
+      throw new IllegalStateException("UUID '" + uuidString + "' is not an UUID.");
     }
-
-    public static void checkValidUUID(String uuidString) {
-        logger.info("Checking if this UUID string is a valid UUID: " + uuidString);
-        UUID uuid = UUID.fromString(uuidString);
-
-        if(!uuidString.equals(uuid.toString())) {
-            throw new IllegalStateException("UUID '" + uuidString + "' is not an UUID.");
-        }
-    }
+  }
+  
+  public static String genRandPasswd () {
+  	SecureRandom random = new SecureRandom();
+    String passwd = new BigInteger(130, random).toString(32);
+		return passwd;
+  }
 }

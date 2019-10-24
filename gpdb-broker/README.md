@@ -1,6 +1,8 @@
+# The GPDB broker itself
 
-This project creates the service broker to a shared Greenplum remote database <br />
-Follow these steps to deploy the broker <br />
+This project creates the service broker to a shared Greenplum remote database.
+
+Follow these steps to deploy the broker:
 
 1) Set the greenplum remote configs in `gpdb-broker/src/main/resources/application.properties`
 ```
@@ -28,3 +30,5 @@ broker: gpdb-broker
    Greenplum-PB   pws    all
 ```
 9) Run cf `create-service <service name> <plan> <service instance name>` to create a service
+
+

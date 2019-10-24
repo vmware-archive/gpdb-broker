@@ -32,75 +32,70 @@ import org.springframework.stereotype.Service;
 import io.pivotal.ecosystem.greenplum.broker.database.GreenplumDatabase;
 import io.pivotal.ecosystem.greenplum.broker.database.Role;
 
+/*
+ * Service instance bind
+ * Includes service keys
+ */
+
 @Service
 public class GreenplumServiceInstanceBindingService implements ServiceInstanceBindingService {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenplumServiceInstanceBindingService.class);
 	private final Role role;
 
-    @Autowired
-    private GreenplumDatabase greenplum;
-	
-    @Autowired
-    public GreenplumServiceInstanceBindingService(Role role) {
-        this.role = role;
-    }
+	@Autowired
+	private GreenplumDatabase greenplum;
 
-    @Override
-    public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
-            CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) {
+	@Autowired
+	public GreenplumServiceInstanceBindingService(Role role) {
+		this.role = role;
+	}
 
-        String bindingId = createServiceInstanceBindingRequest.getBindingId();
-        String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
-        String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
-        String passwd = "";
-        logger.info("in CreateServiceInstanceBindingResponse: ServiceInstanceId '" + serviceInstanceId + "', " + "appGuid '" + appGuid + "'");
+	@Override
+	public CreateServiceInstanceBindingResponse createServiceInstanceBinding(
+			CreateServiceInstanceBindingRequest createServiceInstanceBindingRequest) {
 
-        try {
-            passwd = this.role.bindRoleToDatabase(serviceInstanceId);
-        } catch (SQLException e) {
-            logger.error("Error while creating service instance binding '" + bindingId + "'", e);
-            throw new ServiceBrokerException(e.getMessage());
-        }
+		String bindingId = createServiceInstanceBindingRequest.getBindingId();
+		String serviceInstanceId = createServiceInstanceBindingRequest.getServiceInstanceId();
+		String appGuid = createServiceInstanceBindingRequest.getBoundAppGuid();
+		String passwd = "";
+		logger.info(
+				"createServiceInstanceBinding(): serviceInstanceId = " + serviceInstanceId + ", bindingId = " + bindingId);
 
-//		Settings when using the Postgres JDBC driver
-        String uri = String.format("postgres://%s:%s@%s:%d/%s",
-                serviceInstanceId, passwd,
-                greenplum.getDatabaseHost(), greenplum.getDatabasePort(),
-                serviceInstanceId);
-        String jdbcURL = String.format("jdbc:postgresql://%s:%d/%s?user=%s&password=%s&%s",
-                greenplum.getDatabaseHost(), greenplum.getDatabasePort(),
-                serviceInstanceId,  // database
-                serviceInstanceId,  // user
-                passwd,             // user password
-                "sslmode=require");
-		
-        Map<String, Object> credentials = new HashMap<String, Object>();
-        credentials.put("uri", uri);
-        credentials.put("max-conns", 5);
-        credentials.put("jdbcUrl", jdbcURL);
-		
-/*
- CraigS: Removed the entries below since it was causing clients to fail. The log message received was:
- Caused by: org.postgresql.util.PSQLException: The server requested password-based authentication, but no password was provided.
- Found this out when comparing what the PWS services for Postgres provided in the client env vs what this broker was providing.
+		try {
+			passwd = role.createAndBindRole(serviceInstanceId, bindingId);
+		} catch (SQLException e) {
+			logger.error("Error while creating service instance binding '" + bindingId + "'", e);
+			throw new ServiceBrokerException(e.getMessage());
+		}
 
-		credentials.put("master host", gpdb.getDatabaseHost());
-		credentials.put("master port", gpdb.getDatabasePort());
-		credentials.put("username", serviceInstanceId);
-		credentials.put("password", passwd);
-*/
-        logger.info("credentials '" + credentials + "");
+		// URI format: postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+		String uri = String.format("postgres://%s:%s@%s:%d/%s", bindingId, passwd, greenplum.getDatabaseHost(),
+				greenplum.getDatabasePort(), serviceInstanceId);
+		String jdbcURL = String.format("jdbc:postgresql://%s:%d/%s?user=%s&password=%s&%s", greenplum.getDatabaseHost(),
+				greenplum.getDatabasePort(), serviceInstanceId, // database
+				bindingId, // user
+				passwd, // user password
+				"sslmode=require");
 
-        return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
+		Map<String, Object> credentials = new HashMap<String, Object>();
+		credentials.put("uri", uri);
+		credentials.put("max-conns", 5);
+		credentials.put("jdbcUrl", jdbcURL);
+
+		logger.info("credentials '" + credentials + "");
+
+		return new CreateServiceInstanceAppBindingResponse().withCredentials(credentials);
 	}
 
 	@Override
 	public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequest deleteServiceInstanceBindingRequest) {
 		String serviceInstanceId = deleteServiceInstanceBindingRequest.getServiceInstanceId();
 		String bindingId = deleteServiceInstanceBindingRequest.getBindingId();
+		logger.info(
+				"deleteServiceInstanceBinding(): serviceInstanceId = " + serviceInstanceId + ", bindingId = " + bindingId);
 		try {
-			this.role.unBindRoleFromDatabase(serviceInstanceId);
+			role.deleteRole(serviceInstanceId, bindingId);
 		} catch (SQLException e) {
 			logger.error("Error while deleting service instance binding '" + bindingId + "'", e);
 			throw new ServiceBrokerException(e.getMessage());

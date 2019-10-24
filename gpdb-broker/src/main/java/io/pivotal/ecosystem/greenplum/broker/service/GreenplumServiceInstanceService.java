@@ -35,13 +35,17 @@ import org.springframework.stereotype.Service;
 import io.pivotal.ecosystem.greenplum.broker.database.Database;
 import io.pivotal.ecosystem.greenplum.broker.database.Role;
 
+/*
+ * - Service instance create
+ * - Service instance delete
+ */
+
 @Service
 public class GreenplumServiceInstanceService implements ServiceInstanceService {
 
 	private static final Logger logger = LoggerFactory.getLogger(GreenplumServiceInstanceService.class);
 
 	private final Database db;
-
 	private final Role role;
 
 	@Autowired
@@ -52,12 +56,12 @@ public class GreenplumServiceInstanceService implements ServiceInstanceService {
 
 	@Override
 	public CreateServiceInstanceResponse createServiceInstance(
-			CreateServiceInstanceRequest createServiceInstanceRequest) {
-		String serviceInstanceId = createServiceInstanceRequest.getServiceInstanceId();
-		String serviceId = createServiceInstanceRequest.getServiceDefinitionId();
-		String planId = createServiceInstanceRequest.getPlanId();
-		String organizationGuid = createServiceInstanceRequest.getOrganizationGuid();
-		String spaceGuid = createServiceInstanceRequest.getSpaceGuid();
+			CreateServiceInstanceRequest csir) {
+		String serviceInstanceId = csir.getServiceInstanceId();
+		String serviceId = csir.getServiceDefinitionId();
+		String planId = csir.getPlanId();
+		String organizationGuid = csir.getOrganizationGuid();
+		String spaceGuid = csir.getSpaceGuid();
 		try {
 			db.createDatabaseForInstance(serviceInstanceId, serviceId, planId, organizationGuid, spaceGuid);
 			role.createRoleForInstance(serviceInstanceId);
@@ -70,11 +74,11 @@ public class GreenplumServiceInstanceService implements ServiceInstanceService {
 
 	@Override
 	public DeleteServiceInstanceResponse deleteServiceInstance(
-			DeleteServiceInstanceRequest deleteServiceInstanceRequest) {
-		String serviceInstanceId = deleteServiceInstanceRequest.getServiceInstanceId();
+			DeleteServiceInstanceRequest dsir) {
+		String serviceInstanceId = dsir.getServiceInstanceId();
 
 		try {
-			db.deleteDatabase(serviceInstanceId);
+			db.disableDatabase(serviceInstanceId);
 			role.deleteRole(serviceInstanceId);
 		} catch (SQLException e) {
 			logger.error("Error while deleting service instance '" + serviceInstanceId + "'", e);

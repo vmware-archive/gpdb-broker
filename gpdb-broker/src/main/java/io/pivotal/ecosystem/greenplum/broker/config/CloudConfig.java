@@ -58,9 +58,10 @@ public class CloudConfig {
 					+ " plan_id varchar(200) not null default '',"
 					+ " organization_guid varchar(200) not null default '',"
 					+ " space_guid varchar(200) not null default '',"
-					+ " created_at timestamp not null default current_timestamp,"
+					+ " created_at timestamp with time zone not null default current_timestamp,"
 					+ " last_access date default null,"
-					+ " dropped_at timestamp default null )";
+					+ " dropped_at timestamp with time zone default null,"
+					+ " disabled_at timestamp with time zone default null )";
 
 			jdbcTemplate.execute(sqlCmd);
 		}

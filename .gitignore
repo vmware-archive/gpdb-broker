@@ -24,3 +24,4 @@ greenplum-healthcheck/.settings
 **/.classpath
 **/.springBeans
 .*.swp
+.sts4-cache

@@ -18,12 +18,13 @@ package io.pivotal.ecosystem.greenplum.broker.database;
 
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Map;
+import java.util.List;
 import java.security.InvalidParameterException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,54 +32,83 @@ import io.pivotal.ecosystem.greenplum.broker.util.Utils;
 
 @Component
 public class Database {
+
 	private static final Logger logger = LoggerFactory.getLogger(Database.class);
-    private String tableName = "gpbroker_service";
+	private String tableName = "gpbroker_service";
 
 	@Autowired
 	private GreenplumDatabase greenplum;
 
-    @Autowired
-    private Environment env;
-	
-    public void createDatabaseForInstance(String instanceId, String serviceId, String planId,
-                                          String organizationGuid, String spaceGuid)
-            throws SQLException
-    {
-        logger.info("in createDatabaseForInstance: " + instanceId);
-        Utils.checkValidUUID(instanceId);
-        greenplum.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-        greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM public");
+	@Autowired
+	private Environment env;
 
-        Object[] params = { instanceId, serviceId, planId, organizationGuid, spaceGuid};
-        int[] types = {Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR};
+	public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid,
+			String spaceGuid) throws SQLException {
+		logger.info("in createDatabaseForInstance: " + instanceId);
+		Utils.checkValidUUID(instanceId);
+		greenplum.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+		/* greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM
+		public"); */
 
-        greenplum.executePreparedUpdate("INSERT INTO " + tableName +
-                " (service_instance_id, service_definition_id, plan_id, organization_guid, space_guid) " +
-                " VALUES (?,?,?,?,?)", params, types);
-    }
+		Object[] params = { instanceId, serviceId, planId, organizationGuid, spaceGuid };
+		int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR };
 
-    public void deleteDatabase(String instanceId)
-            throws SQLException, InvalidParameterException
-    {
-        String adminUserProperty="spring.datasource.username";
+		greenplum.executePreparedUpdate("INSERT INTO " + tableName
+				+ " (service_instance_id, service_definition_id, plan_id, organization_guid, space_guid) "
+				+ " VALUES (?,?,?,?,?)", params, types);
+	}
 
-        logger.info("in deleteDatabase: " + instanceId);
-        Utils.checkValidUUID(instanceId);
+	public void disableDatabase(String instanceId) throws SQLException, InvalidParameterException {
 
-        String adminUser = env.getProperty(adminUserProperty);
-        if (adminUser == null) {
-            throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
-        }
+		logger.info("in disableDatabase: " + instanceId);
+		Utils.checkValidUUID(instanceId);
 
-        Map<String, String> result = greenplum.executeSelect("SELECT pg_terminate_backend(pg_stat_activity.procpid) as status "
-                            + " FROM pg_stat_activity WHERE pg_stat_activity.datname = '"
-       	                    + instanceId + "' AND procpid <> pg_backend_pid()");
-        if(result != null && result.get("status") != "true") {
-            logger.info ("Terminate GP backend process returned status = '" + result.get("status") + "'");
-            logger.error ("Failed to terminate GP backend process for service id '" + instanceId + "'");
-        }
-        greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + adminUser + "\"");
-        greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + instanceId + "\"");
-        greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '" + instanceId + "'");
-    }
+		String adminUserProperty = "spring.datasource.username";
+		String adminUser = env.getProperty(adminUserProperty);
+		if (adminUser == null || adminUser.length() == 0) {
+			throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
+		}
+
+		// Ensure nobody can connect
+		greenplum.executeUpdate("REVOKE CONNECT ON DATABASE \"" + instanceId + "\" FROM public;");
+		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + adminUser + "\"");
+
+		// Schedule the DB to be dropped later
+		greenplum.executeUpdate(
+				"UPDATE " + tableName + " SET disabled_at = now() WHERE service_instance_id = '" + instanceId + "'");
+	}
+
+	@Scheduled(fixedDelay = 60000)
+	public void cronDropDisabledDBs() {
+		logger.info("Running cronDropDisabledDBs ...");
+		String query =
+				"SELECT service_instance_id\n"
+				+ "FROM " + tableName + "\n"
+				+ "WHERE\n"
+				+ "  disabled_at IS NOT NULL\n"
+				+ "  AND dropped_at IS NULL\n"
+				+ "  AND service_instance_id NOT IN (SELECT datname FROM pg_stat_activity)\n"
+				+ "ORDER BY disabled_at ASC";
+		List<String> dbToDropList = greenplum.getListFromSelect(query);
+		for (String dbToDrop : dbToDropList) {
+			logger.info("cronDropDisabledDBs: attempting to drop DB " + dbToDrop + " now");
+			boolean status = true;
+			String msg = null;
+			try {
+				greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + dbToDrop + "\"");
+				greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '"
+						+ dbToDrop + "'");
+			} catch (Exception e) {
+				status = false;
+				msg = e.getMessage();
+			}
+			logger.info("cronDropDisabledDBs: " + (status ? "SUCCEEDED" : "FAILED"));
+			if (msg != null) {
+				logger.info("cronDropDisabledDBs: ERROR " + msg);
+			}
+		}
+		if (dbToDropList.size() == 0) {
+			logger.info("cronDropDisabledDBs: no eligible DBs");
+		}
+	}
 }
