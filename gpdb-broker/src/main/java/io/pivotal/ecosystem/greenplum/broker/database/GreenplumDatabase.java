@@ -71,6 +71,21 @@ public class GreenplumDatabase {
 			throw new IllegalStateException("Unable to parse JDBC URI for Database Connection", e);
 		}
 	}
+	
+	/*
+	 * Doing this outside of the JdbcTemplate
+	 */
+	public void dropDatabase (String dbToDrop) throws SQLException {
+		String query = "DROP DATABASE IF EXISTS \"" + dbToDrop + "\"";
+		Connection con = sqlTemplate.getDataSource().getConnection();
+		try {
+			Statement st = con.createStatement();
+			st.execute(query);
+			st.close();
+		} finally {
+			con.close();
+		}
+	}
 
 	/*
 	 * This method is for when we run a "DROP OWNED BY <role>", which has to be run
@@ -124,16 +139,17 @@ public class GreenplumDatabase {
 		}
 	}
 
-	public void executeUpdate(String query) throws SQLException {
-
+	public int executeUpdate(String query) throws SQLException {
+		int rv = 0;
 		logger.info("In executeUpdate: query '" + query + "'");
 		try {
-			sqlTemplate.update(query);
+			rv = sqlTemplate.update(query);
 		} catch (EmptyResultDataAccessException e) {
 			logger.info("No rows affected");
 		} catch (DataAccessException e) {
 			logger.error("Error while executing SQL prepared UPDATE query '" + query + "' : ", e);
 		}
+		return rv;
 	}
 	
 	/**

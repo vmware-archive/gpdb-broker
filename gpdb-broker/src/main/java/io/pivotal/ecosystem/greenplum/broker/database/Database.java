@@ -95,7 +95,7 @@ public class Database {
 			boolean status = true;
 			String msg = null;
 			try {
-				greenplum.executeUpdate("DROP DATABASE IF EXISTS \"" + dbToDrop + "\"");
+				greenplum.dropDatabase(dbToDrop);
 				greenplum.executeUpdate("UPDATE " + tableName + " SET dropped_at = now() WHERE service_instance_id = '"
 						+ dbToDrop + "'");
 			} catch (Exception e) {
@@ -104,7 +104,7 @@ public class Database {
 			}
 			logger.info("cronDropDisabledDBs: " + (status ? "SUCCEEDED" : "FAILED"));
 			if (msg != null) {
-				logger.info("cronDropDisabledDBs: ERROR " + msg);
+				logger.info("cronDropDisabledDBs: " + msg);
 			}
 		}
 		if (dbToDropList.size() == 0) {
