@@ -6,3 +6,8 @@ applications:
   path: target/greenplum-broker.jar
   env:
     SPRING_PROFILES_ACTIVE: cloud
+    GPDB_PORT: 5432
+    GPDB_HOST: 52.43.204.66
+    GPDB_USER: gpadmin
+    GPDB_PASS: YOUR_PASSWORD_HERE
+

@@ -4,11 +4,13 @@ This project creates the service broker to a shared Greenplum remote database.
 
 Follow these steps to deploy the broker:
 
-1) Set the greenplum remote configs in `gpdb-broker/src/main/resources/application.properties`
+0) Copy the file `./gpdb-broker/manifest.yml.TEMPLATE` to `./gpdb-broker/manifest.yml`
+1) Edit './gpdb-broker/manifest.yml`, setting the following to suit your deployment:
 ```
-spring.datasource.url=<greenplum remote master host>
-spring.datasource.username=<greenplum username>
-spring.datasource.password=<greenplum password>
+  GPDB_PORT: 5432
+  GPDB_HOST: 52.43.204.66
+  GPDB_USER: gpadmin
+  GPDB_PASS: YOUR_PASSWORD_HERE
 ```
 2) Update id and name in `gpdb-broker/gpdb-broker/src/main/resources/catalog.json`
 
