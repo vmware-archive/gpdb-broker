@@ -10,8 +10,6 @@
 
 	<modules>
 		<module>gpdb-broker</module>
-		<module>gpdb-util</module>
-		<module>gpdb-connector</module>
 		<module>greenplum-healthcheck</module>
 	</modules>
 
