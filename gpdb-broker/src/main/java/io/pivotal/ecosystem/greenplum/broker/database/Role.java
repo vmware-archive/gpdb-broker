@@ -51,6 +51,7 @@ public class Role {
 		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\""); // No LOGIN for this role
 		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + adminUser + "\"");
 		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+		greenplum.executeUpdate("GRANT USAGE ON SCHEMA public TO \"" + instanceId + "\"");
 	}
 	
 	public void deleteRole(String db, String role) throws SQLException {

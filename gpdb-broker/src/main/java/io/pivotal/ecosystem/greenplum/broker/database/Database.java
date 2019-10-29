@@ -47,8 +47,7 @@ public class Database {
 		logger.info("in createDatabaseForInstance: " + instanceId);
 		Utils.checkValidUUID(instanceId);
 		greenplum.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-		/* greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM
-		public"); */
+		greenplum.executeUpdate("REVOKE ALL ON DATABASE \"" + instanceId + "\" FROM public");
 
 		Object[] params = { instanceId, serviceId, planId, organizationGuid, spaceGuid };
 		int[] types = { Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR, Types.VARCHAR };
