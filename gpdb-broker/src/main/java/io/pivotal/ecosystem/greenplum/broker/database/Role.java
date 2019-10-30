@@ -49,9 +49,8 @@ public class Role {
 			throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
 		}
 		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\""); // No LOGIN for this role
-		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + adminUser + "\"");
 		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
-		greenplum.executeUpdate("GRANT USAGE ON SCHEMA public TO \"" + instanceId + "\"");
+		greenplum.executeUpdate("GRANT ALL ON SCHEMA public TO \"" + instanceId + "\"");
 	}
 	
 	public void deleteRole(String db, String role) throws SQLException {
@@ -65,21 +64,10 @@ public class Role {
 	public void deleteRole(String role) throws SQLException {
 		logger.info("in deleteRole, role = " + role);
 		Utils.checkValidUUID(role);
+		greenplum.executeUpdate("DROP OWNED BY \"" + role + "\"");
 		greenplum.executeUpdate("DROP ROLE IF EXISTS \"" + role + "\"");
 	}
 
-	/*
-	 * NOTE: This is used for the initial service instance creation, but not for any bind
-	 * operation.
-	 */
-	public String bindRoleToDatabase(String role) throws SQLException {
-		logger.info("in bindRoleToDatabase, role = " + role);
-		Utils.checkValidUUID(role);
-		String passwd = Utils.genRandPasswd();
-		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
-		return passwd;
-	}
-	
 	/* 
 	 * New approach: the owner role isn't actually used for connections, but each binding
 	 * causes creation of new [role, passwd] here, where this new role is granted the role
@@ -87,11 +75,12 @@ public class Role {
 	 * so this seems like the best way.
 	 */
 	public String createAndBindRole(String instanceId, String role) throws SQLException {
-		logger.info("in bindRoleToDatabase, role = " + role);
+		logger.info("in createAndBindRole, role = " + role);
 		Utils.checkValidUUID(role);
+		String passwd = Utils.genRandPasswd();
+		//greenplum.executeUpdate("create role \"" + role + "\" in role \"" + instanceId + "\" login password '" + passwd + "'");
 		greenplum.executeUpdate("CREATE ROLE \"" + role + "\"");
 		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + role + "\"");
-		String passwd = Utils.genRandPasswd();
 		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
 		return passwd;
 	}
