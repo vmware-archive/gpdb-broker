@@ -1,9 +1,9 @@
 ---
 applications:
-- name: gpdb-test-client
-  memory: 2048M
+- name: gpdb-test-cjs
+  memory: 1024M
   instances: 1
-  path: target/gpdb-test-client-1.0.0.jar
-  services: [ cjs-test-gp ]
+  path: target/gpdb-test-client-1.0.1.jar
+  services: [ gpdb-cjs ]
   env:
     SPRING_PROFILES_ACTIVE: cloud
