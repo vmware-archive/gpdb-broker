@@ -78,7 +78,6 @@ public class Role {
 		logger.info("in createAndBindRole, role = " + role);
 		Utils.checkValidUUID(role);
 		String passwd = Utils.genRandPasswd();
-		//greenplum.executeUpdate("create role \"" + role + "\" in role \"" + instanceId + "\" login password '" + passwd + "'");
 		greenplum.executeUpdate("CREATE ROLE \"" + role + "\"");
 		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + role + "\"");
 		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
