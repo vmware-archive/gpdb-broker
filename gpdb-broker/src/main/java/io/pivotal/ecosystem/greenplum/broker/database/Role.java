@@ -19,13 +19,11 @@ package io.pivotal.ecosystem.greenplum.broker.database;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 import io.pivotal.ecosystem.greenplum.broker.util.Utils;
 
 import java.sql.SQLException;
-import java.security.InvalidParameterException;
 
 @Component
 public class Role {
@@ -34,38 +32,31 @@ public class Role {
 	@Autowired
 	private GreenplumDatabase greenplum;
 
-	@Autowired
-	private Environment env;
-
 	public void createRoleForInstance(String instanceId) throws SQLException {
-		String adminUserProperty = "spring.datasource.username";
 
 		logger.info("in createRoleForInstance, instanceID = " + instanceId);
 
 		Utils.checkValidUUID(instanceId);
 
-		String adminUser = env.getProperty(adminUserProperty);
-		if (adminUser == null) {
-			throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
-		}
-		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\""); // No LOGIN for this role
+		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\" LOGIN");
 		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+		//greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" SET ROLE \"" + instanceId + "\"");
 		greenplum.executeUpdate("GRANT ALL ON SCHEMA public TO \"" + instanceId + "\"");
+	}
+	
+	private void dropOwnedBy (String db, String role) throws SQLException {
+		logger.info("in dropOwnedBy(db = " + db + ", role = " + role + ")");
+		String sql = "DROP OWNED BY \"" + role + "\" CASCADE;";
+		greenplum.executeUpdateForDb(db, sql);
+		greenplum.executeUpdateForDb(Database.getAdminDb(), sql); // Also drop anything in admin DB (e.g. gpadmin DB)
 	}
 	
 	public void deleteRole(String db, String role) throws SQLException {
 		logger.info("in deleteRole(db = " + db + ", role = " + role + ")");
 		Utils.checkValidUUID(role);
-		String sql = "DROP OWNED BY \"" + role + "\" CASCADE;";
-		sql += "DROP ROLE IF EXISTS \"" + role + "\"";
+		dropOwnedBy(db, role);
+		String sql = "DROP ROLE IF EXISTS \"" + role + "\"";
 		greenplum.executeUpdateForDb(db, sql);
-	}
-
-	public void deleteRole(String role) throws SQLException {
-		logger.info("in deleteRole, role = " + role);
-		Utils.checkValidUUID(role);
-		greenplum.executeUpdate("DROP OWNED BY \"" + role + "\"");
-		greenplum.executeUpdate("DROP ROLE IF EXISTS \"" + role + "\"");
 	}
 
 	/* 
@@ -78,9 +69,9 @@ public class Role {
 		logger.info("in createAndBindRole, role = " + role);
 		Utils.checkValidUUID(role);
 		String passwd = Utils.genRandPasswd();
-		greenplum.executeUpdate("CREATE ROLE \"" + role + "\"");
+		greenplum.executeUpdate("CREATE ROLE \"" + role + "\" LOGIN");
 		greenplum.executeUpdate("GRANT \"" + instanceId + "\" TO \"" + role + "\"");
-		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" LOGIN password '" + passwd + "'");
+		greenplum.executeUpdate("ALTER ROLE \"" + role + "\" password '" + passwd + "'");
 		return passwd;
 	}
 

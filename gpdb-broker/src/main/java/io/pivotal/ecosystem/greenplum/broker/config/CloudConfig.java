@@ -23,23 +23,23 @@ public class CloudConfig {
 	private static final Logger logger = LoggerFactory.getLogger(CloudConfig.class);
 
 	@Autowired
-	private Environment environment;
+	private Environment env;
 
 	@Bean
 	@Qualifier("JDBC")
 	public DataSource datasource() throws Exception {
 
         PoolProperties p = new PoolProperties();
-        p.setUrl(environment.getProperty("spring.datasource.url"));
-        p.setDriverClassName(environment.getProperty("spring.datasource.driver-class-name"));
-        p.setUsername(environment.getProperty("spring.datasource.username"));
-        p.setPassword(environment.getProperty("spring.datasource.password"));
+        p.setUrl(env.getProperty("spring.datasource.url"));
+        p.setDriverClassName(env.getProperty("spring.datasource.driver-class-name"));
+        p.setUsername(env.getProperty("GPDB_USER"));
+        p.setPassword(env.getProperty("GPDB_PASS"));
                 		
-        p.setTestOnBorrow(environment.getProperty("spring.datasource.tomcat.test-on-borrow", Boolean.class));
-        p.setTestOnConnect(environment.getProperty("spring.datasource.tomcat.test-on-connect", Boolean.class));
-        p.setValidationQuery(environment.getProperty("spring.datasource.tomcat.validation-query"));
-        p.setInitialSize(environment.getProperty("spring.datasource.tomcat.initial-size", Integer.class));
-        p.setMaxActive(environment.getProperty("spring.datasource.tomcat.max-active", Integer.class));
+        p.setTestOnBorrow(env.getProperty("spring.datasource.tomcat.test-on-borrow", Boolean.class));
+        p.setTestOnConnect(env.getProperty("spring.datasource.tomcat.test-on-connect", Boolean.class));
+        p.setValidationQuery(env.getProperty("spring.datasource.tomcat.validation-query"));
+        p.setInitialSize(env.getProperty("spring.datasource.tomcat.initial-size", Integer.class));
+        p.setMaxActive(env.getProperty("spring.datasource.tomcat.max-active", Integer.class));
 
         DataSource dataSource = new DataSource();
         dataSource.setPoolProperties(p);

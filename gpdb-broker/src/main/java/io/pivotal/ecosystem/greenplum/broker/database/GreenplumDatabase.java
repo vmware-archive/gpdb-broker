@@ -94,8 +94,8 @@ public class GreenplumDatabase {
 	public void executeUpdateForDb(String db, String query) throws SQLException {
 		String jdbcUrl = sqlTemplate.getDataSource().getConnection().getMetaData().getURL();
 		// FIXME: it would be really nice if there was a better way to get these values.
-		String dbUser = env.getProperty("spring.datasource.username");
-		String dbPass = env.getProperty("spring.datasource.password");
+		String dbUser = env.getProperty("GPDB_USER");
+		String dbPass = env.getProperty("GPDB_PASS");
 		String dbDriverClassName = env.getProperty("spring.datasource.driver-class-name");
 		assert (dbUser != null && dbPass != null);
 		assert (dbDriverClassName != null);

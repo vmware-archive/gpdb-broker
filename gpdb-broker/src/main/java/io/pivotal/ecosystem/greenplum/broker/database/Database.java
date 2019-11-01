@@ -23,7 +23,6 @@ import java.security.InvalidParameterException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,9 +37,24 @@ public class Database {
 
 	@Autowired
 	private GreenplumDatabase greenplum;
-
-	@Autowired
-	private Environment env;
+	
+	private static String adminUser = System.getenv("GPDB_USER");
+	
+	private static String adminDb = System.getenv("ADMIN_DB");
+	
+	public static String getAdminUser () {
+		if (adminUser == null || adminUser.length() == 0) {
+			throw new InvalidParameterException("GPDB_USER environment variable must be set in manifest.yml");
+		}
+		return adminUser;
+	}
+	
+	public static String getAdminDb () {
+		if (adminDb == null || adminDb.length() == 0) {
+			throw new InvalidParameterException("ADMIN_DB environment variable must be set in manifest.yml");
+		}
+		return adminDb;
+	}
 
 	public void createDatabaseForInstance(String instanceId, String serviceId, String planId, String organizationGuid,
 			String spaceGuid) throws SQLException {
@@ -62,15 +76,9 @@ public class Database {
 		logger.info("in disableDatabase: " + instanceId);
 		Utils.checkValidUUID(instanceId);
 
-		String adminUserProperty = "spring.datasource.username";
-		String adminUser = env.getProperty(adminUserProperty);
-		if (adminUser == null || adminUser.length() == 0) {
-			throw new InvalidParameterException("Admin user property '" + adminUserProperty + "' not set");
-		}
-
 		// Ensure nobody can connect
 		greenplum.executeUpdate("REVOKE CONNECT ON DATABASE \"" + instanceId + "\" FROM public;");
-		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + adminUser + "\"");
+		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + getAdminUser() + "\"");
 
 		// Schedule the DB to be dropped later
 		greenplum.executeUpdate(

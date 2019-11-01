@@ -79,7 +79,7 @@ public class GreenplumServiceInstanceService implements ServiceInstanceService {
 
 		try {
 			db.disableDatabase(serviceInstanceId);
-			role.deleteRole(serviceInstanceId);
+			role.deleteRole(serviceInstanceId, serviceInstanceId);
 		} catch (SQLException e) {
 			logger.error("Error while deleting service instance '" + serviceInstanceId + "'", e);
 			throw new ServiceBrokerException(e.getMessage());
