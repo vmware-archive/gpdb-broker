@@ -41,7 +41,7 @@ public class Role {
 		greenplum.executeUpdate("CREATE ROLE \"" + instanceId + "\" LOGIN");
 		greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
 		//greenplum.executeUpdate("ALTER DATABASE \"" + instanceId + "\" SET ROLE \"" + instanceId + "\"");
-		greenplum.executeUpdate("GRANT ALL ON SCHEMA public TO \"" + instanceId + "\"");
+		greenplum.executeUpdateForDb(instanceId, "GRANT ALL ON SCHEMA public TO \"" + instanceId + "\"");
 	}
 	
 	private void dropOwnedBy (String db, String role) throws SQLException {
