@@ -3,7 +3,7 @@
     {
       "id":"greenplum-service",
       "name":"greenplum",
-      "description":"Greenplum for Pivotal Platform",
+      "description":"Greenplum for VMware PWS Platform",
       "bindable": true,
       "tags":[
         "dwaas", "greenplum", "analytics", "machine learning", "gpaas"
@@ -12,7 +12,7 @@
         "displayName":"Greenplum",
         "imageUrl":"http://s3.amazonaws.com/greenplum.org/wp-content/uploads/2017/08/24163904/gp_mini_mini.png",
         "longDescription":"Massively Parallel Processing Data Platform for Advanced Analytics",
-        "providerDisplayName":"Pivotal",
+        "providerDisplayName":"VMware",
         "documentationUrl":"https://gpdb.docs.pivotal.io"
       },
       "plans":[

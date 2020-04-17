@@ -35,11 +35,14 @@ public class CloudConfig {
         p.setUsername(env.getProperty("GPDB_USER"));
         p.setPassword(env.getProperty("GPDB_PASS"));
                 		
+        p.setInitialSize(env.getProperty("spring.datasource.tomcat.initial-size", Integer.class));
+        p.setMaxActive(env.getProperty("spring.datasource.tomcat.max-active", Integer.class));
         p.setTestOnBorrow(env.getProperty("spring.datasource.tomcat.test-on-borrow", Boolean.class));
         p.setTestOnConnect(env.getProperty("spring.datasource.tomcat.test-on-connect", Boolean.class));
         p.setValidationQuery(env.getProperty("spring.datasource.tomcat.validation-query"));
-        p.setInitialSize(env.getProperty("spring.datasource.tomcat.initial-size", Integer.class));
-        p.setMaxActive(env.getProperty("spring.datasource.tomcat.max-active", Integer.class));
+        p.setMaxAge(env.getProperty("spring.datasource.tomcat.max-age", Integer.class));
+        p.setRemoveAbandoned(env.getProperty("spring.datasource.tomcat.remove-abandoned", Boolean.class));
+        p.setRemoveAbandonedTimeout(env.getProperty("spring.datasource.tomcat.remove-abandoned-timeout", Integer.class));
 
         DataSource dataSource = new DataSource();
         dataSource.setPoolProperties(p);

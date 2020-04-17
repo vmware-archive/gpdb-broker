@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
-usage="$0 [ blue | green ]\n-- Switch broker app to the selected color"
-[[ $# != 1 ]] && { echo $usage; exit 1; }
+usage="$0 [ blue | green ] --dry-run\n-- Switch broker app to the selected color\n-- dry-run: outputs command without executing them"
+[[ $# < 1 ]] && { echo -e $usage; exit 1; }
+app_color=$1
+[[ $# == 2 && $2 == '--dry-run'  ]] && doit=false || doit=true
 
 echo_run()
 {
     echo $@
-    eval $@
+    [[ $doit == true ]] && eval $@ || return 0
 }
 
 #==============================================
 # MAIN
 #==============================================
 
-case $1 in
+case $app_color in
        "green" )
            BROKER_START="greenplum-broker-green"
            BROKER_STOP="greenplum-broker-blue"
@@ -23,7 +25,7 @@ case $1 in
            BROKER_STOP="greenplum-broker-green"
            ;;
        * )
-           echo $usage
+           echo -e $usage
            exit 1
            ;;
 esac
