@@ -1,4 +1,4 @@
-# gpdb-broker
+<h1> VMware has ended active development of this project, this repository will no longer be updated.</h1><br># gpdb-broker
 
 This is a Cloud Foundry service broker for the [Greenplum Analytic
 Warehouse](https://pivotal.io/pivotal-greenplum). It currently supports
